@@ -1,0 +1,4 @@
+node_modules/
+.package-work/
+Shuriken Race.zip
+npm-debug.log*

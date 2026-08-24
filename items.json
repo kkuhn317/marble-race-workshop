@@ -1,0 +1,18 @@
+[
+  {
+    "Id": 1,
+    "Name": "Shuriken Race",
+    "ResourceType": 0,
+    "TimeStamp": 1787324069,
+    "AuthorId": 0,
+    "AuthorName": "Adifo",
+    "PreviewUri": "/previews/shuriken-race.jpg",
+    "PayloadUri": "/payloads/shuriken-race.zip",
+    "Description": "A custom Marble Race level.",
+    "PayloadLength": 385028,
+    "Version": "0.0",
+    "Tags": ["shuriken", "race"],
+    "Downloads": 0,
+    "Rating": 0
+  }
+]

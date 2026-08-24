@@ -1,0 +1,10 @@
+{
+  "name": "marble-race-level-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A small compatible server for Marble Race custom levels.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  }
+}

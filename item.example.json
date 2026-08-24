@@ -1,0 +1,16 @@
+{
+  "Id": 1,
+  "Name": "My First Track",
+  "ResourceType": 0,
+  "TimeStamp": 1787356800,
+  "AuthorId": 1,
+  "AuthorName": "Matt",
+  "PreviewUri": "/previews/my-first-track.png",
+  "PayloadUri": "/payloads/my-first-track.zip",
+  "Description": "My custom Marble Race track.",
+  "PayloadLength": 0,
+  "Version": "1.0.0",
+  "Tags": ["custom", "track"],
+  "Downloads": 0,
+  "Rating": 0
+}
