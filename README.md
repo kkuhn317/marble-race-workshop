@@ -1,50 +1,39 @@
 # Marble Race custom workshop
 
-The production workshop is designed for Cloudflare Pages and the custom API
+The production workshop is designed for Cloudflare Workers and the custom API
 base URL `https://marble.kevin-kuhn.dev/api`. Cloudflare serves the HTTPS API,
 previews, and downloadable ZIPs. A dependency-free Node server is also retained
 for local development.
 
-## Deploy to Cloudflare Pages
+## Deploy to Cloudflare Workers
 
-Connect this GitHub repository to Cloudflare Pages using:
+Connect this GitHub repository to Cloudflare Workers Builds. The repository's
+`wrangler.jsonc` is the deployment source of truth and configures both the API
+entry point and the `public` static assets directory.
 
-```text
-Production branch: main
-Framework preset: None
-Build command: (blank)
-Build output directory: public
-```
-
-The `functions/api` directory becomes `/api` automatically. After deployment,
-verify these URLs on the generated `pages.dev` hostname:
+The generated hostname is:
 
 ```text
-https://PROJECT.pages.dev/api/Items
-https://PROJECT.pages.dev/api/GetItem?id=1
-https://PROJECT.pages.dev/previews/shuriken-race.jpg
-https://PROJECT.pages.dev/payloads/shuriken-race.zip
+https://marble-race-workshop.kevin-9dc.workers.dev
 ```
 
-In the Pages project, add `marble.kevin-kuhn.dev` under **Custom domains**.
-Only after Cloudflare has accepted the hostname, add this record at the current
-DNS provider:
+After deployment, verify:
 
 ```text
-Type: CNAME
-Host: marble
-Value: PROJECT.pages.dev
-TTL: Automatic
+https://marble-race-workshop.kevin-9dc.workers.dev/api/Items
+https://marble-race-workshop.kevin-9dc.workers.dev/api/GetItem?id=1
+https://marble-race-workshop.kevin-9dc.workers.dev/previews/shuriken-race.jpg
+https://marble-race-workshop.kevin-9dc.workers.dev/payloads/shuriken-race.zip
 ```
 
-The Marble Race server URL is then:
+To use `marble.kevin-kuhn.dev` directly as a Worker Custom Domain, the domain
+must be an active Cloudflare zone. Since the current domain uses external DNS,
+keep using the `workers.dev` URL until the DNS hosting is intentionally moved or
+use a hosting configuration that supports an external CNAME.
 
 ```text
-https://marble.kevin-kuhn.dev/api
+https://marble-race-workshop.kevin-9dc.workers.dev/api
 ```
-
-Do not change the apex `kevin-kuhn.dev` records or the domain nameservers; they
-belong to the existing website.
 
 ## Test
 

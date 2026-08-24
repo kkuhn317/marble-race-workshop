@@ -42,3 +42,23 @@ test("Cloudflare GetItem returns one item and 404 for an unknown id", async () =
   assert.equal((await found.json()).Name, "Shuriken Race");
   assert.equal(missing.status, 404);
 });
+
+test("Worker entry point routes API requests and delegates assets", async () => {
+  const worker = (await import("../worker.mjs")).default;
+  const env = {
+    ASSETS: {
+      fetch: async () => new Response("asset"),
+    },
+  };
+  const apiResponse = await worker.fetch(
+    new Request("https://marble.example.dev/api/Items?type=0"),
+    env,
+  );
+  const assetResponse = await worker.fetch(
+    new Request("https://marble.example.dev/previews/shuriken-race.jpg"),
+    env,
+  );
+  assert.equal(apiResponse.status, 200);
+  assert.equal((await apiResponse.json())[0].Name, "Shuriken Race");
+  assert.equal(await assetResponse.text(), "asset");
+});
