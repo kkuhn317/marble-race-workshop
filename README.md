@@ -26,14 +26,50 @@ https://marble-race-workshop.kevin-9dc.workers.dev/previews/shuriken-race.jpg
 https://marble-race-workshop.kevin-9dc.workers.dev/payloads/shuriken-race.zip
 ```
 
-To use `marble.kevin-kuhn.dev` directly as a Worker Custom Domain, the domain
-must be an active Cloudflare zone. Since the current domain uses external DNS,
-keep using the `workers.dev` URL until the DNS hosting is intentionally moved or
-use a hosting configuration that supports an external CNAME.
+The production custom-server URL entered in Marble Race is:
 
 ```text
-https://marble-race-workshop.kevin-9dc.workers.dev/api
+https://marble.kevin-kuhn.dev/api
 ```
+
+## Publish a ZIP or RAR automatically
+
+Drag a Marble Race ZIP or RAR archive onto `publish-workshop-item.bat`. The
+publisher will:
+
+1. detect whether it is a level, block, or campaign;
+2. strip a single enclosing folder when necessary;
+3. rebuild the ZIP without directory-only entries that break Android extraction;
+4. read its embedded author, description, version, tags, and thumbnail;
+5. assign a stable custom ID (or update an existing item with the same name);
+6. store files up to 25 MiB as Worker assets and larger files in
+   `release-assets` with a public GitHub URL;
+7. update `items.json` and `cloudflare/catalog.mjs`;
+8. run `node --test` before offering to commit and deploy; and
+9. wait until the new timestamp appears on the live API.
+
+Press Enter to accept each detected metadata value. At the final prompt, answer
+`Y` to commit, push to GitHub, and trigger the Cloudflare build.
+
+For command-line or unattended use:
+
+```powershell
+.\publish-workshop-item.ps1 `
+  -ArchivePath "C:\path\to\My Level.zip" `
+  -Name "My Level" `
+  -NonInteractive `
+  -Push
+```
+
+To inspect and normalize an archive without changing the repository:
+
+```powershell
+.\publish-workshop-item.ps1 -ArchivePath "C:\path\to\Campaign.rar" -ValidateOnly -NonInteractive
+```
+
+The publisher requires `7z` and `git` on `PATH`, plus Node.js for the test
+suite. GitHub rejects individual files of 100 MiB or more; configure R2 before
+publishing an archive that large.
 
 ## Test
 

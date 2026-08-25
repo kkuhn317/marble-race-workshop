@@ -1,0 +1,424 @@
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$ArchivePath,
+
+    [string]$Name,
+    [string]$Author,
+    [string]$Description,
+    [string]$Version,
+    [string]$PreviewPath,
+    [string]$ServerBaseUrl = "https://marble.kevin-kuhn.dev/api",
+    [switch]$NonInteractive,
+    [switch]$Push,
+    [switch]$ValidateOnly
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+$script:RepoRoot = $PSScriptRoot
+$staticAssetLimit = 25MB
+$githubFileLimit = 100MB
+$customIdFloor = [int64]990000000001
+$tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("marble-workshop-publish-" + [guid]::NewGuid().ToString("N"))
+
+function Get-ObjectProperty {
+    param(
+        [object]$Object,
+        [string]$PropertyName,
+        [object]$Fallback = $null
+    )
+
+    if ($null -eq $Object) { return $Fallback }
+    $property = $Object.PSObject.Properties[$PropertyName]
+    if ($null -eq $property -or $null -eq $property.Value) { return $Fallback }
+    return $property.Value
+}
+
+function ConvertTo-Slug {
+    param([string]$Value)
+
+    $slug = $Value.ToLowerInvariant()
+    $slug = [regex]::Replace($slug, "[^a-z0-9]+", "-").Trim("-")
+    if ([string]::IsNullOrWhiteSpace($slug)) { return "workshop-item" }
+    return $slug
+}
+
+function Resolve-ContentRoot {
+    param([string]$ExtractedPath)
+
+    $current = (Resolve-Path -LiteralPath $ExtractedPath).Path
+    for ($depth = 0; $depth -lt 8; $depth++) {
+        $files = @(Get-ChildItem -LiteralPath $current -File -Force)
+        $campaign = @($files | Where-Object { $_.Name -ieq "campaign.json" } | Select-Object -First 1)
+        $level = @($files | Where-Object { $_.Name -ieq "level.json" } | Select-Object -First 1)
+        $block = @($files | Where-Object { $_.Name -ieq "block.json" } | Select-Object -First 1)
+
+        if ($campaign.Count -eq 1) {
+            return [pscustomobject]@{ Root = $current; JsonPath = $campaign[0].FullName; ResourceType = 2; Kind = "Campaign" }
+        }
+        if ($level.Count -eq 1) {
+            return [pscustomobject]@{ Root = $current; JsonPath = $level[0].FullName; ResourceType = 0; Kind = "Level" }
+        }
+        if ($block.Count -eq 1) {
+            return [pscustomobject]@{ Root = $current; JsonPath = $block[0].FullName; ResourceType = 1; Kind = "Block" }
+        }
+
+        $children = @(Get-ChildItem -LiteralPath $current -Force | Where-Object {
+            $_.Name -notin @("__MACOSX", ".DS_Store")
+        })
+        if ($children.Count -ne 1 -or -not $children[0].PSIsContainer) {
+            throw "Could not find campaign.json, level.json, or block.json at the archive root (or inside one enclosing folder)."
+        }
+        $current = $children[0].FullName
+    }
+
+    throw "The archive has too many enclosing folders."
+}
+
+function New-FileOnlyZip {
+    param(
+        [string]$SourceRoot,
+        [string]$DestinationPath,
+        [string]$RequiredRootJson
+    )
+
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $resolvedRoot = (Resolve-Path -LiteralPath $SourceRoot).Path.TrimEnd("\", "/")
+    $allFiles = @(Get-ChildItem -LiteralPath $resolvedRoot -File -Recurse -Force)
+    if ($allFiles.Count -eq 0) { throw "The workshop archive contains no files." }
+
+    foreach ($file in $allFiles) {
+        if (($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "Archive contains a link/reparse point, which is not allowed: $($file.FullName)"
+        }
+        if (-not $file.FullName.StartsWith($resolvedRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Archive file escaped the expected content root: $($file.FullName)"
+        }
+    }
+
+    $destinationStream = [IO.File]::Open($DestinationPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
+    $zip = [IO.Compression.ZipArchive]::new($destinationStream, [IO.Compression.ZipArchiveMode]::Create, $false)
+    try {
+        foreach ($file in $allFiles) {
+            $relative = $file.FullName.Substring($resolvedRoot.Length).TrimStart([char[]]"\/").Replace("\", "/")
+            if ($relative.Split("/") -contains "..") { throw "Unsafe archive path: $relative" }
+            $entry = $zip.CreateEntry($relative, [IO.Compression.CompressionLevel]::Optimal)
+            $entry.LastWriteTime = $file.LastWriteTime
+            $sourceStream = $file.OpenRead()
+            $entryStream = $entry.Open()
+            try {
+                $sourceStream.CopyTo($entryStream)
+            }
+            finally {
+                $entryStream.Dispose()
+                $sourceStream.Dispose()
+            }
+        }
+    }
+    finally {
+        $zip.Dispose()
+    }
+
+    $check = [IO.Compression.ZipFile]::OpenRead($DestinationPath)
+    try {
+        $directoryEntries = @($check.Entries | Where-Object { [string]::IsNullOrEmpty($_.Name) })
+        if ($directoryEntries.Count -ne 0) { throw "Generated ZIP contains directory-only entries." }
+        if (-not ($check.Entries | Where-Object { $_.FullName -ceq $RequiredRootJson })) {
+            throw "Generated ZIP does not contain $RequiredRootJson at its root."
+        }
+    }
+    finally {
+        $check.Dispose()
+    }
+}
+
+function Find-PreviewFile {
+    param(
+        [string]$ContentRoot,
+        [object]$Metadata,
+        [string]$ExplicitPreview
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExplicitPreview)) {
+        return (Resolve-Path -LiteralPath $ExplicitPreview).Path
+    }
+
+    $thumbnail = [string](Get-ObjectProperty $Metadata "ThumbnailPath" "")
+    if (-not [string]::IsNullOrWhiteSpace($thumbnail)) {
+        $candidate = Join-Path $ContentRoot $thumbnail
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+            $resolved = (Resolve-Path -LiteralPath $candidate).Path
+            $rootPrefix = (Resolve-Path -LiteralPath $ContentRoot).Path.TrimEnd("\", "/") + [IO.Path]::DirectorySeparatorChar
+            if (-not $resolved.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+                throw "ThumbnailPath points outside the workshop item."
+            }
+            return $resolved
+        }
+    }
+
+    $preview = @(Get-ChildItem -LiteralPath $ContentRoot -File -Force | Where-Object {
+        $_.Extension.ToLowerInvariant() -in @(".png", ".jpg", ".jpeg") -and
+        $_.BaseName -match "(?i)thumbnail|preview|icon|picture"
+    } | Select-Object -First 1)
+    if ($preview.Count -eq 1) { return $preview[0].FullName }
+
+    $anyImage = @(Get-ChildItem -LiteralPath $ContentRoot -File -Force | Where-Object {
+        $_.Extension.ToLowerInvariant() -in @(".png", ".jpg", ".jpeg")
+    } | Select-Object -First 1)
+    if ($anyImage.Count -eq 1) { return $anyImage[0].FullName }
+
+    throw "No preview image was found. Pass -PreviewPath with a PNG or JPEG file."
+}
+
+function Sync-CloudflareCatalog {
+    param([string]$ItemsJson)
+
+    $catalogPath = Join-Path $script:RepoRoot "cloudflare\catalog.mjs"
+    $catalog = [IO.File]::ReadAllText($catalogPath)
+    $pattern = [regex]::new('(?s)\Aexport const items = \[.*?\r?\n\];(?=\r?\n\r?\nexport function json)')
+    if (-not $pattern.IsMatch($catalog)) {
+        throw "Could not locate the generated item array in cloudflare/catalog.mjs."
+    }
+    $replacement = "export const items = " + $ItemsJson.Trim() + ";"
+    $updated = $pattern.Replace($catalog, $replacement, 1)
+    [IO.File]::WriteAllText($catalogPath, $updated, [Text.UTF8Encoding]::new($false))
+}
+
+function Invoke-RepoGit {
+    param([string[]]$Arguments)
+
+    $result = & git -c "safe.directory=$script:RepoRoot" @Arguments 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "git $($Arguments -join ' ') failed:`n$($result -join [Environment]::NewLine)"
+    }
+    return $result
+}
+
+function Get-GitHubRepository {
+    $remote = ((Invoke-RepoGit @("remote", "get-url", "origin")) | Out-String).Trim()
+    if ($remote -notmatch 'github\.com[/:](?<repository>[^/]+/[^/]+?)(?:\.git)?$') {
+        throw "The origin remote is not a recognizable GitHub repository: $remote"
+    }
+    return $Matches.repository
+}
+
+function Read-WithDefault {
+    param(
+        [string]$Label,
+        [string]$CurrentValue,
+        [bool]$WasSupplied
+    )
+
+    if ($NonInteractive -or $WasSupplied) { return $CurrentValue }
+    $answer = Read-Host "$Label [$CurrentValue]"
+    if ([string]::IsNullOrWhiteSpace($answer)) { return $CurrentValue }
+    return $answer.Trim()
+}
+
+try {
+    New-Item -ItemType Directory -Path $tempRoot | Out-Null
+    $resolvedArchive = (Resolve-Path -LiteralPath $ArchivePath).Path
+    if ([IO.Path]::GetExtension($resolvedArchive).ToLowerInvariant() -notin @(".zip", ".rar")) {
+        throw "Only ZIP and RAR archives are supported."
+    }
+
+    $sevenZip = (Get-Command 7z -ErrorAction Stop).Source
+    $extractPath = Join-Path $tempRoot "extracted"
+    New-Item -ItemType Directory -Path $extractPath | Out-Null
+    Write-Host "Extracting $resolvedArchive ..."
+    & $sevenZip x -y "-o$extractPath" -- $resolvedArchive | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "7-Zip could not extract the archive." }
+
+    $detected = Resolve-ContentRoot $extractPath
+    $metadata = Get-Content -Raw -LiteralPath $detected.JsonPath | ConvertFrom-Json
+    $archiveName = [IO.Path]::GetFileNameWithoutExtension($resolvedArchive)
+    $embeddedAuthor = [string](Get-ObjectProperty $metadata "Author" "Unknown")
+    $embeddedDescription = [string](Get-ObjectProperty $metadata "Description" "")
+    $embeddedVersion = [string](Get-ObjectProperty $metadata "Version" "0.0")
+
+    $displayName = Read-WithDefault "Display name" $(if ($Name) { $Name } else { $archiveName }) (-not [string]::IsNullOrWhiteSpace($Name))
+    $authorName = Read-WithDefault "Author" $(if ($Author) { $Author } else { $embeddedAuthor }) (-not [string]::IsNullOrWhiteSpace($Author))
+    $itemDescription = Read-WithDefault "Description" $(if ($Description) { $Description } else { $embeddedDescription }) (-not [string]::IsNullOrWhiteSpace($Description))
+    $itemVersion = Read-WithDefault "Minimum game version" $(if ($Version) { $Version } else { $embeddedVersion }) (-not [string]::IsNullOrWhiteSpace($Version))
+    if ([string]::IsNullOrWhiteSpace($displayName) -or $displayName -in @(".", "..") -or
+        $displayName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0) {
+        throw "Display name must be a non-empty, filesystem-safe directory name."
+    }
+    if ([string]::IsNullOrWhiteSpace($itemVersion)) { $itemVersion = "0.0" }
+
+    $previewSource = Find-PreviewFile $detected.Root $metadata $PreviewPath
+    if ([IO.Path]::GetExtension($previewSource).ToLowerInvariant() -notin @(".png", ".jpg", ".jpeg")) {
+        throw "Preview must be a PNG or JPEG image."
+    }
+    $rootJsonName = [IO.Path]::GetFileName($detected.JsonPath).ToLowerInvariant()
+    $normalizedZip = Join-Path $tempRoot "normalized.zip"
+    Write-Host "Building Android-compatible ZIP (file entries only) ..."
+    New-FileOnlyZip $detected.Root $normalizedZip $rootJsonName
+    $normalizedInfo = Get-Item -LiteralPath $normalizedZip
+
+    Write-Host ""
+    Write-Host "Detected item"
+    Write-Host "  Name:       $displayName"
+    Write-Host "  Type:       $($detected.Kind) ($($detected.ResourceType))"
+    Write-Host "  Author:     $authorName"
+    Write-Host "  Version:    $itemVersion"
+    Write-Host "  Preview:    $previewSource"
+    Write-Host "  ZIP bytes:  $($normalizedInfo.Length)"
+    Write-Host "  Root JSON:  $rootJsonName"
+    Write-Host ""
+
+    if ($ValidateOnly) {
+        Write-Host "Validation passed. No repository files were changed."
+        return
+    }
+
+    $itemsPath = Join-Path $script:RepoRoot "items.json"
+    $items = @(Get-Content -Raw -LiteralPath $itemsPath | ConvertFrom-Json | Where-Object {
+        $null -ne $_ -and
+        $null -ne $_.PSObject.Properties["Id"] -and
+        $null -ne $_.PSObject.Properties["Name"]
+    })
+    $matching = @($items | Where-Object { $_.Name -ieq $displayName })
+    if ($matching.Count -gt 1) { throw "More than one existing item is named '$displayName'." }
+
+    if ($matching.Count -eq 1) {
+        $itemId = [int64]$matching[0].Id
+        Write-Host "Updating existing workshop item ID $itemId."
+    }
+    else {
+        $usedCustomIds = @($items | ForEach-Object { [int64]$_.Id } | Where-Object { $_ -ge $customIdFloor })
+        $itemId = if ($usedCustomIds.Count -eq 0) { $customIdFloor } else { [int64](($usedCustomIds | Measure-Object -Maximum).Maximum + 1) }
+        Write-Host "Assigned new workshop item ID $itemId."
+    }
+
+    $timestamp = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+    $slug = ConvertTo-Slug $displayName
+    $previewExtension = [IO.Path]::GetExtension($previewSource).ToLowerInvariant()
+    if ($previewExtension -eq ".jpeg") { $previewExtension = ".jpg" }
+    $previewFileName = "$slug$previewExtension"
+    $previewRelative = "public/previews/$previewFileName"
+    $previewTarget = Join-Path $script:RepoRoot $previewRelative
+    $previewInfo = Get-Item -LiteralPath $previewSource
+    if ($previewInfo.Length -gt $staticAssetLimit) { throw "Preview exceeds Cloudflare's 25 MiB static asset limit." }
+    Copy-Item -LiteralPath $previewSource -Destination $previewTarget -Force
+
+    $payloadFileName = "$slug-$timestamp.zip"
+    if ($normalizedInfo.Length -le $staticAssetLimit) {
+        $payloadRelative = "public/payloads/$payloadFileName"
+        $payloadTarget = Join-Path $script:RepoRoot $payloadRelative
+        $payloadUri = "/payloads/$payloadFileName"
+    }
+    else {
+        if ($normalizedInfo.Length -ge $githubFileLimit) {
+            throw "Payload is 100 MiB or larger. Configure R2 storage before publishing this item."
+        }
+        $repository = Get-GitHubRepository
+        $branch = ((Invoke-RepoGit @("branch", "--show-current")) | Out-String).Trim()
+        if ([string]::IsNullOrWhiteSpace($branch)) { $branch = "main" }
+        $payloadRelative = "release-assets/$payloadFileName"
+        $payloadTarget = Join-Path $script:RepoRoot $payloadRelative
+        $payloadUri = "https://raw.githubusercontent.com/$repository/$branch/release-assets/$payloadFileName"
+    }
+    Copy-Item -LiteralPath $normalizedZip -Destination $payloadTarget
+
+    $metadataTags = @(Get-ObjectProperty $metadata "Tags" @())
+    if ($metadataTags.Count -eq 0) { $metadataTags = @($detected.Kind.ToLowerInvariant()) }
+    $newItem = [ordered]@{
+        Id = $itemId
+        Name = $displayName
+        ResourceType = $detected.ResourceType
+        TimeStamp = $timestamp
+        AuthorId = 0
+        AuthorName = $authorName
+        PreviewUri = "/previews/$previewFileName"
+        PayloadUri = $payloadUri
+        Description = $itemDescription
+        PayloadLength = $normalizedInfo.Length
+        Version = $itemVersion
+        Tags = $metadataTags
+        Downloads = 0
+        Rating = 0
+    }
+
+    $updatedItems = @()
+    $replaced = $false
+    foreach ($item in $items) {
+        if ([int64]$item.Id -eq $itemId) {
+            $updatedItems += [pscustomobject]$newItem
+            $replaced = $true
+        }
+        else {
+            $updatedItems += $item
+        }
+    }
+    if (-not $replaced) { $updatedItems += [pscustomobject]$newItem }
+
+    $itemsJson = ConvertTo-Json -InputObject ([object[]]$updatedItems) -Depth 100
+    [IO.File]::WriteAllText($itemsPath, $itemsJson + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+    Sync-CloudflareCatalog $itemsJson
+
+    Push-Location $script:RepoRoot
+    try {
+        Write-Host "Running server tests ..."
+        & node --test
+        if ($LASTEXITCODE -ne 0) { throw "Server tests failed. Nothing was committed or pushed." }
+    }
+    finally {
+        Pop-Location
+    }
+
+    $shouldPush = $Push.IsPresent
+    if (-not $Push -and -not $NonInteractive) {
+        $deployAnswer = Read-Host "Commit and deploy this item now? [Y/n]"
+        $shouldPush = $deployAnswer -notmatch '^(?i)n(?:o)?$'
+    }
+
+    if (-not $shouldPush) {
+        Write-Host "Prepared successfully but not committed. Review the changes, then commit and push when ready."
+        return
+    }
+
+    Invoke-RepoGit @("add", "--", "items.json", "cloudflare/catalog.mjs", $previewRelative, $payloadRelative) | Out-Null
+    Invoke-RepoGit @("commit", "-m", "Publish workshop item: $displayName") | Write-Host
+    Invoke-RepoGit @("push", "origin", "HEAD") | Write-Host
+
+    Write-Host "Waiting for Cloudflare to publish item ID $itemId ..."
+    $deadline = [DateTimeOffset]::UtcNow.AddMinutes(7)
+    $live = $false
+    while ([DateTimeOffset]::UtcNow -lt $deadline) {
+        try {
+            $catalog = @(Invoke-RestMethod -Uri "$ServerBaseUrl/Items?limit=1000&skip=0" -Headers @{ "Cache-Control" = "no-cache" })
+            $published = @($catalog | Where-Object { [int64]$_.Id -eq $itemId -and [int64]$_.TimeStamp -eq $timestamp })
+            if ($published.Count -eq 1) {
+                $live = $true
+                break
+            }
+        }
+        catch {
+            # A deployment can briefly make the endpoint unavailable; retry.
+        }
+        Write-Host -NoNewline "."
+        Start-Sleep -Seconds 10
+    }
+    Write-Host ""
+    if (-not $live) {
+        throw "Git push succeeded, but the updated item did not appear at $ServerBaseUrl within seven minutes. Check Cloudflare Builds."
+    }
+
+    Write-Host "Published successfully: $displayName"
+    Write-Host "Workshop API: $ServerBaseUrl"
+    Write-Host "Payload:      $payloadUri"
+}
+finally {
+    if (Test-Path -LiteralPath $tempRoot) {
+        $resolvedTemp = (Resolve-Path -LiteralPath $tempRoot).Path
+        $systemTemp = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd("\", "/") + [IO.Path]::DirectorySeparatorChar
+        if ($resolvedTemp.StartsWith($systemTemp, [StringComparison]::OrdinalIgnoreCase) -and
+            [IO.Path]::GetFileName($resolvedTemp).StartsWith("marble-workshop-publish-")) {
+            Remove-Item -LiteralPath $resolvedTemp -Recurse -Force
+        }
+    }
+}
