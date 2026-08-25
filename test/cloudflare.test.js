@@ -3,19 +3,19 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-test("Cloudflare Items returns the level with deployment-origin URLs", async () => {
+test("Cloudflare Items returns levels with deployment-origin URLs", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
   const response = onRequestGet({
     request: new Request("https://marble.example.dev/api/Items?type=0&itemVersion=1.6&limit=10&skip=0"),
   });
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.length, 1);
-  assert.equal(body[0].Name, "Shuriken Race");
-  assert.equal(body[0].Version, "0.0");
-  assert.equal(body[0].AuthorId, 0);
-  assert.equal(body[0].PayloadLength, 385028);
-  assert.equal(body[0].PayloadUri, "https://marble.example.dev/payloads/shuriken-race.zip");
+  assert.equal(body.length, 3);
+  const shuriken = body.find((item) => item.Name === "Shuriken Race");
+  assert.equal(shuriken.Version, "0.0");
+  assert.equal(shuriken.AuthorId, 0);
+  assert.equal(shuriken.PayloadLength, 385028);
+  assert.equal(shuriken.PayloadUri, "https://marble.example.dev/payloads/shuriken-race.zip");
 });
 
 test("Cloudflare Items implements filtering and pagination", async () => {
@@ -23,15 +23,16 @@ test("Cloudflare Items implements filtering and pagination", async () => {
   const excludedBySearch = await onRequestGet({
     request: new Request("https://marble.example.dev/api/Items?search=missing"),
   }).json();
-  const excludedByType = await onRequestGet({
+  const campaigns = await onRequestGet({
     request: new Request("https://marble.example.dev/api/Items?type=2"),
   }).json();
-  const excludedBySkip = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?skip=1"),
+  const page = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?skip=4&limit=1"),
   }).json();
   assert.deepEqual(excludedBySearch, []);
-  assert.deepEqual(excludedByType, []);
-  assert.deepEqual(excludedBySkip, []);
+  assert.deepEqual(campaigns.map((item) => item.Name), ["Hamsterball V 2.4.2", "Kry Pack 2"]);
+  assert.match(campaigns[0].PayloadUri, /^https:\/\/raw\.githubusercontent\.com\//);
+  assert.equal(page.length, 1);
 });
 
 test("Cloudflare GetItem returns one item and 404 for an unknown id", async () => {
@@ -59,6 +60,9 @@ test("Worker entry point routes API requests and delegates assets", async () => 
     env,
   );
   assert.equal(apiResponse.status, 200);
-  assert.equal((await apiResponse.json())[0].Name, "Shuriken Race");
+  assert.deepEqual(
+    (await apiResponse.json()).map((item) => item.Name),
+    ["Interlude", "The Embered Racing", "Shuriken Race"],
+  );
   assert.equal(await assetResponse.text(), "asset");
 });

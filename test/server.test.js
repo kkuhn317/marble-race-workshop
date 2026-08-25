@@ -30,21 +30,22 @@ test.after(() => {
   if (child) child.kill();
 });
 
-test("Items returns the registered level", async () => {
+test("Items returns all registered workshop items", async () => {
   const response = await fetch(`http://127.0.0.1:${PORT}/api/Items`);
   assert.equal(response.status, 200);
   const items = await response.json();
-  assert.equal(items.length, 1);
-  assert.equal(items[0].Name, "Shuriken Race");
-  assert.equal(items[0].ResourceType, 0);
-  assert.equal(items[0].PayloadLength, 385028);
+  assert.equal(items.length, 5);
+  const shuriken = items.find((item) => item.Name === "Shuriken Race");
+  assert.equal(shuriken.ResourceType, 0);
+  assert.equal(shuriken.PayloadLength, 385028);
+  assert.equal(items.filter((item) => item.ResourceType === 2).length, 2);
 });
 
 test("Items accepts custom-server URL path variants", async () => {
   for (const path of ["/Items", "/api/api/Items"]) {
     const response = await fetch(`http://127.0.0.1:${PORT}${path}`);
     assert.equal(response.status, 200);
-    assert.equal((await response.json())[0].Name, "Shuriken Race");
+    assert.equal((await response.json()).length, 5);
   }
 });
 
