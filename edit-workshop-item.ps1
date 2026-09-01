@@ -52,7 +52,7 @@ function Invoke-RepoGit {
         # Git writes harmless warnings to stderr even when it succeeds. Windows
         # PowerShell otherwise turns those warnings into terminating errors.
         $ErrorActionPreference = "Continue"
-        $result = & git -c "safe.directory=$safeRepoRoot" @Arguments 2>&1
+        $result = & git -c "safe.directory=$safeRepoRoot" -C $script:RepoRoot @Arguments 2>&1
         $exitCode = $LASTEXITCODE
     }
     finally {
