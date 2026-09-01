@@ -384,8 +384,32 @@ function Publish-R2Object {
 
     $wrangler = Get-WranglerCommand
     Write-Host "Uploading payload to Cloudflare R2 ..."
-    $result = & $wrangler r2 object put "$Bucket/$Key" --file $FilePath --content-type "application/zip" --cache-control "public, max-age=31536000, immutable" --remote 2>&1
-    if ($LASTEXITCODE -ne 0) {
+    $previousErrorActionPreference = $ErrorActionPreference
+    $hadCodexCi = Test-Path Env:CODEX_CI
+    $savedCodexCi = if ($hadCodexCi) { (Get-Item Env:CODEX_CI).Value } else { $null }
+    try {
+        # CODEX_CI describes the parent app, not this user-started publisher.
+        # Wrangler treats it as a headless CI session and refuses to use the
+        # user's saved OAuth login, so do not pass that flag to Wrangler.
+        Remove-Item Env:CODEX_CI -ErrorAction SilentlyContinue
+
+        # Like Git, Wrangler writes normal status and warning messages to
+        # stderr. Judge the operation by its process exit code instead.
+        $ErrorActionPreference = "Continue"
+        $result = & $wrangler r2 object put "$Bucket/$Key" --file $FilePath --content-type "application/zip" --cache-control "public, max-age=31536000, immutable" --remote 2>&1
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+        if ($hadCodexCi) {
+            $env:CODEX_CI = $savedCodexCi
+        }
+        else {
+            Remove-Item Env:CODEX_CI -ErrorAction SilentlyContinue
+        }
+    }
+
+    if ($exitCode -ne 0) {
         throw "R2 upload failed. Run 'npx wrangler login' once and try again:`n$($result -join [Environment]::NewLine)"
     }
     $result | Write-Host
