@@ -344,7 +344,8 @@ function Sync-CloudflareCatalog {
 function Invoke-RepoGit {
     param([string[]]$Arguments)
 
-    $result = & git -c "safe.directory=$script:RepoRoot" @Arguments 2>&1
+    $safeRepoRoot = $script:RepoRoot.Replace("\", "/")
+    $result = & git -c "safe.directory=$safeRepoRoot" @Arguments 2>&1
     if ($LASTEXITCODE -ne 0) {
         throw "git $($Arguments -join ' ') failed:`n$($result -join [Environment]::NewLine)"
     }
@@ -456,7 +457,8 @@ try {
     }
 
     $itemsPath = Join-Path $script:RepoRoot "items.json"
-    $items = @(Get-Content -Raw -LiteralPath $itemsPath | ConvertFrom-Json | Where-Object {
+    $parsedItems = Get-Content -Raw -LiteralPath $itemsPath | ConvertFrom-Json
+    $items = @($parsedItems | Where-Object {
         $null -ne $_ -and
         $null -ne $_.PSObject.Properties["Id"] -and
         $null -ne $_.PSObject.Properties["Name"]
@@ -486,6 +488,16 @@ try {
     $payloadFileName = "$slug-$timestamp.zip"
     $payloadKey = "payloads/$payloadFileName"
     $payloadUri = $R2PublicBaseUrl.TrimEnd("/") + "/" + $payloadKey
+
+    # Save the catalog and preview so a validation or upload failure can roll back cleanly.
+    $itemsBackup = Join-Path $tempRoot "items.json.backup"
+    $catalogPath = Join-Path $script:RepoRoot "cloudflare\catalog.mjs"
+    $catalogBackup = Join-Path $tempRoot "catalog.mjs.backup"
+    Copy-Item -LiteralPath $itemsPath -Destination $itemsBackup
+    Copy-Item -LiteralPath $catalogPath -Destination $catalogBackup
+    $previewExisted = Test-Path -LiteralPath $previewTarget -PathType Leaf
+    $previewBackup = Join-Path $tempRoot "preview.backup"
+    if ($previewExisted) { Copy-Item -LiteralPath $previewTarget -Destination $previewBackup }
 
     # Do not mutate the repository until all size and storage checks pass.
     Copy-Item -LiteralPath $previewSource -Destination $previewTarget -Force
@@ -522,21 +534,34 @@ try {
     }
     if (-not $replaced) { $updatedItems += [pscustomobject]$newItem }
 
-    $itemsJson = ConvertTo-Json -InputObject ([object[]]$updatedItems) -Depth 100
-    [IO.File]::WriteAllText($itemsPath, $itemsJson + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
-    Sync-CloudflareCatalog $itemsJson
-
-    Push-Location $script:RepoRoot
     try {
-        Write-Host "Running server tests ..."
-        & node --test
-        if ($LASTEXITCODE -ne 0) { throw "Server tests failed. Nothing was committed or pushed." }
-    }
-    finally {
-        Pop-Location
-    }
+        $itemsJson = ConvertTo-Json -InputObject ([object[]]$updatedItems) -Depth 100
+        [IO.File]::WriteAllText($itemsPath, $itemsJson + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+        Sync-CloudflareCatalog $itemsJson
 
-    Publish-R2Object $R2Bucket $payloadKey $normalizedZip
+        Push-Location $script:RepoRoot
+        try {
+            Write-Host "Running server tests ..."
+            & node --test
+            if ($LASTEXITCODE -ne 0) { throw "Server tests failed. Nothing was committed or pushed." }
+        }
+        finally {
+            Pop-Location
+        }
+
+        Publish-R2Object $R2Bucket $payloadKey $normalizedZip
+    }
+    catch {
+        Copy-Item -LiteralPath $itemsBackup -Destination $itemsPath -Force
+        Copy-Item -LiteralPath $catalogBackup -Destination $catalogPath -Force
+        if ($previewExisted) {
+            Copy-Item -LiteralPath $previewBackup -Destination $previewTarget -Force
+        }
+        elseif (Test-Path -LiteralPath $previewTarget -PathType Leaf) {
+            Remove-Item -LiteralPath $previewTarget -Force
+        }
+        throw
+    }
 
     $shouldPush = $Push.IsPresent
     if (-not $Push -and -not $NonInteractive) {

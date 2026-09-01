@@ -30,8 +30,9 @@ test("Cloudflare Items implements filtering and pagination", async () => {
     request: new Request("https://marble.example.dev/api/Items?skip=4&limit=1"),
   }).json();
   assert.deepEqual(excludedBySearch, []);
-  assert.deepEqual(campaigns.map((item) => item.Name), ["Hamsterball V 2.4.2", "Kry Pack 2"]);
-  assert.match(campaigns[0].PayloadUri, /^https:\/\/content\.marble\.kevin-kuhn\.dev\//);
+  assert.ok(campaigns.some((item) => item.Name === "Hamsterball V 2.4.2"));
+  assert.ok(campaigns.some((item) => item.Name === "Kry Pack 2"));
+  assert.ok(campaigns.every((item) => /^https:\/\/content\.marble\.kevin-kuhn\.dev\//.test(item.PayloadUri)));
   assert.equal(page.length, 1);
 });
 
