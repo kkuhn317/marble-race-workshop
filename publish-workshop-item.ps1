@@ -618,7 +618,10 @@ try {
     $live = $false
     while ([DateTimeOffset]::UtcNow -lt $deadline) {
         try {
-            $catalog = @(Invoke-RestMethod -Uri "$ServerBaseUrl/Items?limit=1000&skip=0" -Headers @{ "Cache-Control" = "no-cache" })
+            # Invoke-RestMethod already returns the JSON array. Wrapping the
+            # invocation in @() creates a nested array in newer PowerShell,
+            # causing each property lookup below to see the entire catalog.
+            $catalog = Invoke-RestMethod -Uri "$ServerBaseUrl/Items?limit=1000&skip=0" -Headers @{ "Cache-Control" = "no-cache" }
             $published = @($catalog | Where-Object { [int64]$_.Id -eq $itemId -and [int64]$_.TimeStamp -eq $timestamp })
             if ($published.Count -eq 1) {
                 $live = $true
