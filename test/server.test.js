@@ -49,13 +49,13 @@ test("Items accepts custom-server URL path variants", async () => {
   }
 });
 
-test("The registered level and preview are downloadable", async () => {
+test("The registered level has a local preview and an R2 payload", async () => {
   const item = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=1`).then((response) => response.json());
-  const [preview, payload] = await Promise.all([fetch(item.PreviewUri), fetch(item.PayloadUri)]);
+  const preview = await fetch(item.PreviewUri);
   assert.equal(preview.status, 200);
   assert.equal(preview.headers.get("content-type"), "image/jpeg");
-  assert.equal(payload.status, 200);
-  assert.equal(Number(payload.headers.get("content-length")), 385028);
+  assert.equal(item.PayloadUri, "https://content.marble.kevin-kuhn.dev/payloads/shuriken-race.zip");
+  assert.equal(item.PayloadLength, 385028);
 });
 
 test("GetItem returns 404 for an unknown item", async () => {

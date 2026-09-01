@@ -9,6 +9,8 @@ param(
     [string]$Version,
     [string]$PreviewPath,
     [string]$ServerBaseUrl = "https://marble.kevin-kuhn.dev/api",
+    [string]$R2Bucket = "marble-race-workshop-content",
+    [string]$R2PublicBaseUrl = "https://content.marble.kevin-kuhn.dev",
     [switch]$NonInteractive,
     [switch]$Push,
     [switch]$ValidateOnly
@@ -19,7 +21,6 @@ $ErrorActionPreference = "Stop"
 
 $script:RepoRoot = $PSScriptRoot
 $staticAssetLimit = 25MB
-$githubFileLimit = 100MB
 $customIdFloor = [int64]990000000001
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("marble-workshop-publish-" + [guid]::NewGuid().ToString("N"))
 
@@ -217,12 +218,32 @@ function Invoke-RepoGit {
     return $result
 }
 
-function Get-GitHubRepository {
-    $remote = ((Invoke-RepoGit @("remote", "get-url", "origin")) | Out-String).Trim()
-    if ($remote -notmatch 'github\.com[/:](?<repository>[^/]+/[^/]+?)(?:\.git)?$') {
-        throw "The origin remote is not a recognizable GitHub repository: $remote"
+function Get-WranglerCommand {
+    $localWrangler = Join-Path $script:RepoRoot "node_modules\.bin\wrangler.cmd"
+    if (Test-Path -LiteralPath $localWrangler -PathType Leaf) {
+        return $localWrangler
     }
-    return $Matches.repository
+
+    $wrangler = Get-Command wrangler.cmd -ErrorAction SilentlyContinue
+    if ($null -ne $wrangler) { return $wrangler.Source }
+
+    throw "Wrangler is not installed. Run npm install in the server folder once, then try again."
+}
+
+function Publish-R2Object {
+    param(
+        [string]$Bucket,
+        [string]$Key,
+        [string]$FilePath
+    )
+
+    $wrangler = Get-WranglerCommand
+    Write-Host "Uploading payload to Cloudflare R2 ..."
+    $result = & $wrangler r2 object put "$Bucket/$Key" --file $FilePath --content-type "application/zip" --cache-control "public, max-age=31536000, immutable" --remote 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "R2 upload failed. Run 'npx wrangler login' once and try again:`n$($result -join [Environment]::NewLine)"
+    }
+    $result | Write-Host
 }
 
 function Read-WithDefault {
@@ -329,26 +350,11 @@ try {
     $previewInfo = Get-Item -LiteralPath $previewSource
     if ($previewInfo.Length -gt $staticAssetLimit) { throw "Preview exceeds Cloudflare's 25 MiB static asset limit." }
     $payloadFileName = "$slug-$timestamp.zip"
-    if ($normalizedInfo.Length -le $staticAssetLimit) {
-        $payloadRelative = "public/payloads/$payloadFileName"
-        $payloadTarget = Join-Path $script:RepoRoot $payloadRelative
-        $payloadUri = "/payloads/$payloadFileName"
-    }
-    else {
-        if ($normalizedInfo.Length -ge $githubFileLimit) {
-            throw "Payload is 100 MiB or larger. Configure R2 storage before publishing this item."
-        }
-        $repository = Get-GitHubRepository
-        $branch = ((Invoke-RepoGit @("branch", "--show-current")) | Out-String).Trim()
-        if ([string]::IsNullOrWhiteSpace($branch)) { $branch = "main" }
-        $payloadRelative = "release-assets/$payloadFileName"
-        $payloadTarget = Join-Path $script:RepoRoot $payloadRelative
-        $payloadUri = "https://raw.githubusercontent.com/$repository/$branch/release-assets/$payloadFileName"
-    }
+    $payloadKey = "payloads/$payloadFileName"
+    $payloadUri = $R2PublicBaseUrl.TrimEnd("/") + "/" + $payloadKey
 
     # Do not mutate the repository until all size and storage checks pass.
     Copy-Item -LiteralPath $previewSource -Destination $previewTarget -Force
-    Copy-Item -LiteralPath $normalizedZip -Destination $payloadTarget
 
     $metadataTags = @(Get-ObjectProperty $metadata "Tags" @())
     if ($metadataTags.Count -eq 0) { $metadataTags = @($detected.Kind.ToLowerInvariant()) }
@@ -396,6 +402,8 @@ try {
         Pop-Location
     }
 
+    Publish-R2Object $R2Bucket $payloadKey $normalizedZip
+
     $shouldPush = $Push.IsPresent
     if (-not $Push -and -not $NonInteractive) {
         $deployAnswer = Read-Host "Commit and deploy this item now? [Y/n]"
@@ -407,7 +415,7 @@ try {
         return
     }
 
-    Invoke-RepoGit @("add", "--", "items.json", "cloudflare/catalog.mjs", $previewRelative, $payloadRelative) | Out-Null
+    Invoke-RepoGit @("add", "--", "items.json", "cloudflare/catalog.mjs", $previewRelative) | Out-Null
     Invoke-RepoGit @("commit", "-m", "Publish workshop item: $displayName") | Write-Host
     Invoke-RepoGit @("push", "origin", "HEAD") | Write-Host
 

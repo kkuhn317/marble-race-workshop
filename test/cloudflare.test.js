@@ -15,7 +15,7 @@ test("Cloudflare Items returns levels with deployment-origin URLs", async () => 
   assert.equal(shuriken.Version, "0.0");
   assert.equal(shuriken.AuthorId, 0);
   assert.equal(shuriken.PayloadLength, 385028);
-  assert.equal(shuriken.PayloadUri, "https://marble.example.dev/payloads/shuriken-race.zip");
+  assert.equal(shuriken.PayloadUri, "https://content.marble.kevin-kuhn.dev/payloads/shuriken-race.zip");
 });
 
 test("Cloudflare Items implements filtering and pagination", async () => {
@@ -31,7 +31,7 @@ test("Cloudflare Items implements filtering and pagination", async () => {
   }).json();
   assert.deepEqual(excludedBySearch, []);
   assert.deepEqual(campaigns.map((item) => item.Name), ["Hamsterball V 2.4.2", "Kry Pack 2"]);
-  assert.match(campaigns[0].PayloadUri, /^https:\/\/raw\.githubusercontent\.com\//);
+  assert.match(campaigns[0].PayloadUri, /^https:\/\/content\.marble\.kevin-kuhn\.dev\//);
   assert.equal(page.length, 1);
 });
 

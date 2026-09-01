@@ -43,8 +43,8 @@ publisher will:
 4. rebuild the ZIP without directory-only entries that break Android extraction;
 5. read its embedded author, description, version, tags, and thumbnail;
 6. assign a stable custom ID (or update an existing item with the same name);
-7. store files up to 25 MiB as Worker assets and larger files in
-   `release-assets` with a public GitHub URL;
+7. upload every normalized payload to the `marble-race-workshop-content`
+   Cloudflare R2 bucket;
 8. update `items.json` and `cloudflare/catalog.mjs`;
 9. run `node --test` before offering to commit and deploy; and
 10. wait until the new timestamp appears on the live API.
@@ -69,8 +69,10 @@ To inspect and normalize an archive without changing the repository:
 ```
 
 The publisher requires `7z` and `git` on `PATH`, plus Node.js for the test
-suite. GitHub rejects individual files of 100 MiB or more; configure R2 before
-publishing an archive that large.
+suite. Run `npm install` once to install Wrangler, then run
+`npx wrangler login` once so the publisher can upload to R2. Payloads are
+served from `https://content.marble.kevin-kuhn.dev` and are no longer committed
+to Git, so archives larger than GitHub's 100 MiB file limit are supported.
 
 ## Test
 
