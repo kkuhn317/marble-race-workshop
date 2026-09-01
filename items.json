@@ -113,5 +113,23 @@
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  990000000006,
+        "Name":  "Kry Pack 3",
+        "ResourceType":  2,
+        "TimeStamp":  1788281477,
+        "AuthorId":  0,
+        "AuthorName":  "Kry",
+        "PreviewUri":  "/previews/kry-pack-3.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/kry-pack-3-1788281477.zip",
+        "Description":  "Official sequel to Kry Pack 2.",
+        "PayloadLength":  22022936,
+        "Version":  "1.5.2",
+        "Tags":  [
+                     "campaign"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ]
