@@ -11,6 +11,6 @@ exit /b 0
 
 :failed
 echo.
-echo Editing failed. Any validation changes were rolled back.
+echo Editing failed. Check the message above. Prepared changes may still be present if validation had already passed.
 pause
 exit /b 1

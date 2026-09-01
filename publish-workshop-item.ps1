@@ -345,8 +345,19 @@ function Invoke-RepoGit {
     param([string[]]$Arguments)
 
     $safeRepoRoot = $script:RepoRoot.Replace("\", "/")
-    $result = & git -c "safe.directory=$safeRepoRoot" @Arguments 2>&1
-    if ($LASTEXITCODE -ne 0) {
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        # Git writes harmless warnings to stderr even when it succeeds. Windows
+        # PowerShell otherwise turns those warnings into terminating errors.
+        $ErrorActionPreference = "Continue"
+        $result = & git -c "safe.directory=$safeRepoRoot" @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+
+    if ($exitCode -ne 0) {
         throw "git $($Arguments -join ' ') failed:`n$($result -join [Environment]::NewLine)"
     }
     return $result
