@@ -131,6 +131,24 @@ export const items = [
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  990000000007,
+        "Name":  "Rcubed Pack 3.0",
+        "ResourceType":  2,
+        "TimeStamp":  1788282142,
+        "AuthorId":  0,
+        "AuthorName":  "Rcube",
+        "PreviewUri":  "/previews/rcubed-pack-3-0.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/rcubed-pack-3-0-1788282142.zip",
+        "Description":  "Enjoy My 10 Marble Race Level on each Campaign Level with different type of challenges including some Arena and Secret Level (Coming Soon)",
+        "PayloadLength":  148003685,
+        "Version":  "1.4.17",
+        "Tags":  [
+                     "campaign"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ];
 
