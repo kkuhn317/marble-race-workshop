@@ -156,11 +156,140 @@ function New-FileOnlyZip {
     }
 }
 
+function New-CampaignPreview {
+    param(
+        [string]$ContentRoot,
+        [string]$DestinationPath
+    )
+
+    Add-Type -AssemblyName System.Drawing
+    $root = (Resolve-Path -LiteralPath $ContentRoot).Path.TrimEnd("\", "/")
+    $levelJsonFiles = @(Get-ChildItem -LiteralPath $root -Filter "level.json" -File -Recurse -Force | Where-Object {
+        $relative = $_.FullName.Substring($root.Length).TrimStart([char[]]"\/").Replace("\", "/")
+        @($relative.Split("/", [StringSplitOptions]::RemoveEmptyEntries) | Where-Object { $_ -ieq "backup" }).Count -eq 0
+    } | Sort-Object FullName)
+
+    $candidates = @()
+    foreach ($levelJson in $levelJsonFiles) {
+        $levelRoot = $levelJson.Directory.FullName
+        $levelMetadata = $null
+        try { $levelMetadata = Get-Content -Raw -LiteralPath $levelJson.FullName | ConvertFrom-Json }
+        catch { continue }
+
+        $thumbnail = [string](Get-ObjectProperty $levelMetadata "ThumbnailPath" "")
+        $candidate = $null
+        if (-not [string]::IsNullOrWhiteSpace($thumbnail)) {
+            $metadataCandidate = Join-Path $levelRoot $thumbnail
+            if (Test-Path -LiteralPath $metadataCandidate -PathType Leaf) {
+                $resolvedCandidate = (Resolve-Path -LiteralPath $metadataCandidate).Path
+                $levelPrefix = $levelRoot.TrimEnd("\", "/") + [IO.Path]::DirectorySeparatorChar
+                if ($resolvedCandidate.StartsWith($levelPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+                    $candidate = $resolvedCandidate
+                }
+            }
+        }
+
+        if ($null -eq $candidate) {
+            $matches = @(Get-ChildItem -LiteralPath $levelRoot -File -Force | Where-Object {
+                $_.Extension.ToLowerInvariant() -in @(".png", ".jpg", ".jpeg") -and
+                $_.BaseName -match "(?i)^(thumbnail|preview|icon|picture)$"
+            } | Sort-Object Name | Select-Object -First 1)
+            if ($matches.Count -eq 1) { $candidate = $matches[0].FullName }
+        }
+
+        if ($null -ne $candidate -and $candidates -notcontains $candidate) {
+            $candidates += $candidate
+        }
+    }
+
+    if ($candidates.Count -eq 0) {
+        throw "No preview image was found in the campaign or any of its levels. Pass -PreviewPath with a PNG or JPEG file."
+    }
+
+    $canvasWidth = 512
+    $canvasHeight = 416
+    $gap = 4
+    $cellWidth = [int](($canvasWidth - $gap) / 2)
+    $cellHeight = [int](($canvasHeight - $gap) / 2)
+    $bitmap = [Drawing.Bitmap]::new($canvasWidth, $canvasHeight, [Drawing.Imaging.PixelFormat]::Format24bppRgb)
+    $graphics = [Drawing.Graphics]::FromImage($bitmap)
+    $drawn = 0
+    try {
+        $graphics.Clear([Drawing.Color]::FromArgb(20, 24, 32))
+        $graphics.CompositingQuality = [Drawing.Drawing2D.CompositingQuality]::HighQuality
+        $graphics.InterpolationMode = [Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $graphics.PixelOffsetMode = [Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+        $graphics.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::HighQuality
+
+        foreach ($candidate in $candidates) {
+            if ($drawn -ge 4) { break }
+            $image = $null
+            try {
+                $image = [Drawing.Image]::FromFile($candidate)
+                if ($image.Width -le 0 -or $image.Height -le 0) { continue }
+
+                $column = $drawn % 2
+                $row = [int][math]::Floor($drawn / 2)
+                $destination = [Drawing.Rectangle]::new(
+                    $column * ($cellWidth + $gap),
+                    $row * ($cellHeight + $gap),
+                    $cellWidth,
+                    $cellHeight
+                )
+
+                $cellAspect = $cellWidth / [double]$cellHeight
+                $imageAspect = $image.Width / [double]$image.Height
+                if ($imageAspect -gt $cellAspect) {
+                    $sourceHeight = $image.Height
+                    $sourceWidth = [int][math]::Round($sourceHeight * $cellAspect)
+                    $sourceX = [int][math]::Floor(($image.Width - $sourceWidth) / 2)
+                    $sourceY = 0
+                }
+                else {
+                    $sourceWidth = $image.Width
+                    $sourceHeight = [int][math]::Round($sourceWidth / $cellAspect)
+                    $sourceX = 0
+                    $sourceY = [int][math]::Floor(($image.Height - $sourceHeight) / 2)
+                }
+
+                $graphics.DrawImage(
+                    $image,
+                    $destination,
+                    $sourceX,
+                    $sourceY,
+                    $sourceWidth,
+                    $sourceHeight,
+                    [Drawing.GraphicsUnit]::Pixel
+                )
+                $drawn++
+            }
+            catch {
+                # Skip an unreadable level thumbnail and try the next level.
+            }
+            finally {
+                if ($null -ne $image) { $image.Dispose() }
+            }
+        }
+
+        if ($drawn -eq 0) { throw "The campaign's level thumbnails could not be decoded." }
+        $bitmap.Save($DestinationPath, [Drawing.Imaging.ImageFormat]::Jpeg)
+    }
+    finally {
+        $graphics.Dispose()
+        $bitmap.Dispose()
+    }
+
+    Write-Host "Generated campaign preview from $drawn level thumbnail(s)."
+    return $DestinationPath
+}
+
 function Find-PreviewFile {
     param(
         [string]$ContentRoot,
         [object]$Metadata,
-        [string]$ExplicitPreview
+        [string]$ExplicitPreview,
+        [int]$ResourceType,
+        [string]$GeneratedPreviewPath
     )
 
     if (-not [string]::IsNullOrWhiteSpace($ExplicitPreview)) {
@@ -185,6 +314,10 @@ function Find-PreviewFile {
         $_.BaseName -match "(?i)thumbnail|preview|icon|picture"
     } | Select-Object -First 1)
     if ($preview.Count -eq 1) { return $preview[0].FullName }
+
+    if ($ResourceType -eq 2) {
+        return New-CampaignPreview $ContentRoot $GeneratedPreviewPath
+    }
 
     $anyImage = @(Get-ChildItem -LiteralPath $ContentRoot -File -Force | Where-Object {
         $_.Extension.ToLowerInvariant() -in @(".png", ".jpg", ".jpeg")
@@ -290,7 +423,8 @@ try {
     }
     if ([string]::IsNullOrWhiteSpace($itemVersion)) { $itemVersion = "0.0" }
 
-    $previewSource = Find-PreviewFile $detected.Root $metadata $PreviewPath
+    $generatedPreview = Join-Path $tempRoot "campaign-preview.jpg"
+    $previewSource = Find-PreviewFile $detected.Root $metadata $PreviewPath $detected.ResourceType $generatedPreview
     if ([IO.Path]::GetExtension($previewSource).ToLowerInvariant() -notin @(".png", ".jpg", ".jpeg")) {
         throw "Preview must be a PNG or JPEG image."
     }

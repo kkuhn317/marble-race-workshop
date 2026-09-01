@@ -41,7 +41,9 @@ publisher will:
 2. strip a single enclosing folder when necessary;
 3. recursively omit every directory named `backup` and everything inside it;
 4. rebuild the ZIP without directory-only entries that break Android extraction;
-5. read its embedded author, description, version, tags, and thumbnail;
+5. read its embedded author, description, version, tags, and thumbnail; campaigns
+   without a root thumbnail automatically receive a four-panel preview made from
+   up to four level thumbnails;
 6. assign a stable custom ID (or update an existing item with the same name);
 7. upload every normalized payload to the `marble-race-workshop-content`
    Cloudflare R2 bucket;
