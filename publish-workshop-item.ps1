@@ -90,7 +90,21 @@ function New-FileOnlyZip {
     $allFiles = @(Get-ChildItem -LiteralPath $resolvedRoot -File -Recurse -Force)
     if ($allFiles.Count -eq 0) { throw "The workshop archive contains no files." }
 
+    $excludedBackupFiles = @()
+    $includedFiles = @()
     foreach ($file in $allFiles) {
+        $relative = $file.FullName.Substring($resolvedRoot.Length).TrimStart([char[]]"\/").Replace("\", "/")
+        $pathParts = $relative.Split("/", [StringSplitOptions]::RemoveEmptyEntries)
+        if (@($pathParts | Where-Object { $_ -ieq "backup" }).Count -gt 0) {
+            $excludedBackupFiles += $file
+        }
+        else {
+            $includedFiles += $file
+        }
+    }
+    if ($includedFiles.Count -eq 0) { throw "Only backup files remained after cleanup." }
+
+    foreach ($file in $includedFiles) {
         if (($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
             throw "Archive contains a link/reparse point, which is not allowed: $($file.FullName)"
         }
@@ -102,7 +116,7 @@ function New-FileOnlyZip {
     $destinationStream = [IO.File]::Open($DestinationPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
     $zip = [IO.Compression.ZipArchive]::new($destinationStream, [IO.Compression.ZipArchiveMode]::Create, $false)
     try {
-        foreach ($file in $allFiles) {
+        foreach ($file in $includedFiles) {
             $relative = $file.FullName.Substring($resolvedRoot.Length).TrimStart([char[]]"\/").Replace("\", "/")
             if ($relative.Split("/") -contains "..") { throw "Unsafe archive path: $relative" }
             $entry = $zip.CreateEntry($relative, [IO.Compression.CompressionLevel]::Optimal)
@@ -132,6 +146,12 @@ function New-FileOnlyZip {
     }
     finally {
         $check.Dispose()
+    }
+
+    return [pscustomobject]@{
+        IncludedFiles = $includedFiles.Count
+        ExcludedBackupFiles = $excludedBackupFiles.Count
+        ExcludedBackupBytes = [int64](($excludedBackupFiles | Measure-Object -Property Length -Sum).Sum)
     }
 }
 
@@ -256,7 +276,7 @@ try {
     $rootJsonName = [IO.Path]::GetFileName($detected.JsonPath).ToLowerInvariant()
     $normalizedZip = Join-Path $tempRoot "normalized.zip"
     Write-Host "Building Android-compatible ZIP (file entries only) ..."
-    New-FileOnlyZip $detected.Root $normalizedZip $rootJsonName
+    $zipResult = New-FileOnlyZip $detected.Root $normalizedZip $rootJsonName
     $normalizedInfo = Get-Item -LiteralPath $normalizedZip
 
     Write-Host ""
@@ -268,6 +288,11 @@ try {
     Write-Host "  Preview:    $previewSource"
     Write-Host "  ZIP bytes:  $($normalizedInfo.Length)"
     Write-Host "  Root JSON:  $rootJsonName"
+    Write-Host "  Files:      $($zipResult.IncludedFiles)"
+    if ($zipResult.ExcludedBackupFiles -gt 0) {
+        $savedMiB = [math]::Round($zipResult.ExcludedBackupBytes / 1MB, 2)
+        Write-Host "  Removed:    $($zipResult.ExcludedBackupFiles) backup files ($savedMiB MiB before compression)"
+    }
     Write-Host ""
 
     if ($ValidateOnly) {
@@ -303,8 +328,6 @@ try {
     $previewTarget = Join-Path $script:RepoRoot $previewRelative
     $previewInfo = Get-Item -LiteralPath $previewSource
     if ($previewInfo.Length -gt $staticAssetLimit) { throw "Preview exceeds Cloudflare's 25 MiB static asset limit." }
-    Copy-Item -LiteralPath $previewSource -Destination $previewTarget -Force
-
     $payloadFileName = "$slug-$timestamp.zip"
     if ($normalizedInfo.Length -le $staticAssetLimit) {
         $payloadRelative = "public/payloads/$payloadFileName"
@@ -322,6 +345,9 @@ try {
         $payloadTarget = Join-Path $script:RepoRoot $payloadRelative
         $payloadUri = "https://raw.githubusercontent.com/$repository/$branch/release-assets/$payloadFileName"
     }
+
+    # Do not mutate the repository until all size and storage checks pass.
+    Copy-Item -LiteralPath $previewSource -Destination $previewTarget -Force
     Copy-Item -LiteralPath $normalizedZip -Destination $payloadTarget
 
     $metadataTags = @(Get-ObjectProperty $metadata "Tags" @())

@@ -39,14 +39,15 @@ publisher will:
 
 1. detect whether it is a level, block, or campaign;
 2. strip a single enclosing folder when necessary;
-3. rebuild the ZIP without directory-only entries that break Android extraction;
-4. read its embedded author, description, version, tags, and thumbnail;
-5. assign a stable custom ID (or update an existing item with the same name);
-6. store files up to 25 MiB as Worker assets and larger files in
+3. recursively omit every directory named `backup` and everything inside it;
+4. rebuild the ZIP without directory-only entries that break Android extraction;
+5. read its embedded author, description, version, tags, and thumbnail;
+6. assign a stable custom ID (or update an existing item with the same name);
+7. store files up to 25 MiB as Worker assets and larger files in
    `release-assets` with a public GitHub URL;
-7. update `items.json` and `cloudflare/catalog.mjs`;
-8. run `node --test` before offering to commit and deploy; and
-9. wait until the new timestamp appears on the live API.
+8. update `items.json` and `cloudflare/catalog.mjs`;
+9. run `node --test` before offering to commit and deploy; and
+10. wait until the new timestamp appears on the live API.
 
 Press Enter to accept each detected metadata value. At the final prompt, answer
 `Y` to commit, push to GitHub, and trigger the Cloudflare build.
