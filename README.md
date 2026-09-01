@@ -70,6 +70,18 @@ To inspect and normalize an archive without changing the repository:
 .\publish-workshop-item.ps1 -ArchivePath "C:\path\to\Campaign.rar" -ValidateOnly -NonInteractive
 ```
 
+## Edit an existing workshop item
+
+Double-click `edit-workshop-item.bat`, choose an item from the numbered list,
+and press Enter to keep any existing value. The editor can change the name,
+author, description, minimum game version, tags, and preview image. Item IDs,
+resource types, payload URLs, and payload sizes are protected. Use the regular
+publisher when replacing the actual level or campaign archive.
+
+The editor updates both catalog files, runs the complete test suite, and offers
+to commit and deploy the changes. If validation fails, it restores the previous
+catalog automatically.
+
 The publisher requires `7z` and `git` on `PATH`, plus Node.js for the test
 suite. Run `npm install` once to install Wrangler, then run
 `npx wrangler login` once so the publisher can upload to R2. Payloads are

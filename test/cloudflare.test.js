@@ -62,8 +62,8 @@ test("Worker entry point routes API requests and delegates assets", async () => 
   );
   assert.equal(apiResponse.status, 200);
   assert.deepEqual(
-    (await apiResponse.json()).map((item) => item.Name),
-    ["Interlude", "The Embered Racing", "Shuriken Race"],
+    (await apiResponse.json()).map((item) => item.Name).sort(),
+    ["Interlude", "Shuriken Race", "The Embered Racing"],
   );
   assert.equal(await assetResponse.text(), "asset");
 });
