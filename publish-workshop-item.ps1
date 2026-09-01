@@ -393,10 +393,11 @@ function Publish-R2Object {
         # user's saved OAuth login, so do not pass that flag to Wrangler.
         Remove-Item Env:CODEX_CI -ErrorAction SilentlyContinue
 
-        # Like Git, Wrangler writes normal status and warning messages to
-        # stderr. Judge the operation by its process exit code instead.
+        # Let Wrangler inherit the real console. Capturing or piping its output
+        # makes Node report that stdout is not interactive, which prevents
+        # Wrangler from using the saved browser-login credentials.
         $ErrorActionPreference = "Continue"
-        $result = & $wrangler r2 object put "$Bucket/$Key" --file $FilePath --content-type "application/zip" --cache-control "public, max-age=31536000, immutable" --remote 2>&1
+        & $wrangler r2 object put "$Bucket/$Key" --file $FilePath --content-type "application/zip" --cache-control "public, max-age=31536000, immutable" --remote
         $exitCode = $LASTEXITCODE
     }
     finally {
@@ -410,9 +411,8 @@ function Publish-R2Object {
     }
 
     if ($exitCode -ne 0) {
-        throw "R2 upload failed. Run 'npx wrangler login' once and try again:`n$($result -join [Environment]::NewLine)"
+        throw "R2 upload failed. Wrangler printed the details above. If it reports an expired login, run 'npx wrangler login' once and try again."
     }
-    $result | Write-Host
 }
 
 function Read-WithDefault {
