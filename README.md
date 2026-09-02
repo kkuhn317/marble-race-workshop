@@ -141,6 +141,47 @@ test suite. Run `npm install` once to install Wrangler, then run
 served from `https://content.marble.kevin-kuhn.dev` and are no longer committed
 to Git, so archives larger than GitHub's 100 MiB file limit are supported.
 
+## Review possible stolen or duplicated levels
+
+Double-click `scan-workshop-duplicates.bat`. The scanner downloads each
+official archive one at a time, extracts only JSON metadata, and stores compact
+fingerprints in `.duplicate-scan-cache`. It is resumable: if it is interrupted,
+run it again and completed items will be reused. The downloaded ZIPs are
+deleted immediately after fingerprinting.
+
+When the scan finishes it opens `duplicate-review.html`. The review page shows
+the confidence, previews, authors, original dates, Steam links, and the exact
+campaign level paths that matched. Decisions are kept in the browser and can
+be exported as `marble-duplicate-decisions.json`. Available decisions are:
+
+The page initially shows only matches credited to different authors, since
+those are the strongest stolen-content candidates. Use the filter to inspect
+same-author revisions and every other duplicate group.
+
+- **Needs review** — make no decision yet.
+- **Keep all** — record that the match is legitimate.
+- **Hide selected** — mark one or more IDs for a later moderation step.
+
+The scanner never edits `items.json`, hides content, deletes R2 objects, or
+publishes anything. Upload age is evidence only; it does not prove authorship.
+Exact archive matches receive the highest confidence. The scanner also finds
+identical layouts after authorship/GUID metadata or visual materials change,
+and layouts with at least 90% object overlap. Empty/template levels are ignored
+to limit false positives.
+
+By default only the 621 mirrored official items are scanned. To also compare
+your custom uploads, run:
+
+```powershell
+node scan-workshop-duplicates.mjs --include-custom
+```
+
+To rebuild the page without downloading anything, run:
+
+```powershell
+node scan-workshop-duplicates.mjs --report-only
+```
+
 ## Test
 
 Run all local and Cloudflare handler tests with:

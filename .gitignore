@@ -1,5 +1,8 @@
 node_modules/
 .package-work/
 .mirror-cache/
+.duplicate-scan-cache/
+duplicate-review.html
+.duplicate-scan-samples/
 Shuriken Race.zip
 npm-debug.log*
