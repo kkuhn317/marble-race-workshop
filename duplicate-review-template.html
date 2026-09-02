@@ -20,6 +20,7 @@
     .confidence { font-weight:700; color:#86efac } .medium { color:#fde68a }
     .items { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; margin:14px 0 }
     .item { background:#0f172a; border:1px solid #293548; border-radius:11px; padding:12px; display:grid; grid-template-columns:78px 1fr; gap:12px }
+    .item.hidden { opacity:.45; border-color:#7f1d1d } .hidden-label { color:#fca5a5; font-size:12px; font-weight:800 }
     .item img { width:78px; height:78px; border-radius:8px; object-fit:cover; background:#263142 }
     .name { font-weight:700 } .meta,.evidence { color:#aab7cc; font-size:13px; line-height:1.45 }
     .oldest { color:#7dd3fc; font-size:12px; font-weight:700 }
@@ -38,7 +39,7 @@
   <div class="sub" id="subtitle"></div>
   <div class="toolbar">
     <input id="search" placeholder="Search name, author, or ID">
-    <select id="filter"><option value="different-authors">Different authors</option><option value="unreviewed">All unreviewed</option><option value="all">All matches</option><option value="high">High confidence</option><option value="reviewed">Reviewed</option></select>
+    <select id="filter"><option value="different-authors">Unresolved different authors</option><option value="unreviewed">All unresolved</option><option value="all">All matches</option><option value="high">Unresolved high confidence</option><option value="reviewed">Resolved/reviewed</option></select>
     <button id="export">Export decisions</button><button id="importButton">Import decisions</button><input hidden type="file" id="importFile" accept="application/json">
   </div>
 </header>
@@ -46,41 +47,55 @@
 <script>
 const report = /*__DUPLICATE_REPORT_DATA__*/;
 const storageKey = 'marble-race-duplicate-decisions-v1';
-let decisions = JSON.parse(localStorage.getItem(storageKey) || '{}');
+const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
+let decisions = stored.Decisions || stored;
+let hiddenItemIds = new Set((stored.HiddenItemIds || Object.values(decisions).flatMap(value => value?.hideIds || [])).map(Number));
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const date = seconds => new Date(seconds * 1000).toLocaleDateString();
 const typeName = value => ['Level','Block','Campaign'][value] || 'Item';
-function save() { localStorage.setItem(storageKey, JSON.stringify(decisions)); render(); }
+function isResolvedByHidden(match) { return hiddenItemIds.size > 0 && match.Items.filter(item => !hiddenItemIds.has(item.Id)).length <= 1; }
+function persist() { localStorage.setItem(storageKey, JSON.stringify({SchemaVersion:2,Decisions:decisions,HiddenItemIds:[...hiddenItemIds].sort((a,b)=>a-b)})); }
+function save() { persist(); render(); }
 function render() {
   const query = document.querySelector('#search').value.toLowerCase();
   const filter = document.querySelector('#filter').value;
   const visible = report.Matches.filter(match => {
     const decision = decisions[match.Key];
-    const reviewed = decision && decision.status !== 'needs-review';
-    if (filter === 'unreviewed' && reviewed) return false;
-    if (filter === 'reviewed' && !reviewed) return false;
-    if (filter === 'high' && match.Confidence < 94) return false;
-    if (filter === 'different-authors' && !match.DifferentAuthors) return false;
+    const reviewed = decision?.status === 'keep-all';
+    const resolved = isResolvedByHidden(match);
+    if (filter === 'unreviewed' && (reviewed || resolved)) return false;
+    if (filter === 'reviewed' && !reviewed && !resolved) return false;
+    if (filter === 'high' && (match.Confidence < 94 || resolved)) return false;
+    if (filter === 'different-authors' && (!match.DifferentAuthors || resolved)) return false;
     return !query || match.Items.some(item => (item.Name + ' ' + item.AuthorName + ' ' + item.Id).toLowerCase().includes(query));
   });
   document.querySelector('#subtitle').textContent = report.Scope + ' • generated ' + new Date(report.GeneratedAt).toLocaleString();
-  document.querySelector('#summary').innerHTML = [report.Stats.ScannedItems + ' items scanned', report.Stats.PotentialDuplicateGroups + ' groups', report.Stats.CrossAuthorGroups + ' different-author groups', report.Stats.HighConfidenceGroups + ' high confidence', Object.keys(decisions).length + ' decisions saved'].map(x => '<span class="pill">' + esc(x) + '</span>').join('');
+  const resolvedCount = report.Matches.filter(isResolvedByHidden).length;
+  document.querySelector('#summary').innerHTML = [report.Stats.ScannedItems + ' items scanned', report.Stats.PotentialDuplicateGroups + ' groups', report.Stats.CrossAuthorGroups + ' different-author groups', hiddenItemIds.size + ' globally hidden items', resolvedCount + ' groups resolved by hiding', Object.keys(decisions).length + ' decisions saved'].map(x => '<span class="pill">' + esc(x) + '</span>').join('');
   document.querySelector('#matches').innerHTML = visible.length ? visible.map(matchHtml).join('') : '<div class="empty">No matches in this view.</div>';
   document.querySelectorAll('[data-status]').forEach(select => select.onchange = event => {
-    const key = event.target.dataset.status; const current = decisions[key] || { hideIds: [] };
+    const key = event.target.dataset.status; const current = decisions[key] || {};
     decisions[key] = { ...current, status:event.target.value }; save();
   });
   document.querySelectorAll('[data-hide]').forEach(box => box.onchange = event => {
-    const [key,id] = event.target.dataset.hide.split('|'); const current = decisions[key] || { status:'needs-review', hideIds:[] };
-    const hideIds = new Set(current.hideIds || []); event.target.checked ? hideIds.add(Number(id)) : hideIds.delete(Number(id));
-    decisions[key] = { ...current, hideIds:[...hideIds] }; localStorage.setItem(storageKey, JSON.stringify(decisions));
+    const [key,idText] = event.target.dataset.hide.split('|'); const id = Number(idText);
+    const current = decisions[key] || { status:'needs-review' };
+    if (event.target.checked) {
+      hiddenItemIds.add(id);
+      decisions[key] = { ...current, status:'hide-selected' };
+    } else {
+      hiddenItemIds.delete(id);
+      const stillHiddenHere = report.Matches.find(match => match.Key === key)?.Items.some(item => hiddenItemIds.has(item.Id));
+      decisions[key] = { ...current, status:stillHiddenHere ? 'hide-selected' : 'needs-review' };
+    }
+    save();
   });
 }
 function matchHtml(match) {
-  const decision = decisions[match.Key] || { status:'needs-review', hideIds:[] };
-  const reviewed = decision.status !== 'needs-review';
+  const decision = decisions[match.Key] || { status:'needs-review' };
+  const reviewed = decision.status === 'keep-all' || isResolvedByHidden(match);
   const evidence = match.Components.length ? match.Components.map(c => '#' + c.ItemId + ': ' + c.Path + ' (' + c.TokenCount + ' objects)').join(' • ') : 'Whole archive match';
-  return '<section class="match ' + (reviewed?'reviewed':'') + '"><div class="match-head"><div><div class="confidence ' + (match.Confidence<94?'medium':'') + '">' + match.Confidence + '% confidence' + (match.DifferentAuthors?' • DIFFERENT AUTHORS':'') + '</div><strong>' + esc(match.Reason) + '</strong></div><div>#' + esc(match.Key) + '</div></div><div class="items">' + match.Items.map(item => itemHtml(item,match,decision)).join('') + '</div><div class="evidence">Matched evidence: ' + esc(evidence) + '</div>' + campaignHtml(match) + '<div class="decision"><label>Decision <select data-status="' + esc(match.Key) + '"><option value="needs-review" ' + (decision.status==='needs-review'?'selected':'') + '>Needs review</option><option value="keep-all" ' + (decision.status==='keep-all'?'selected':'') + '>Keep all</option><option value="hide-selected" ' + (decision.status==='hide-selected'?'selected':'') + '>Hide selected</option></select></label><div class="hide-choice">Items marked to hide: ' + match.Items.map(item => '<label><input type="checkbox" data-hide="' + esc(match.Key) + '|' + item.Id + '" ' + ((decision.hideIds||[]).includes(item.Id)?'checked':'') + '> #' + item.Id + '</label>').join('') + '</div></div></section>';
+  return '<section class="match ' + (reviewed?'reviewed':'') + '"><div class="match-head"><div><div class="confidence ' + (match.Confidence<94?'medium':'') + '">' + match.Confidence + '% confidence' + (match.DifferentAuthors?' • DIFFERENT AUTHORS':'') + '</div><strong>' + esc(match.Reason) + '</strong></div><div>#' + esc(match.Key) + '</div></div><div class="items">' + match.Items.map(item => itemHtml(item,match)).join('') + '</div><div class="evidence">Matched evidence: ' + esc(evidence) + '</div>' + campaignHtml(match) + '<div class="decision"><label>Decision <select data-status="' + esc(match.Key) + '"><option value="needs-review" ' + (decision.status==='needs-review'?'selected':'') + '>Needs review</option><option value="keep-all" ' + (decision.status==='keep-all'?'selected':'') + '>Keep all</option><option value="hide-selected" ' + (decision.status==='hide-selected'?'selected':'') + '>Hide selected</option></select></label><div class="hide-choice">Globally hidden items: ' + match.Items.map(item => '<label><input type="checkbox" data-hide="' + esc(match.Key) + '|' + item.Id + '" ' + (hiddenItemIds.has(item.Id)?'checked':'') + '> #' + item.Id + '</label>').join('') + '</div></div></section>';
 }
 function campaignHtml(match) {
   if (!match.CampaignComparisons || !match.CampaignComparisons.length) return '';
@@ -92,14 +107,15 @@ function comparisonHtml(c) {
   const renamed = c.Renamed.map(x => x.From + ' → ' + x.To).join(', ') || 'None';
   return '<div class="campaign-row">' + status + ' — #' + c.CandidateItemId + ': ' + c.MatchingLevelCount + ' matching of ' + c.BaseLevelCount + ' oldest levels; this upload contains ' + c.CandidateLevelCount + ' levels.<details><summary>Show level differences</summary><div class="meta"><b>Changed:</b> ' + esc(changed) + '<br><b>Added in this upload:</b> ' + esc(c.Added.join(', ') || 'None') + '<br><b>Missing from this upload:</b> ' + esc(c.Missing.join(', ') || 'None') + '<br><b>Renamed but matching:</b> ' + esc(renamed) + '</div></details></div>';
 }
-function itemHtml(item,match,decision) {
+function itemHtml(item,match) {
   const steam = item.SteamWorkshopId ? '<a target="_blank" href="https://steamcommunity.com/sharedfiles/filedetails/?id=' + encodeURIComponent(item.SteamWorkshopId) + '">Steam page</a>' : '';
-  return '<article class="item"><img loading="lazy" src="' + esc(item.PreviewUri) + '"><div><div class="name">' + esc(item.Name) + '</div><div class="meta">#' + item.Id + ' • ' + typeName(item.ResourceType) + '<br>by ' + esc(item.AuthorName) + '<br>' + date(item.TimeStamp) + ' ' + (item.Id===match.OldestItemId?'<span class="oldest">OLDEST UPLOAD</span>':'') + '<br>' + steam + '</div></div></article>';
+  const hidden = hiddenItemIds.has(item.Id);
+  return '<article class="item ' + (hidden?'hidden':'') + '"><img loading="lazy" src="' + esc(item.PreviewUri) + '"><div><div class="name">' + esc(item.Name) + '</div><div class="meta">#' + item.Id + ' • ' + typeName(item.ResourceType) + '<br>by ' + esc(item.AuthorName) + '<br>' + date(item.TimeStamp) + ' ' + (item.Id===match.OldestItemId?'<span class="oldest">OLDEST UPLOAD</span>':'') + (hidden?'<br><span class="hidden-label">MARKED TO HIDE EVERYWHERE</span>':'') + '<br>' + steam + '</div></div></article>';
 }
 document.querySelector('#search').oninput = render; document.querySelector('#filter').onchange = render;
-document.querySelector('#export').onclick = () => { const blob = new Blob([JSON.stringify({SchemaVersion:1,ExportedAt:new Date().toISOString(),Decisions:decisions},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='marble-duplicate-decisions.json'; a.click(); URL.revokeObjectURL(a.href); };
+document.querySelector('#export').onclick = () => { const blob = new Blob([JSON.stringify({SchemaVersion:2,ExportedAt:new Date().toISOString(),HiddenItemIds:[...hiddenItemIds].sort((a,b)=>a-b),Decisions:decisions},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='marble-duplicate-decisions.json'; a.click(); URL.revokeObjectURL(a.href); };
 document.querySelector('#importButton').onclick = () => document.querySelector('#importFile').click();
-document.querySelector('#importFile').onchange = async event => { const data=JSON.parse(await event.target.files[0].text()); decisions=data.Decisions||{}; save(); };
+document.querySelector('#importFile').onchange = async event => { const data=JSON.parse(await event.target.files[0].text()); decisions=data.Decisions||{}; hiddenItemIds=new Set((data.HiddenItemIds||Object.values(decisions).flatMap(value=>value?.hideIds||[])).map(Number)); save(); };
 render();
 </script>
 </body>
