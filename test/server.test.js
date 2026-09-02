@@ -51,6 +51,13 @@ test("Items accepts custom-server URL path variants", async () => {
   }
 });
 
+test("Items finds a visible item by its exact numeric ID", async () => {
+  const response = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=990000000001&limit=1000`);
+  assert.equal(response.status, 200);
+  const items = await response.json();
+  assert.deepEqual(items.map((item) => item.Id), [990000000001]);
+});
+
 test("The registered level has a local preview and an R2 payload", async () => {
   const item = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=1`).then((response) => response.json());
   const preview = await fetch(item.PreviewUri);
@@ -74,6 +81,8 @@ test("Hidden items are absent from listings and direct lookups", async () => {
   assert.ok(hiddenIds.size > 0);
   assert.ok(!items.some((item) => hiddenIds.has(item.Id)));
   assert.equal((await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=${hiddenId}`)).status, 404);
+  const searched = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=${hiddenId}&limit=1000`).then((response) => response.json());
+  assert.ok(!searched.some((item) => item.Id === hiddenId));
 });
 
 test("GetItem validates a missing id", async () => {

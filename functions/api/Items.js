@@ -5,6 +5,7 @@ import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs"
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
   const search = (url.searchParams.get("search") || "").trim().toLowerCase();
+  const searchedId = /^\d+$/.test(search) ? Number(search) : null;
   const types = new Set(
     (url.searchParams.get("type") || "")
       .split(",")
@@ -26,7 +27,7 @@ export function onRequestGet(context) {
         .join(" ")
         .toLowerCase();
       return !isHiddenItemId(item.Id)
-        && (!search || searchable.includes(search))
+        && (!search || searchable.includes(search) || item.Id === searchedId)
         && (types.size === 0 || types.has(item.ResourceType))
         && (timeFrom === null || item.TimeStamp >= timeFrom)
         && (timeTo === null || item.TimeStamp <= timeTo);

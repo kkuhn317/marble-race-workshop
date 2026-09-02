@@ -308,6 +308,8 @@ necessary.
 
 `/api/Items` supports `search`, `skip`, `limit`, `type`, `itemVersion`, `sort`,
 `timeFrom`, and `timeTo` as documented in `ITEMS_API.md`.
+The `search` value matches names, descriptions, tags, or an exact numeric item
+ID. Hidden items remain excluded from numeric searches.
 
 This implements the catalog API, but a real level still has to use the payload
 format expected by Marble Race. The supplied API document does not define that

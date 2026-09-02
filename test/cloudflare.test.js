@@ -55,6 +55,14 @@ test("Cloudflare Items implements filtering and pagination", async () => {
   assert.equal(page.length, 1);
 });
 
+test("Cloudflare Items finds a visible item by its exact numeric ID", async () => {
+  const { onRequestGet } = await import("../functions/api/Items.js");
+  const result = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?search=990000000001&limit=1000"),
+  }).json();
+  assert.deepEqual(result.map((item) => item.Id), [990000000001]);
+});
+
 test("Cloudflare GetItem returns one item and 404 for an unknown id", async () => {
   const { onRequestGet } = await import("../functions/api/GetItem.js");
   const found = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=1") });
@@ -76,6 +84,10 @@ test("Cloudflare hides moderated items from listings and direct lookups", async 
   assert.ok(hiddenItemIds.size > 0);
   assert.ok(!listed.some((item) => hiddenItemIds.has(item.Id)));
   assert.equal(getItem({ request: new Request(`https://marble.example.dev/api/GetItem?id=${hiddenId}`) }).status, 404);
+  const searched = await listItems({
+    request: new Request(`https://marble.example.dev/api/Items?search=${hiddenId}&limit=1000`),
+  }).json();
+  assert.ok(!searched.some((item) => item.Id === hiddenId));
 });
 
 test("Cloudflare applies metadata overrides before searching and returning items", async () => {

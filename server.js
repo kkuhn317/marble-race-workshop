@@ -157,6 +157,7 @@ function normalizeApiPath(urlPath) {
 
 function queryItems(items, params) {
   const search = (params.get("search") || "").trim().toLocaleLowerCase();
+  const searchedId = /^\d+$/.test(search) ? Number(search) : null;
   const types = new Set(
     (params.get("type") || "")
       .split(",")
@@ -176,7 +177,7 @@ function queryItems(items, params) {
       .filter(Boolean)
       .join(" ")
       .toLocaleLowerCase();
-    return (!search || searchable.includes(search))
+    return (!search || searchable.includes(search) || Number(item.Id) === searchedId)
       && (types.size === 0 || types.has(Number(item.ResourceType)))
       && (!itemVersion || String(item.Version) === itemVersion)
       && (timeFrom === null || Number(item.TimeStamp) >= timeFrom)
