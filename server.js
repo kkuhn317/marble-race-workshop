@@ -67,7 +67,7 @@ const server = http.createServer(async (request, response) => {
 
       const item = loadVisibleItems().find((candidate) => Number(candidate.Id) === Number(idText));
       if (!item) {
-        sendJson(response, 200, null, request.method === "HEAD");
+        sendJson(response, 200, emptyItem(request), request.method === "HEAD");
         return;
       }
 
@@ -221,6 +221,26 @@ function publicItem(item, request) {
     Description: String(item.Description || ""),
     PayloadLength: payloadLength,
     Version: String(item.Version || ""),
+  };
+}
+
+function emptyItem(request) {
+  const forwardedProto = request.headers["x-forwarded-proto"];
+  const protocol = forwardedProto ? String(forwardedProto).split(",")[0].trim() : "http";
+  const host = request.headers.host || `localhost:${PORT}`;
+  const origin = `${protocol}://${host}/`;
+  return {
+    Id: 0,
+    Name: "",
+    ResourceType: 0,
+    TimeStamp: 0,
+    AuthorId: 0,
+    AuthorName: "",
+    PreviewUri: origin,
+    PayloadUri: origin,
+    Description: "",
+    PayloadLength: 0,
+    Version: "0.0",
   };
 }
 

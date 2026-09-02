@@ -67,10 +67,13 @@ test("The registered level has a local preview and an R2 payload", async () => {
   assert.equal(item.PayloadLength, 385028);
 });
 
-test("GetItem returns a quiet null for an unknown item", async () => {
+test("GetItem returns an empty sentinel for an unknown item", async () => {
   const response = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=42424242`);
   assert.equal(response.status, 200);
-  assert.equal(await response.json(), null);
+  const item = await response.json();
+  assert.equal(item.Id, 0);
+  assert.equal(item.Name, "");
+  assert.equal(item.PreviewUri, `http://127.0.0.1:${PORT}/`);
 });
 
 test("Hidden items are absent from listings and direct lookups", async () => {
@@ -83,7 +86,7 @@ test("Hidden items are absent from listings and direct lookups", async () => {
   assert.ok(!items.some((item) => hiddenIds.has(item.Id)));
   const hiddenResponse = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=${hiddenId}`);
   assert.equal(hiddenResponse.status, 200);
-  assert.equal(await hiddenResponse.json(), null);
+  assert.equal((await hiddenResponse.json()).Id, 0);
   const searched = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=${hiddenId}&limit=1000`).then((response) => response.json());
   assert.ok(!searched.some((item) => item.Id === hiddenId));
 });

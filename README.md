@@ -311,9 +311,10 @@ necessary.
 The `search` value matches names, descriptions, tags, or an exact numeric item
 ID. Hidden items remain excluded from numeric searches.
 
-For game compatibility, `/GetItem` returns `200 OK` with JSON `null` when an ID
-is unknown or hidden. Marble Race uses this endpoint for numeric searches and
-otherwise displays a `404 Not Found` response as an error popup.
+For game compatibility, `/GetItem` returns `200 OK` with a fully populated empty
+sentinel whose ID is `0` when an ID is unknown or hidden. Marble Race uses this
+endpoint for numeric searches, displays `404 Not Found` as an error popup, and
+does not safely handle JSON `null`.
 
 This implements the catalog API, but a real level still has to use the payload
 format expected by Marble Race. The supplied API document does not define that

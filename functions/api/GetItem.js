@@ -13,9 +13,27 @@ export function onRequestGet(context) {
   const item = isHiddenItemId(id)
     ? undefined
     : items.map(applyMetadataOverrides).find((candidate) => candidate.Id === id);
-  // Marble Race uses GetItem for numeric searches and displays non-success
-  // responses as popups. A JSON null is a successful empty result.
-  return json(item ? publicItem(item, context.request.url) : null);
+  // Marble Race uses GetItem for numeric searches, displays non-success
+  // responses as popups, and dereferences JSON null. Return a fully populated
+  // invalid-ID sentinel so the client can safely discard an empty result.
+  return json(item ? publicItem(item, context.request.url) : emptyItem(context.request.url));
+}
+
+function emptyItem(requestUrl) {
+  const origin = new URL(requestUrl).origin;
+  return {
+    Id: 0,
+    Name: "",
+    ResourceType: 0,
+    TimeStamp: 0,
+    AuthorId: 0,
+    AuthorName: "",
+    PreviewUri: `${origin}/`,
+    PayloadUri: `${origin}/`,
+    Description: "",
+    PayloadLength: 0,
+    Version: "0.0",
+  };
 }
 
 export function onRequestOptions() {
