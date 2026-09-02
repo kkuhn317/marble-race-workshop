@@ -55,34 +55,29 @@ test("Cloudflare Items implements filtering and pagination", async () => {
   assert.equal(page.length, 1);
 });
 
-test("Cloudflare Items finds a visible item by its exact numeric ID", async () => {
+test("Cloudflare Items finds a visible item by prefixed numeric ID", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
-  const result = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?search=10001&limit=1000"),
+  const hashResult = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?search=%2310001&limit=1000"),
   }).json();
-  assert.deepEqual(result.map((item) => item.Id), [10001]);
+  const namedResult = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?search=id%3A10001&limit=1000"),
+  }).json();
+  const missing = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?search=id%3A999999&limit=1000"),
+  }).json();
+  assert.deepEqual(hashResult.map((item) => item.Id), [10001]);
+  assert.deepEqual(namedResult.map((item) => item.Id), [10001]);
+  assert.deepEqual(missing, []);
 });
 
-test("Cloudflare GetItem returns one item and an empty sentinel for an unknown id", async () => {
+test("Cloudflare GetItem returns one item and 404 for an unknown id", async () => {
   const { onRequestGet } = await import("../functions/api/GetItem.js");
   const found = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=1") });
   const missing = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=42424242") });
   assert.equal(found.status, 200);
   assert.equal((await found.json()).Name, "Shuriken Race");
-  assert.equal(missing.status, 200);
-  assert.deepEqual(await missing.json(), {
-    Id: 0,
-    Name: "",
-    ResourceType: 0,
-    TimeStamp: 0,
-    AuthorId: 0,
-    AuthorName: "",
-    PreviewUri: "https://marble.example.dev/",
-    PayloadUri: "https://marble.example.dev/",
-    Description: "",
-    PayloadLength: 0,
-    Version: "0.0",
-  });
+  assert.equal(missing.status, 404);
 });
 
 test("Cloudflare hides moderated items from listings and direct lookups", async () => {
@@ -97,8 +92,7 @@ test("Cloudflare hides moderated items from listings and direct lookups", async 
   assert.ok(hiddenItemIds.size > 0);
   assert.ok(!listed.some((item) => hiddenItemIds.has(item.Id)));
   const hiddenResponse = getItem({ request: new Request(`https://marble.example.dev/api/GetItem?id=${hiddenId}`) });
-  assert.equal(hiddenResponse.status, 200);
-  assert.equal((await hiddenResponse.json()).Id, 0);
+  assert.equal(hiddenResponse.status, 404);
   const searched = await listItems({
     request: new Request(`https://marble.example.dev/api/Items?search=${hiddenId}&limit=1000`),
   }).json();

@@ -5,7 +5,7 @@ import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs"
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
   const search = (url.searchParams.get("search") || "").trim().toLowerCase();
-  const searchedId = /^\d+$/.test(search) ? Number(search) : null;
+  const searchedId = parseSearchedId(search);
   const types = new Set(
     (url.searchParams.get("type") || "")
       .split(",")
@@ -66,4 +66,11 @@ function optionalInteger(value) {
   if (value === null || value === "") return null;
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseSearchedId(search) {
+  const match = /^(?:(?:#|id:)\s*)?(\d+)$/i.exec(search);
+  if (!match) return null;
+  const id = Number(match[1]);
+  return Number.isSafeInteger(id) ? id : null;
 }

@@ -51,11 +51,13 @@ test("Items accepts custom-server URL path variants", async () => {
   }
 });
 
-test("Items finds a visible item by its exact numeric ID", async () => {
-  const response = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=10001&limit=1000`);
-  assert.equal(response.status, 200);
-  const items = await response.json();
-  assert.deepEqual(items.map((item) => item.Id), [10001]);
+test("Items finds a visible item by prefixed numeric ID", async () => {
+  const hashItems = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=%2310001&limit=1000`).then((response) => response.json());
+  const namedItems = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=id%3A10001&limit=1000`).then((response) => response.json());
+  const missing = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=id%3A999999&limit=1000`).then((response) => response.json());
+  assert.deepEqual(hashItems.map((item) => item.Id), [10001]);
+  assert.deepEqual(namedItems.map((item) => item.Id), [10001]);
+  assert.deepEqual(missing, []);
 });
 
 test("The registered level has a local preview and an R2 payload", async () => {
@@ -67,13 +69,9 @@ test("The registered level has a local preview and an R2 payload", async () => {
   assert.equal(item.PayloadLength, 385028);
 });
 
-test("GetItem returns an empty sentinel for an unknown item", async () => {
+test("GetItem returns 404 for an unknown item", async () => {
   const response = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=42424242`);
-  assert.equal(response.status, 200);
-  const item = await response.json();
-  assert.equal(item.Id, 0);
-  assert.equal(item.Name, "");
-  assert.equal(item.PreviewUri, `http://127.0.0.1:${PORT}/`);
+  assert.equal(response.status, 404);
 });
 
 test("Hidden items are absent from listings and direct lookups", async () => {
@@ -85,8 +83,7 @@ test("Hidden items are absent from listings and direct lookups", async () => {
   assert.ok(hiddenIds.size > 0);
   assert.ok(!items.some((item) => hiddenIds.has(item.Id)));
   const hiddenResponse = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=${hiddenId}`);
-  assert.equal(hiddenResponse.status, 200);
-  assert.equal((await hiddenResponse.json()).Id, 0);
+  assert.equal(hiddenResponse.status, 404);
   const searched = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=${hiddenId}&limit=1000`).then((response) => response.json());
   assert.ok(!searched.some((item) => item.Id === hiddenId));
 });

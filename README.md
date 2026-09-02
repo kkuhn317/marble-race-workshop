@@ -308,13 +308,11 @@ necessary.
 
 `/api/Items` supports `search`, `skip`, `limit`, `type`, `itemVersion`, `sort`,
 `timeFrom`, and `timeTo` as documented in `ITEMS_API.md`.
-The `search` value matches names, descriptions, tags, or an exact numeric item
-ID. Hidden items remain excluded from numeric searches.
-
-For game compatibility, `/GetItem` returns `200 OK` with a fully populated empty
-sentinel whose ID is `0` when an ID is unknown or hidden. Marble Race uses this
-endpoint for numeric searches, displays `404 Not Found` as an error popup, and
-does not safely handle JSON `null`.
+The `search` value matches names, descriptions, tags, or an exact item ID. In
+Marble Race, enter IDs as `#10001` or `id:10001`. A digits-only search uses the
+game's single-item lookup, which cannot represent an empty result; the prefixes
+keep it on the normal list search so an unknown ID quietly returns no results.
+Hidden items remain excluded from ID searches.
 
 This implements the catalog API, but a real level still has to use the payload
 format expected by Marble Race. The supplied API document does not define that

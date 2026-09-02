@@ -67,7 +67,7 @@ const server = http.createServer(async (request, response) => {
 
       const item = loadVisibleItems().find((candidate) => Number(candidate.Id) === Number(idText));
       if (!item) {
-        sendJson(response, 200, emptyItem(request), request.method === "HEAD");
+        sendJson(response, 404, { error: "Item not found" }, request.method === "HEAD");
         return;
       }
 
@@ -157,7 +157,7 @@ function normalizeApiPath(urlPath) {
 
 function queryItems(items, params) {
   const search = (params.get("search") || "").trim().toLocaleLowerCase();
-  const searchedId = /^\d+$/.test(search) ? Number(search) : null;
+  const searchedId = parseSearchedId(search);
   const types = new Set(
     (params.get("type") || "")
       .split(",")
@@ -221,26 +221,6 @@ function publicItem(item, request) {
     Description: String(item.Description || ""),
     PayloadLength: payloadLength,
     Version: String(item.Version || ""),
-  };
-}
-
-function emptyItem(request) {
-  const forwardedProto = request.headers["x-forwarded-proto"];
-  const protocol = forwardedProto ? String(forwardedProto).split(",")[0].trim() : "http";
-  const host = request.headers.host || `localhost:${PORT}`;
-  const origin = `${protocol}://${host}/`;
-  return {
-    Id: 0,
-    Name: "",
-    ResourceType: 0,
-    TimeStamp: 0,
-    AuthorId: 0,
-    AuthorName: "",
-    PreviewUri: origin,
-    PayloadUri: origin,
-    Description: "",
-    PayloadLength: 0,
-    Version: "0.0",
   };
 }
 
@@ -342,4 +322,11 @@ function optionalInteger(value) {
   if (value === null || value === "") return null;
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseSearchedId(search) {
+  const match = /^(?:(?:#|id:)\s*)?(\d+)$/i.exec(search);
+  if (!match) return null;
+  const id = Number(match[1]);
+  return Number.isSafeInteger(id) ? id : null;
 }
