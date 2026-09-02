@@ -4,6 +4,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { spawn } = require("node:child_process");
 const path = require("node:path");
+const fs = require("node:fs");
 
 const PORT = 31847;
 let child;
@@ -62,6 +63,17 @@ test("The registered level has a local preview and an R2 payload", async () => {
 test("GetItem returns 404 for an unknown item", async () => {
   const response = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=42424242`);
   assert.equal(response.status, 404);
+});
+
+test("Hidden items are absent from listings and direct lookups", async () => {
+  const moderation = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../hidden-workshop-items.json"), "utf8"));
+  const hiddenIds = new Set(moderation.HiddenItemIds);
+  const items = await fetch(`http://127.0.0.1:${PORT}/api/Items?limit=1000`).then((response) => response.json());
+  const hiddenId = moderation.HiddenItemIds[0];
+
+  assert.ok(hiddenIds.size > 0);
+  assert.ok(!items.some((item) => hiddenIds.has(item.Id)));
+  assert.equal((await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=${hiddenId}`)).status, 404);
 });
 
 test("GetItem validates a missing id", async () => {

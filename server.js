@@ -9,6 +9,7 @@ const HOST = process.env.MARBLE_HOST || "0.0.0.0";
 const PORT = parseInteger(process.env.MARBLE_PORT, 3000, 1, 65535);
 const ROOT = __dirname;
 const ITEMS_FILE = path.join(ROOT, "items.json");
+const HIDDEN_ITEMS_FILE = path.join(ROOT, "hidden-workshop-items.json");
 const PUBLIC_DIR = path.join(ROOT, "public");
 
 const MIME_TYPES = {
@@ -49,7 +50,7 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (apiPath === "/api/Items") {
-      const items = loadItems();
+      const items = loadVisibleItems();
       const result = queryItems(items, requestUrl.searchParams)
         .map((item) => publicItem(item, request));
       sendJson(response, 200, result, request.method === "HEAD");
@@ -63,7 +64,7 @@ const server = http.createServer(async (request, response) => {
         return;
       }
 
-      const item = loadItems().find((candidate) => Number(candidate.Id) === Number(idText));
+      const item = loadVisibleItems().find((candidate) => Number(candidate.Id) === Number(idText));
       if (!item) {
         sendJson(response, 404, { error: "Item not found" }, request.method === "HEAD");
         return;
@@ -103,6 +104,25 @@ function loadItems() {
     throw new Error("items.json must contain a JSON array.");
   }
   return parsed;
+}
+
+function loadVisibleItems() {
+  const hiddenItemIds = loadHiddenItemIds();
+  return loadItems().filter((item) => !hiddenItemIds.has(Number(item.Id)));
+}
+
+function loadHiddenItemIds() {
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(HIDDEN_ITEMS_FILE, "utf8"));
+  } catch (error) {
+    throw new Error(`Could not read hidden-workshop-items.json: ${error.message}`);
+  }
+
+  if (!parsed || !Array.isArray(parsed.HiddenItemIds)) {
+    throw new Error("hidden-workshop-items.json must contain a HiddenItemIds array.");
+  }
+  return new Set(parsed.HiddenItemIds.map(Number));
 }
 
 // Different game builds/custom-server screens may expect either a host URL or

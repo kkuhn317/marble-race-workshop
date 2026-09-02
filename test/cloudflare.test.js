@@ -2,6 +2,14 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+test("Cloudflare moderation matches the saved reversible decision list", async () => {
+  const { hiddenItemIds } = await import("../cloudflare/moderation.mjs");
+  const saved = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../hidden-workshop-items.json"), "utf8"));
+  assert.deepEqual([...hiddenItemIds].sort((a, b) => a - b), [...saved.HiddenItemIds].sort((a, b) => a - b));
+});
 
 test("Cloudflare Items returns levels with deployment-origin URLs", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
@@ -45,6 +53,20 @@ test("Cloudflare GetItem returns one item and 404 for an unknown id", async () =
   assert.equal(found.status, 200);
   assert.equal((await found.json()).Name, "Shuriken Race");
   assert.equal(missing.status, 404);
+});
+
+test("Cloudflare hides moderated items from listings and direct lookups", async () => {
+  const { onRequestGet: listItems } = await import("../functions/api/Items.js");
+  const { onRequestGet: getItem } = await import("../functions/api/GetItem.js");
+  const { hiddenItemIds } = await import("../cloudflare/moderation.mjs");
+  const hiddenId = hiddenItemIds.values().next().value;
+  const listed = await listItems({
+    request: new Request("https://marble.example.dev/api/Items?limit=1000"),
+  }).json();
+
+  assert.ok(hiddenItemIds.size > 0);
+  assert.ok(!listed.some((item) => hiddenItemIds.has(item.Id)));
+  assert.equal(getItem({ request: new Request(`https://marble.example.dev/api/GetItem?id=${hiddenId}`) }).status, 404);
 });
 
 test("Cloudflare JSON preserves exact 64-bit Steam author IDs", async () => {

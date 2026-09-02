@@ -1,4 +1,5 @@
 import { items, json, publicItem } from "../../cloudflare/catalog.mjs";
+import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -22,7 +23,8 @@ export function onRequestGet(context) {
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
-      return (!search || searchable.includes(search))
+      return !isHiddenItemId(item.Id)
+        && (!search || searchable.includes(search))
         && (types.size === 0 || types.has(item.ResourceType))
         && (timeFrom === null || item.TimeStamp >= timeFrom)
         && (timeTo === null || item.TimeStamp <= timeTo);

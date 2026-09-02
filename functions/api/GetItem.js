@@ -1,4 +1,5 @@
 import { items, json, publicItem } from "../../cloudflare/catalog.mjs";
+import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -7,7 +8,10 @@ export function onRequestGet(context) {
     return json({ error: "The id query parameter is required." }, 400);
   }
 
-  const item = items.find((candidate) => candidate.Id === Number(idText));
+  const id = Number(idText);
+  const item = isHiddenItemId(id)
+    ? undefined
+    : items.find((candidate) => candidate.Id === id);
   return item
     ? json(publicItem(item, context.request.url))
     : json({ error: "Item not found" }, 404);
