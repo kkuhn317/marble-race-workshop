@@ -71,6 +71,14 @@ test("Cloudflare Items finds a visible item by prefixed numeric ID", async () =>
   assert.deepEqual(missing, []);
 });
 
+test("Cloudflare Items searches author usernames case-insensitively", async () => {
+  const { onRequestGet } = await import("../functions/api/Items.js");
+  const result = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?search=bOoKwOrMkEvIn&limit=1000"),
+  }).json();
+  assert.ok(result.some((item) => item.Id === 10001 && item.AuthorName === "BookwormKevin"));
+});
+
 test("Cloudflare GetItem returns one item and 404 for an unknown id", async () => {
   const { onRequestGet } = await import("../functions/api/GetItem.js");
   const found = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=1") });
@@ -106,11 +114,15 @@ test("Cloudflare applies metadata overrides before searching and returning items
   metadataOverrides.set(1, { Name: "Temporary Override Name", AuthorName: "Corrected Author" });
   try {
     const found = await getItem({ request: new Request("https://marble.example.dev/api/GetItem?id=1") }).json();
-    const searched = await listItems({
+    const searchedByName = await listItems({
       request: new Request("https://marble.example.dev/api/Items?search=temporary%20override%20name&limit=1000"),
     }).json();
+    const searchedByAuthor = await listItems({
+      request: new Request("https://marble.example.dev/api/Items?search=corrected%20author&limit=1000"),
+    }).json();
     assert.equal(found.AuthorName, "Corrected Author");
-    assert.ok(searched.some((item) => item.Id === 1 && item.Name === "Temporary Override Name"));
+    assert.ok(searchedByName.some((item) => item.Id === 1 && item.Name === "Temporary Override Name"));
+    assert.ok(searchedByAuthor.some((item) => item.Id === 1 && item.AuthorName === "Corrected Author"));
   } finally {
     metadataOverrides.delete(1);
   }

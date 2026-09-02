@@ -60,6 +60,11 @@ test("Items finds a visible item by prefixed numeric ID", async () => {
   assert.deepEqual(missing, []);
 });
 
+test("Items searches author usernames case-insensitively", async () => {
+  const items = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=bOoKwOrMkEvIn&limit=1000`).then((response) => response.json());
+  assert.ok(items.some((item) => item.Id === 10001 && item.AuthorName === "BookwormKevin"));
+});
+
 test("The registered level has a local preview and an R2 payload", async () => {
   const item = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=1`).then((response) => response.json());
   const preview = await fetch(item.PreviewUri);

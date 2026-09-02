@@ -308,7 +308,7 @@ necessary.
 
 `/api/Items` supports `search`, `skip`, `limit`, `type`, `itemVersion`, `sort`,
 `timeFrom`, and `timeTo` as documented in `ITEMS_API.md`.
-The `search` value matches names, descriptions, tags, or an exact item ID. In
+The `search` value matches names, author usernames, descriptions, tags, or an exact item ID. In
 Marble Race, enter IDs as `#10001` or `id:10001`. A digits-only search uses the
 game's single-item lookup, which cannot represent an empty result; the prefixes
 keep it on the normal list search so an unknown ID quietly returns no results.

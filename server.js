@@ -173,7 +173,7 @@ function queryItems(items, params) {
   const sort = (params.get("sort") || "popular").toLocaleLowerCase();
 
   const filtered = items.filter((item) => {
-    const searchable = [item.Name, item.Description, ...(Array.isArray(item.Tags) ? item.Tags : [])]
+    const searchable = [item.Name, item.AuthorName, item.Description, ...(Array.isArray(item.Tags) ? item.Tags : [])]
       .filter(Boolean)
       .join(" ")
       .toLocaleLowerCase();

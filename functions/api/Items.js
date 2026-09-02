@@ -22,7 +22,7 @@ export function onRequestGet(context) {
   const result = items
     .map(applyMetadataOverrides)
     .filter((item) => {
-      const searchable = [item.Name, item.Description, ...(item.Tags || [])]
+      const searchable = [item.Name, item.AuthorName, item.Description, ...(item.Tags || [])]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
