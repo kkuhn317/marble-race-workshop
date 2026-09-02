@@ -32,6 +32,23 @@ The production custom-server URL entered in Marble Race is:
 https://marble.kevin-kuhn.dev/api
 ```
 
+## Workshop Manager
+
+Double-click `workshop-manager.bat` to open the local Workshop Manager in your
+browser. Keep its small console window open while using it. The manager binds
+only to this PC and uses a new private session token each time it starts; it is
+not part of the public workshop website.
+
+The **Items** screen searches the complete catalogue, including hidden items.
+Use **Hide** or **Unhide** on any row, or **Edit** to change that item's name,
+author, description, version, or tags. These edits are prepared locally. Press
+**Publish changes** to run all tests, commit only the manager-owned moderation
+and override files, push them to GitHub, and start the Cloudflare deployment.
+
+The **Tools** screen opens the archive publisher, guided item editor, duplicate
+scanner/review, bulk metadata editor, and official-workshop mirror. It also has
+a GUI bulk-metadata form for exact replacements across many items.
+
 ## Publish a ZIP or RAR automatically
 
 Drag a Marble Race ZIP or RAR archive onto `publish-workshop-item.bat`. The

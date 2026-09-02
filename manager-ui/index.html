@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#e8f2ff">
+    <title>Workshop Manager</title>
+    <link rel="stylesheet" href="/manager.css">
+    <script src="/manager.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="identity"><span class="marble" aria-hidden="true"></span><div><h1>Workshop Manager</h1><p>Local administration for Marble Race</p></div></div>
+      <button id="publish" class="publish" type="button" disabled><span id="publish-dot"></span><span id="publish-label">No changes to publish</span></button>
+    </header>
+
+    <main>
+      <nav class="tabs" aria-label="Manager sections">
+        <button type="button" class="tab active" data-panel="items-panel">Items</button>
+        <button type="button" class="tab" data-panel="tools-panel">Tools</button>
+      </nav>
+
+      <section id="items-panel" class="panel active">
+        <div class="stats" aria-live="polite">
+          <div><strong id="stat-total">—</strong><span>Total</span></div>
+          <div><strong id="stat-visible">—</strong><span>Visible</span></div>
+          <div><strong id="stat-hidden">—</strong><span>Hidden</span></div>
+          <div><strong id="stat-edited">—</strong><span>Edited</span></div>
+        </div>
+
+        <form class="filters" id="filters" role="search">
+          <label class="search"><span class="visually-hidden">Search items</span><input id="search" type="search" placeholder="Search name, author, or ID…" autocomplete="off"></label>
+          <label><span class="visually-hidden">Visibility</span><select id="visibility"><option value="all">All visibility</option><option value="visible">Visible only</option><option value="hidden">Hidden only</option></select></label>
+          <label><span class="visually-hidden">Item type</span><select id="type"><option value="all">All types</option><option value="0">Levels</option><option value="2">Campaigns</option><option value="1">Assets</option></select></label>
+        </form>
+
+        <div class="list-heading"><p id="result-count">Loading items…</p><span>Visibility changes are local until published.</span></div>
+        <div id="item-list" class="item-list" aria-live="polite"></div>
+      </section>
+
+      <section id="tools-panel" class="panel">
+        <div class="tool-grid">
+          <article class="tool-card blue"><h2>Publish new item</h2><p>Choose one or more ZIP or RAR archives and run the guided publisher.</p><button type="button" data-tool="publish">Choose archives</button></article>
+          <article class="tool-card yellow"><h2>Edit an item</h2><p>Open the original guided editor, including preview-image replacement.</p><button type="button" data-tool="edit">Open editor</button></article>
+          <article class="tool-card pink"><h2>Scan duplicates</h2><p>Resume the workshop duplicate scan and rebuild the review report.</p><button type="button" data-tool="duplicates">Run scanner</button></article>
+          <article class="tool-card lavender"><h2>Review duplicates</h2><p>Open the most recently generated duplicate-review page.</p><button type="button" data-tool="review" id="review-tool">Open report</button></article>
+          <article class="tool-card cyan"><h2>Mirror official workshop</h2><p>Run the guided incremental backup of the official server.</p><button type="button" data-tool="mirror" data-confirm="The mirror can download and upload many files. Open it now?">Open mirror tool</button></article>
+        </div>
+
+        <section class="bulk-card">
+          <div><h2>Bulk metadata change</h2><p>Replace an exact name, username, description, or game version everywhere it occurs.</p></div>
+          <form id="bulk-form">
+            <label>Field<select id="bulk-field"><option value="author">Author username</option><option value="name">Item name</option><option value="description">Description</option><option value="version">Game version</option></select></label>
+            <label>Current exact value<input id="bulk-find" required></label>
+            <label>Replacement value<input id="bulk-replace"></label>
+            <div class="bulk-actions"><button id="bulk-preview" type="button" class="secondary">Preview matches</button><button type="submit">Apply locally</button></div>
+          </form>
+          <div id="bulk-result" class="bulk-result" hidden></div>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="editor" class="editor-dialog" aria-labelledby="editor-title">
+      <form id="editor-form">
+        <div class="dialog-head"><div><span id="editor-id"></span><h2 id="editor-title">Edit item</h2></div><button id="editor-close" type="button" aria-label="Close">×</button></div>
+        <label>Name<input id="edit-name" required></label>
+        <label>Author username<input id="edit-author" required></label>
+        <div class="form-row"><label>Minimum game version<input id="edit-version" required></label><label>Tags, separated by commas<input id="edit-tags"></label></div>
+        <label>Description<textarea id="edit-description" rows="7"></textarea></label>
+        <div class="dialog-actions"><button id="editor-cancel" type="button" class="secondary">Cancel</button><button type="submit">Save locally</button></div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>

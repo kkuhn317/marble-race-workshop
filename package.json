@@ -7,6 +7,7 @@
     "wrangler": "^4.35.0"
   },
   "scripts": {
+    "manager": "node workshop-manager.mjs",
     "start": "node server.js",
     "test": "node --test"
   }
