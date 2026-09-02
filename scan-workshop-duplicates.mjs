@@ -101,8 +101,8 @@ export function buildMatches(items, records) {
     addCoveredPairs(coveredPairs, ids);
   }
 
-  const components = records.flatMap((record) => record.Components || [])
-    .filter((component) => component.Kind === "level" && component.TokenCount >= MIN_LAYOUT_TOKENS)
+  const allComponents = records.flatMap((record) => record.Components || [])
+    .filter((component) => component.Kind === "level")
     .map((component) => {
       const geometryTokens = component.GeometryTokens || geometryTokensFromLayout(component.LayoutTokens);
       return {
@@ -112,6 +112,7 @@ export function buildMatches(items, records) {
         GeometryMinHash: component.GeometryMinHash || minhash(geometryTokens),
       };
     });
+  const components = allComponents.filter((component) => component.TokenCount >= MIN_LAYOUT_TOKENS);
   const exactGroups = groupBy(components, (component) => component.CanonicalHash);
   for (const group of exactGroups.values()) {
     const ids = uniqueIds(group);
@@ -185,11 +186,91 @@ export function buildMatches(items, records) {
     coveredPairs.add(pairKey);
   }
 
+  const componentsByItem = new Map();
+  for (const component of allComponents) {
+    if (!componentsByItem.has(component.ItemId)) componentsByItem.set(component.ItemId, []);
+    componentsByItem.get(component.ItemId).push(component);
+  }
+  for (const match of matches) {
+    const oldest = byId.get(match.OldestItemId);
+    if (oldest?.ResourceType !== 2) continue;
+    match.CampaignComparisons = match.Items
+      .filter((item) => item.Id !== match.OldestItemId && item.ResourceType === 2)
+      .map((item) => compareCampaignComponents(
+        match.OldestItemId,
+        componentsByItem.get(match.OldestItemId) || [],
+        item.Id,
+        componentsByItem.get(item.Id) || [],
+      ));
+  }
+
   return matches
     .filter((match) => match.Items.length >= 2)
     .sort((left, right) => right.Confidence - left.Confidence
       || left.Items[0].TimeStamp - right.Items[0].TimeStamp
       || left.Key.localeCompare(right.Key));
+}
+
+export function compareCampaignComponents(baseItemId, baseComponents, candidateItemId, candidateComponents) {
+  const playable = components => components.filter((component) => {
+    const path = String(component.Path || "").replaceAll("\\", "/").toLowerCase();
+    return component.Kind === "level" && !path.includes("/blocks/");
+  });
+  const base = playable(baseComponents);
+  const candidate = playable(candidateComponents);
+  const baseByPath = new Map(base.map((component) => [componentName(component), component]));
+  const candidateByPath = new Map(candidate.map((component) => [componentName(component), component]));
+  const same = [];
+  const changed = [];
+  const usedBase = new Set();
+  const usedCandidate = new Set();
+
+  for (const [name, baseComponent] of baseByPath) {
+    const candidateComponent = candidateByPath.get(name);
+    if (!candidateComponent) continue;
+    usedBase.add(name);
+    usedCandidate.add(name);
+    if (sameDetailedLayout(baseComponent, candidateComponent)) {
+      same.push(name);
+    } else {
+      const similarity = Math.round(jaccard(
+        baseComponent.GeometryTokens || geometryTokensFromLayout(baseComponent.LayoutTokens),
+        candidateComponent.GeometryTokens || geometryTokensFromLayout(candidateComponent.LayoutTokens),
+      ) * 100);
+      changed.push({ Name: name, GeometrySimilarity: similarity });
+    }
+  }
+
+  const renamed = [];
+  const unmatchedBase = base.filter((component) => !usedBase.has(componentName(component)));
+  const unmatchedCandidate = candidate.filter((component) => !usedCandidate.has(componentName(component)));
+  for (const baseComponent of unmatchedBase) {
+    const match = unmatchedCandidate.find((candidateComponent) => !usedCandidate.has(componentName(candidateComponent))
+      && sameDetailedLayout(baseComponent, candidateComponent));
+    if (!match) continue;
+    const from = componentName(baseComponent);
+    const to = componentName(match);
+    usedBase.add(from);
+    usedCandidate.add(to);
+    renamed.push({ From: from, To: to });
+  }
+
+  const added = candidate.filter((component) => !usedCandidate.has(componentName(component))).map(componentName).sort();
+  const missing = base.filter((component) => !usedBase.has(componentName(component))).map(componentName).sort();
+  return {
+    BaseItemId: Number(baseItemId),
+    CandidateItemId: Number(candidateItemId),
+    BaseLevelCount: base.length,
+    CandidateLevelCount: candidate.length,
+    MatchingLevelCount: same.length + renamed.length,
+    Same: same.sort(),
+    Changed: changed.sort((left, right) => left.Name.localeCompare(right.Name)),
+    Added: added,
+    Missing: missing,
+    Renamed: renamed,
+    CompleteMatch: changed.length === 0 && added.length === 0 && missing.length === 0
+      && same.length + renamed.length === base.length && base.length === candidate.length,
+  };
 }
 
 export function makeFingerprintRecord(item, payloadSha256, components) {
@@ -395,6 +476,18 @@ function summarizeItem(item) {
 
 function summarizeComponents(components) {
   return components.map((component) => ({ ItemId: component.ItemId, Path: component.Path, TokenCount: component.TokenCount }));
+}
+
+function componentName(component) {
+  return String(component.Path || "level.json")
+    .replaceAll("\\", "/")
+    .replace(/\/level\.json$/i, "")
+    .trim()
+    .toLowerCase() || "(root level)";
+}
+
+function sameDetailedLayout(left, right) {
+  return left.CanonicalHash === right.CanonicalHash || left.LayoutHash === right.LayoutHash;
 }
 
 function minhashCandidates(components, signatureKey = "MinHash", tokenKey = "LayoutTokens") {

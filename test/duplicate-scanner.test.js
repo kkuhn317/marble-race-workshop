@@ -59,3 +59,21 @@ test("geometry comparison tolerates version-specific attributes", async () => {
   assert.deepEqual(oldGeometry, newGeometry);
   assert.equal(jaccard(oldGeometry, newGeometry), 1);
 });
+
+test("campaign comparison identifies changed, added, and missing levels", async () => {
+  const { compareCampaignComponents } = await import("../scan-workshop-duplicates.mjs");
+  const component = (path, hash, position = "0,0,0") => ({
+    Kind:"level", Path:path, CanonicalHash:hash, LayoutHash:hash,
+    LayoutTokens:[JSON.stringify({ ID:"Block", Attributes:{ transform_0_position:position } })],
+  });
+  const comparison = compareCampaignComponents(1, [
+    component("same/level.json", "same"), component("changed/level.json", "old"), component("missing/level.json", "missing"),
+  ], 2, [
+    component("same/level.json", "same"), component("changed/level.json", "new", "1,0,0"), component("added/level.json", "added"),
+  ]);
+  assert.equal(comparison.CompleteMatch, false);
+  assert.deepEqual(comparison.Same, ["same"]);
+  assert.equal(comparison.Changed[0].Name, "changed");
+  assert.deepEqual(comparison.Added, ["added"]);
+  assert.deepEqual(comparison.Missing, ["missing"]);
+});

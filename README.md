@@ -154,6 +154,11 @@ the confidence, previews, authors, original dates, Steam links, and the exact
 campaign level paths that matched. Decisions are kept in the browser and can
 be exported as `marble-duplicate-decisions.json`. Available decisions are:
 
+For campaign matches, the page separately compares every contained level with
+the oldest upload. It lists matching, changed, added, missing, and renamed
+levels. A campaign is labelled a complete match only when every contained
+level matches; a single shared level is labelled a partial match.
+
 The page initially shows only matches credited to different authors, since
 those are the strongest stolen-content candidates. Use the filter to inspect
 same-author revisions and every other duplicate group.

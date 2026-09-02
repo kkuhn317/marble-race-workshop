@@ -25,6 +25,10 @@
     .oldest { color:#7dd3fc; font-size:12px; font-weight:700 }
     .decision { display:flex; gap:14px; align-items:center; flex-wrap:wrap; border-top:1px solid #334155; padding-top:12px }
     .hide-choice { display:flex; gap:7px; flex-wrap:wrap } label { cursor:pointer }
+    .campaign-check { margin:13px 0; padding:12px; border:1px solid #46546b; border-radius:10px; background:#111827 }
+    .campaign-row { margin-top:9px; padding-top:9px; border-top:1px solid #293548 }
+    .complete { color:#86efac; font-weight:700 } .partial { color:#fde68a; font-weight:700 }
+    details { margin-top:6px } summary { cursor:pointer; color:#7dd3fc }
     a { color:#7dd3fc } .empty { text-align:center; padding:60px; color:#aab7cc }
   </style>
 </head>
@@ -76,7 +80,17 @@ function matchHtml(match) {
   const decision = decisions[match.Key] || { status:'needs-review', hideIds:[] };
   const reviewed = decision.status !== 'needs-review';
   const evidence = match.Components.length ? match.Components.map(c => '#' + c.ItemId + ': ' + c.Path + ' (' + c.TokenCount + ' objects)').join(' • ') : 'Whole archive match';
-  return '<section class="match ' + (reviewed?'reviewed':'') + '"><div class="match-head"><div><div class="confidence ' + (match.Confidence<94?'medium':'') + '">' + match.Confidence + '% confidence' + (match.DifferentAuthors?' • DIFFERENT AUTHORS':'') + '</div><strong>' + esc(match.Reason) + '</strong></div><div>#' + esc(match.Key) + '</div></div><div class="items">' + match.Items.map(item => itemHtml(item,match,decision)).join('') + '</div><div class="evidence">' + esc(evidence) + '</div><div class="decision"><label>Decision <select data-status="' + esc(match.Key) + '"><option value="needs-review" ' + (decision.status==='needs-review'?'selected':'') + '>Needs review</option><option value="keep-all" ' + (decision.status==='keep-all'?'selected':'') + '>Keep all</option><option value="hide-selected" ' + (decision.status==='hide-selected'?'selected':'') + '>Hide selected</option></select></label><div class="hide-choice">Items marked to hide: ' + match.Items.map(item => '<label><input type="checkbox" data-hide="' + esc(match.Key) + '|' + item.Id + '" ' + ((decision.hideIds||[]).includes(item.Id)?'checked':'') + '> #' + item.Id + '</label>').join('') + '</div></div></section>';
+  return '<section class="match ' + (reviewed?'reviewed':'') + '"><div class="match-head"><div><div class="confidence ' + (match.Confidence<94?'medium':'') + '">' + match.Confidence + '% confidence' + (match.DifferentAuthors?' • DIFFERENT AUTHORS':'') + '</div><strong>' + esc(match.Reason) + '</strong></div><div>#' + esc(match.Key) + '</div></div><div class="items">' + match.Items.map(item => itemHtml(item,match,decision)).join('') + '</div><div class="evidence">Matched evidence: ' + esc(evidence) + '</div>' + campaignHtml(match) + '<div class="decision"><label>Decision <select data-status="' + esc(match.Key) + '"><option value="needs-review" ' + (decision.status==='needs-review'?'selected':'') + '>Needs review</option><option value="keep-all" ' + (decision.status==='keep-all'?'selected':'') + '>Keep all</option><option value="hide-selected" ' + (decision.status==='hide-selected'?'selected':'') + '>Hide selected</option></select></label><div class="hide-choice">Items marked to hide: ' + match.Items.map(item => '<label><input type="checkbox" data-hide="' + esc(match.Key) + '|' + item.Id + '" ' + ((decision.hideIds||[]).includes(item.Id)?'checked':'') + '> #' + item.Id + '</label>').join('') + '</div></div></section>';
+}
+function campaignHtml(match) {
+  if (!match.CampaignComparisons || !match.CampaignComparisons.length) return '';
+  return '<div class="campaign-check"><strong>Whole-campaign comparison against oldest upload #' + match.OldestItemId + '</strong><div class="meta">A match above may cover only one contained level. This section checks every level.</div>' + match.CampaignComparisons.map(comparisonHtml).join('') + '</div>';
+}
+function comparisonHtml(c) {
+  const status = c.CompleteMatch ? '<span class="complete">COMPLETE CAMPAIGN MATCH</span>' : '<span class="partial">PARTIAL MATCH</span>';
+  const changed = c.Changed.map(x => x.Name + ' (' + x.GeometrySimilarity + '% geometry)').join(', ') || 'None';
+  const renamed = c.Renamed.map(x => x.From + ' → ' + x.To).join(', ') || 'None';
+  return '<div class="campaign-row">' + status + ' — #' + c.CandidateItemId + ': ' + c.MatchingLevelCount + ' matching of ' + c.BaseLevelCount + ' oldest levels; this upload contains ' + c.CandidateLevelCount + ' levels.<details><summary>Show level differences</summary><div class="meta"><b>Changed:</b> ' + esc(changed) + '<br><b>Added in this upload:</b> ' + esc(c.Added.join(', ') || 'None') + '<br><b>Missing from this upload:</b> ' + esc(c.Missing.join(', ') || 'None') + '<br><b>Renamed but matching:</b> ' + esc(renamed) + '</div></details></div>';
 }
 function itemHtml(item,match,decision) {
   const steam = item.SteamWorkshopId ? '<a target="_blank" href="https://steamcommunity.com/sharedfiles/filedetails/?id=' + encodeURIComponent(item.SteamWorkshopId) + '">Steam page</a>' : '';
