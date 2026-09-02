@@ -1,6 +1,30 @@
 export const metadataOverrides = new Map([
   [
+    700,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
     710,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    723,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    725,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    726,
     {
       "AuthorName": "BookwormKevin"
     }
@@ -12,7 +36,37 @@ export const metadataOverrides = new Map([
     }
   ],
   [
+    740,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
     746,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    751,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    785,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    787,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    791,
     {
       "AuthorName": "BookwormKevin"
     }
@@ -36,6 +90,12 @@ export const metadataOverrides = new Map([
     }
   ],
   [
+    838,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
     857,
     {
       "AuthorName": "BookwormKevin"
@@ -43,6 +103,12 @@ export const metadataOverrides = new Map([
   ],
   [
     873,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    882,
     {
       "AuthorName": "BookwormKevin"
     }
@@ -78,7 +144,31 @@ export const metadataOverrides = new Map([
     }
   ],
   [
+    1133,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1142,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1257,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
     1266,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1284,
     {
       "AuthorName": "BookwormKevin"
     }
