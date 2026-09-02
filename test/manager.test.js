@@ -46,5 +46,15 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(html, /id="bulk-form"/);
   assert.match(script, /\/api\/visibility/);
   assert.match(script, /\/api\/metadata/);
+  assert.match(script, /\/api\/update-item/);
+  assert.match(script, /Update file/);
   assert.match(script, /\/api\/deploy/);
+});
+
+test("item updater keeps the selected ID and existing catalogue metadata", () => {
+  const publisher = fs.readFileSync(path.resolve(__dirname, "../publish-workshop-item.ps1"), "utf8");
+  assert.match(publisher, /\[Int64\]\$UpdateItemId = 0/);
+  assert.match(publisher, /Updating selected workshop item ID/);
+  assert.match(publisher, /foreach \(\$property in \$existingItem\.PSObject\.Properties\)/);
+  assert.match(publisher, /\$newItem\["PayloadUri"\] = \$payloadUri/);
 });

@@ -41,7 +41,10 @@ not part of the public workshop website.
 
 The **Items** screen searches the complete catalogue, including hidden items.
 Use **Hide** or **Unhide** on any row, or **Edit** to change that item's name,
-author, description, version, or tags. These edits are prepared locally. Press
+author, description, version, or tags. Use **Update file** to select a replacement
+ZIP or RAR while keeping the same workshop ID and metadata. The updater rebuilds
+the archive for Android, removes backup folders, uploads it to R2, and guides you
+through publishing it. Metadata and visibility edits are prepared locally. Press
 **Publish changes** to run all tests, commit only the manager-owned moderation
 and override files, push them to GitHub, and start the Cloudflare deployment.
 

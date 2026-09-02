@@ -98,10 +98,20 @@ function createRow(item) {
   if (item.Hidden) meta.append(create("span", "pill state", "Hidden"));
   const actions = create("div", "row-actions");
   const edit = create("button", "", "Edit"); edit.type = "button"; edit.addEventListener("click", () => openEditor(item.Id));
+  const update = create("button", "secondary", "Update file"); update.type = "button"; update.addEventListener("click", () => updateItemFile(item, update));
   const visibility = create("button", "visibility-button", item.Hidden ? "Unhide" : "Hide");
   visibility.type = "button"; visibility.addEventListener("click", () => changeVisibility(item, visibility));
-  actions.append(edit, visibility); row.append(image, main, meta, actions);
+  actions.append(edit, update, visibility); row.append(image, main, meta, actions);
   return row;
+}
+
+async function updateItemFile(item, button) {
+  button.disabled = true;
+  try {
+    const payload = await api("/api/update-item", { method: "POST", body: JSON.stringify({ id: item.Id }) });
+    showToast(payload.message);
+  } catch (error) { showToast(error.message, true); }
+  finally { button.disabled = false; }
 }
 
 async function changeVisibility(item, button) {

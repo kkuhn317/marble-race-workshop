@@ -117,6 +117,10 @@ export async function createWorkshopManager({ port = 31940, host = "127.0.0.1", 
         const body = await readJsonBody(request);
         return sendJson(response, 200, launchTool(body.tool));
       }
+      if (request.method === "POST" && url.pathname === "/api/update-item") {
+        const body = await readJsonBody(request);
+        return sendJson(response, 200, await launchItemUpdate(body.id));
+      }
       return sendJson(response, 404, { error: "Manager action not found." });
     } catch (error) {
       console.error(error);
@@ -257,6 +261,19 @@ function launchTool(toolValue) {
     spawn("cmd.exe", ["/d", "/c", selected.path], { cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false }).unref();
   }
   return { message: `Opened the ${selected.label}.` };
+}
+
+async function launchItemUpdate(idValue) {
+  const id = parseItemId(idValue);
+  const items = await readJson(ITEMS_PATH);
+  const item = items.find((candidate) => Number(candidate.Id) === id);
+  if (!item) throw new Error(`Workshop item #${id} does not exist.`);
+  const launcher = resolve(ROOT, "select-and-update-workshop-item.ps1");
+  if (!existsSync(launcher)) throw new Error("The item updater is not available yet.");
+  spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", launcher, "-ItemId", String(id)], {
+    cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false,
+  }).unref();
+  return { message: `Choose the new archive for #${id} in the file window.` };
 }
 
 function getDirtyState() {

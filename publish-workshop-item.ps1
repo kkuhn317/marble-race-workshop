@@ -11,6 +11,7 @@ param(
     [string]$ServerBaseUrl = "https://marble.kevin-kuhn.dev/api",
     [string]$R2Bucket = "marble-race-workshop-content",
     [string]$R2PublicBaseUrl = "https://content.marble.kevin-kuhn.dev",
+    [Int64]$UpdateItemId = 0,
     [switch]$NonInteractive,
     [switch]$Push,
     [switch]$ValidateOnly
@@ -449,18 +450,49 @@ try {
     $embeddedDescription = [string](Get-ObjectProperty $metadata "Description" "")
     $embeddedVersion = [string](Get-ObjectProperty $metadata "Version" "0.0")
 
-    $displayName = Read-WithDefault "Display name" $(if ($Name) { $Name } else { $archiveName }) (-not [string]::IsNullOrWhiteSpace($Name))
-    $authorName = Read-WithDefault "Author" $(if ($Author) { $Author } else { $embeddedAuthor }) (-not [string]::IsNullOrWhiteSpace($Author))
-    $itemDescription = Read-WithDefault "Description" $(if ($Description) { $Description } else { $embeddedDescription }) (-not [string]::IsNullOrWhiteSpace($Description))
-    $itemVersion = Read-WithDefault "Minimum game version" $(if ($Version) { $Version } else { $embeddedVersion }) (-not [string]::IsNullOrWhiteSpace($Version))
+    $itemsPath = Join-Path $script:RepoRoot "items.json"
+    $parsedItems = Get-Content -Raw -LiteralPath $itemsPath | ConvertFrom-Json
+    $items = @($parsedItems | Where-Object {
+        $null -ne $_ -and
+        $null -ne $_.PSObject.Properties["Id"] -and
+        $null -ne $_.PSObject.Properties["Name"]
+    })
+    $existingItem = $null
+    if ($UpdateItemId -gt 0) {
+        $idMatches = @($items | Where-Object { [int64]$_.Id -eq $UpdateItemId })
+        if ($idMatches.Count -ne 1) { throw "Workshop item ID $UpdateItemId does not exist." }
+        $existingItem = $idMatches[0]
+        if ([int](Get-ObjectProperty $existingItem "ResourceType" -1) -ne $detected.ResourceType) {
+            throw "The replacement archive is a $($detected.Kind), but workshop item $UpdateItemId has a different type."
+        }
+    }
+
+    $defaultName = if ($null -ne $existingItem) { [string]$existingItem.Name } else { $archiveName }
+    $defaultAuthor = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "AuthorName" "Unknown") } else { $embeddedAuthor }
+    $defaultDescription = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Description" "") } else { $embeddedDescription }
+    $defaultVersion = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Version" "0.0") } else { $embeddedVersion }
+    $isExactUpdate = $null -ne $existingItem
+    $displayName = Read-WithDefault "Display name" $(if ($Name) { $Name } else { $defaultName }) ($isExactUpdate -or -not [string]::IsNullOrWhiteSpace($Name))
+    $authorName = Read-WithDefault "Author" $(if ($Author) { $Author } else { $defaultAuthor }) ($isExactUpdate -or -not [string]::IsNullOrWhiteSpace($Author))
+    $itemDescription = Read-WithDefault "Description" $(if ($Description) { $Description } else { $defaultDescription }) ($isExactUpdate -or -not [string]::IsNullOrWhiteSpace($Description))
+    $itemVersion = Read-WithDefault "Minimum game version" $(if ($Version) { $Version } else { $defaultVersion }) ($isExactUpdate -or -not [string]::IsNullOrWhiteSpace($Version))
     if ([string]::IsNullOrWhiteSpace($displayName) -or $displayName -in @(".", "..") -or
         $displayName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0) {
         throw "Display name must be a non-empty, filesystem-safe directory name."
     }
     if ([string]::IsNullOrWhiteSpace($itemVersion)) { $itemVersion = "0.0" }
 
+    $effectivePreviewPath = $PreviewPath
+    if ($null -ne $existingItem -and [string]::IsNullOrWhiteSpace($effectivePreviewPath)) {
+        $existingPreviewUri = [string](Get-ObjectProperty $existingItem "PreviewUri" "")
+        if ($existingPreviewUri.StartsWith("/previews/", [StringComparison]::OrdinalIgnoreCase)) {
+            $existingPreviewRelative = $existingPreviewUri.TrimStart("/").Replace("/", [IO.Path]::DirectorySeparatorChar)
+            $existingPreviewPath = Join-Path (Join-Path $script:RepoRoot "public") $existingPreviewRelative
+            if (Test-Path -LiteralPath $existingPreviewPath -PathType Leaf) { $effectivePreviewPath = $existingPreviewPath }
+        }
+    }
     $generatedPreview = Join-Path $tempRoot "campaign-preview.jpg"
-    $previewSource = Find-PreviewFile $detected.Root $metadata $PreviewPath $detected.ResourceType $generatedPreview
+    $previewSource = Find-PreviewFile $detected.Root $metadata $effectivePreviewPath $detected.ResourceType $generatedPreview
     if ([IO.Path]::GetExtension($previewSource).ToLowerInvariant() -notin @(".png", ".jpg", ".jpeg")) {
         throw "Preview must be a PNG or JPEG image."
     }
@@ -491,17 +523,13 @@ try {
         return
     }
 
-    $itemsPath = Join-Path $script:RepoRoot "items.json"
-    $parsedItems = Get-Content -Raw -LiteralPath $itemsPath | ConvertFrom-Json
-    $items = @($parsedItems | Where-Object {
-        $null -ne $_ -and
-        $null -ne $_.PSObject.Properties["Id"] -and
-        $null -ne $_.PSObject.Properties["Name"]
-    })
     $matching = @($items | Where-Object { $_.Name -ieq $displayName })
-    if ($matching.Count -gt 1) { throw "More than one existing item is named '$displayName'." }
-
-    if ($matching.Count -eq 1) {
+    if ($null -ne $existingItem) {
+        $itemId = [int64]$existingItem.Id
+        Write-Host "Updating selected workshop item ID $itemId."
+    }
+    elseif ($matching.Count -gt 1) { throw "More than one existing item is named '$displayName'." }
+    elseif ($matching.Count -eq 1) {
         $itemId = [int64]$matching[0].Id
         Write-Host "Updating existing workshop item ID $itemId."
     }
@@ -521,7 +549,13 @@ try {
     $previewExtension = [IO.Path]::GetExtension($previewSource).ToLowerInvariant()
     if ($previewExtension -eq ".jpeg") { $previewExtension = ".jpg" }
     $previewFileName = "$slug$previewExtension"
-    $previewRelative = "public/previews/$previewFileName"
+    $previewRelative = if ($null -ne $existingItem -and
+        [string]::IsNullOrWhiteSpace($PreviewPath) -and
+        ([string](Get-ObjectProperty $existingItem "PreviewUri" "")).StartsWith("/previews/", [StringComparison]::OrdinalIgnoreCase)) {
+        "public/" + ([string]$existingItem.PreviewUri).TrimStart("/")
+    } else {
+        "public/previews/$previewFileName"
+    }
     $previewTarget = Join-Path $script:RepoRoot $previewRelative
     $previewInfo = Get-Item -LiteralPath $previewSource
     if ($previewInfo.Length -gt $staticAssetLimit) { throw "Preview exceeds Cloudflare's 25 MiB static asset limit." }
@@ -540,25 +574,46 @@ try {
     if ($previewExisted) { Copy-Item -LiteralPath $previewTarget -Destination $previewBackup }
 
     # Do not mutate the repository until all size and storage checks pass.
-    Copy-Item -LiteralPath $previewSource -Destination $previewTarget -Force
+    if (-not [string]::Equals(
+        [IO.Path]::GetFullPath($previewSource),
+        [IO.Path]::GetFullPath($previewTarget),
+        [StringComparison]::OrdinalIgnoreCase
+    )) {
+        Copy-Item -LiteralPath $previewSource -Destination $previewTarget -Force
+    }
 
-    $metadataTags = @(Get-ObjectProperty $metadata "Tags" @())
+    $metadataTags = if ($null -ne $existingItem) { @(Get-ObjectProperty $existingItem "Tags" @()) } else { @(Get-ObjectProperty $metadata "Tags" @()) }
     if ($metadataTags.Count -eq 0) { $metadataTags = @($detected.Kind.ToLowerInvariant()) }
-    $newItem = [ordered]@{
-        Id = $itemId
-        Name = $displayName
-        ResourceType = $detected.ResourceType
-        TimeStamp = $timestamp
-        AuthorId = 0
-        AuthorName = $authorName
-        PreviewUri = "/previews/$previewFileName"
-        PayloadUri = $payloadUri
-        Description = $itemDescription
-        PayloadLength = $normalizedInfo.Length
-        Version = $itemVersion
-        Tags = $metadataTags
-        Downloads = 0
-        Rating = 0
+    if ($null -ne $existingItem) {
+        $newItem = [ordered]@{}
+        foreach ($property in $existingItem.PSObject.Properties) { $newItem[$property.Name] = $property.Value }
+        $newItem["Name"] = $displayName
+        $newItem["TimeStamp"] = $timestamp
+        $newItem["AuthorName"] = $authorName
+        $newItem["PreviewUri"] = "/" + $previewRelative.Substring("public/".Length).Replace("\", "/")
+        $newItem["PayloadUri"] = $payloadUri
+        $newItem["Description"] = $itemDescription
+        $newItem["PayloadLength"] = $normalizedInfo.Length
+        $newItem["Version"] = $itemVersion
+        $newItem["Tags"] = $metadataTags
+    }
+    else {
+        $newItem = [ordered]@{
+            Id = $itemId
+            Name = $displayName
+            ResourceType = $detected.ResourceType
+            TimeStamp = $timestamp
+            AuthorId = 0
+            AuthorName = $authorName
+            PreviewUri = "/previews/$previewFileName"
+            PayloadUri = $payloadUri
+            Description = $itemDescription
+            PayloadLength = $normalizedInfo.Length
+            Version = $itemVersion
+            Tags = $metadataTags
+            Downloads = 0
+            Rating = 0
+        }
     }
 
     $updatedItems = @()
@@ -615,7 +670,8 @@ try {
     }
 
     Invoke-RepoGit @("add", "--", "items.json", "cloudflare/catalog.mjs", $previewRelative) | Out-Null
-    Invoke-RepoGit @("commit", "-m", "Publish workshop item: $displayName") | Write-Host
+    $commitAction = if ($null -ne $existingItem) { "Update" } else { "Publish" }
+    Invoke-RepoGit @("commit", "-m", "$commitAction workshop item: $displayName") | Write-Host
     Invoke-RepoGit @("push", "origin", "HEAD") | Write-Host
 
     Write-Host "Waiting for Cloudflare to publish item ID $itemId ..."
