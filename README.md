@@ -52,6 +52,14 @@ The **Tools** screen opens the archive publisher, guided item editor, duplicate
 scanner/review, bulk metadata editor, and official-workshop mirror. It also has
 a GUI bulk-metadata form for exact replacements across many items.
 
+For older files that exist only on Steam, choose **Recover older Steam items**.
+Drag the generated button to the browser's bookmarks bar, open any Marble Race
+Steam Workshop page while signed in as a moderator, and click the bookmark. It
+scans the live workshop, skips Steam IDs already recorded in the mirror, and
+uses Steam's moderator Download action for the remainder. The progress panel
+can be paused or cancelled and provides a JSON report when it finishes. If the
+browser prompts about multiple downloads, allow them for `steamcommunity.com`.
+
 ## Publish a ZIP or RAR automatically
 
 Drag a Marble Race ZIP or RAR archive onto `publish-workshop-item.bat`. The

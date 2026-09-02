@@ -45,6 +45,7 @@
           <article class="tool-card pink"><h2>Scan duplicates</h2><p>Resume the workshop duplicate scan and rebuild the review report.</p><button type="button" data-tool="duplicates">Run scanner</button></article>
           <article class="tool-card lavender"><h2>Review duplicates</h2><p>Open the most recently generated duplicate-review page.</p><button type="button" data-tool="review" id="review-tool">Open report</button></article>
           <article class="tool-card cyan"><h2>Mirror official workshop</h2><p>Run the guided incremental backup of the official server.</p><button type="button" data-tool="mirror" data-confirm="The mirror can download and upload many files. Open it now?">Open mirror tool</button></article>
+          <article class="tool-card steam"><h2>Recover older Steam items</h2><p>Prepare a signed-in moderator downloader for items missing from your mirror.</p><button type="button" id="steam-recovery-open">Set up downloader</button></article>
         </div>
 
         <section class="bulk-card">
@@ -69,6 +70,21 @@
         <label>Description<textarea id="edit-description" rows="7"></textarea></label>
         <div class="dialog-actions"><button id="editor-cancel" type="button" class="secondary">Cancel</button><button type="submit">Save locally</button></div>
       </form>
+    </dialog>
+
+    <dialog id="steam-recovery" class="editor-dialog recovery-dialog" aria-labelledby="steam-recovery-title">
+      <div class="recovery-content">
+        <div class="dialog-head"><div><span>STEAM MODERATOR TOOL</span><h2 id="steam-recovery-title">Recover missing workshop files</h2></div><button id="steam-recovery-close" type="button" aria-label="Close">×</button></div>
+        <ol>
+          <li>Show your browser's bookmarks bar.</li>
+          <li>Drag the button below onto the bookmarks bar.</li>
+          <li>Open any Marble Race Steam Workshop page while signed in, then click the saved bookmark.</li>
+          <li>If the browser asks, allow multiple downloads.</li>
+        </ol>
+        <a id="steam-recovery-link" class="bookmarklet" href="#">Drag me to bookmarks: Marble recovery</a>
+        <p id="steam-recovery-note">Preparing the downloader…</p>
+        <p class="safety-note">It only scans workshop item IDs and calls Steam's moderator Download action. It does not alter visibility, reports, or bans.</p>
+      </div>
     </dialog>
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>

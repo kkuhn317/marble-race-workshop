@@ -44,11 +44,23 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(html, /data-tool="publish"/);
   assert.match(html, /data-tool="duplicates"/);
   assert.match(html, /id="bulk-form"/);
+  assert.match(html, /id="steam-recovery-open"/);
   assert.match(script, /\/api\/visibility/);
   assert.match(script, /\/api\/metadata/);
   assert.match(script, /\/api\/update-item/);
   assert.match(script, /Update file/);
   assert.match(script, /\/api\/deploy/);
+  assert.match(script, /\/api\/steam-recovery/);
+});
+
+test("Steam recovery bookmarklet uses only the download endpoint", async () => {
+  const { buildSteamRecoveryBookmarklet } = await import("../workshop-manager.mjs");
+  const bookmarklet = buildSteamRecoveryBookmarklet(["1577565384", "1577565384", "abc"]);
+  const script = decodeURIComponent(bookmarklet.slice("javascript:".length));
+  assert.match(script, /1577565384/);
+  assert.match(script, /sharedfiles\/downloadfile/);
+  assert.match(script, /readytouseitems/);
+  assert.doesNotMatch(script, /ban|visibility|reportitem/i);
 });
 
 test("item updater keeps the selected ID and existing catalogue metadata", () => {

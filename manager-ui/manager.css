@@ -55,6 +55,7 @@ input:focus,select:focus,textarea:focus { border-color:var(--blue); box-shadow:0
 .tool-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.85rem; }
 .tool-card { padding:1.15rem; background:white; border:1px solid var(--line); border-top:5px solid var(--sky); border-radius:12px; box-shadow:var(--shadow); }
 .tool-card.yellow { border-top-color:var(--yellow); }.tool-card.pink { border-top-color:var(--pink); }.tool-card.lavender { border-top-color:var(--lavender); }.tool-card.cyan { border-top-color:var(--cyan); }
+.tool-card.steam { border-top-color:#66c0f4; }
 .tool-card h2,.bulk-card h2 { margin:0 0 .4rem; color:var(--blue-dark); font-size:1rem; }
 .tool-card p,.bulk-card p { min-height:2.5rem; margin:0 0 1rem; color:var(--muted); font-size:.78rem; }
 .tool-card button { color:white; background:var(--blue); border-color:var(--blue); }
@@ -69,6 +70,13 @@ label input,label select,label textarea { margin-top:.28rem; }
 .bulk-result { grid-column:2; padding:.75rem; color:#44507a; background:#f0f4fc; border-radius:8px; font-size:.78rem; white-space:pre-wrap; }
 .editor-dialog { width:min(680px,calc(100% - 1.5rem)); padding:0; color:var(--ink); background:white; border:1px solid #bccbea; border-top:6px solid var(--lavender); border-radius:15px; box-shadow:0 30px 70px rgba(23,36,111,.35); }
 .editor-dialog::backdrop { background:rgba(19,29,77,.6); backdrop-filter:blur(3px); }
+.recovery-content { padding:1.2rem; }
+.recovery-content ol { margin:1rem 0; padding-left:1.4rem; color:#4f5b86; font-size:.85rem; }
+.recovery-content li { margin:.45rem 0; }
+.bookmarklet { display:block; padding:.8rem 1rem; color:white; background:#1b6f9f; border:2px solid #66c0f4; border-radius:9px; font-weight:800; text-align:center; text-decoration:none; cursor:grab; }
+.bookmarklet:not([href]) { opacity:.45; pointer-events:none; }
+.recovery-content > p { margin:.8rem 0 0; color:var(--muted); font-size:.78rem; }
+.recovery-content .safety-note { padding:.7rem; background:#edf8ff; border-radius:8px; }
 #editor-form { display:grid; gap:.85rem; padding:1.2rem; }
 .dialog-head { display:flex; align-items:start; justify-content:space-between; }
 .dialog-head span { color:var(--blue); font-size:.7rem; font-weight:800; }

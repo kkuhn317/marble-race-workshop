@@ -11,6 +11,7 @@ const elements = {
   editName: document.querySelector("#edit-name"), editAuthor: document.querySelector("#edit-author"), editVersion: document.querySelector("#edit-version"), editTags: document.querySelector("#edit-tags"), editDescription: document.querySelector("#edit-description"),
   bulkForm: document.querySelector("#bulk-form"), bulkField: document.querySelector("#bulk-field"), bulkFind: document.querySelector("#bulk-find"), bulkReplace: document.querySelector("#bulk-replace"), bulkResult: document.querySelector("#bulk-result"),
   reviewTool: document.querySelector("#review-tool"), toast: document.querySelector("#toast"),
+  recovery: document.querySelector("#steam-recovery"), recoveryLink: document.querySelector("#steam-recovery-link"), recoveryNote: document.querySelector("#steam-recovery-note"),
 };
 
 let items = [];
@@ -58,6 +59,23 @@ function bindEvents() {
   document.querySelectorAll("[data-tool]").forEach((button) => button.addEventListener("click", () => launchTool(button)));
   document.querySelector("#bulk-preview").addEventListener("click", () => runBulk(true));
   elements.bulkForm.addEventListener("submit", (event) => { event.preventDefault(); runBulk(false); });
+  document.querySelector("#steam-recovery-open").addEventListener("click", openSteamRecovery);
+  document.querySelector("#steam-recovery-close").addEventListener("click", () => elements.recovery.close());
+  elements.recovery.addEventListener("click", (event) => { if (event.target === elements.recovery) elements.recovery.close(); });
+}
+
+async function openSteamRecovery() {
+  elements.recovery.showModal();
+  elements.recoveryLink.removeAttribute("href");
+  elements.recoveryNote.textContent = "Preparing the downloader…";
+  try {
+    const payload = await api("/api/steam-recovery");
+    elements.recoveryLink.href = payload.bookmarklet;
+    elements.recoveryNote.textContent = `It will compare Steam with ${payload.mirroredCount.toLocaleString()} mirrored Steam IDs before downloading.`;
+  } catch (error) {
+    elements.recoveryNote.textContent = error.message;
+    showToast(error.message, true);
+  }
 }
 
 function switchTab(button) {
