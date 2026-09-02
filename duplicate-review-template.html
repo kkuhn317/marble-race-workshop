@@ -53,7 +53,7 @@ let hiddenItemIds = new Set((stored.HiddenItemIds || Object.values(decisions).fl
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const date = seconds => new Date(seconds * 1000).toLocaleDateString();
 const typeName = value => ['Level','Block','Campaign'][value] || 'Item';
-function isResolvedByHidden(match) { return hiddenItemIds.size > 0 && match.Items.filter(item => !hiddenItemIds.has(item.Id)).length <= 1; }
+function isResolvedByHidden(match) { return match.Items.some(item => hiddenItemIds.has(item.Id)); }
 function persist() { localStorage.setItem(storageKey, JSON.stringify({SchemaVersion:2,Decisions:decisions,HiddenItemIds:[...hiddenItemIds].sort((a,b)=>a-b)})); }
 function save() { persist(); render(); }
 function render() {

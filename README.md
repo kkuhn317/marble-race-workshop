@@ -168,10 +168,11 @@ same-author revisions and every other duplicate group.
 - **Hide selected** — mark one or more IDs for a later moderation step.
 
 Hide selections are global. Marking an item once checks it everywhere it
-appears. Any duplicate group left with no more than one unhidden item is treated
-as resolved and disappears from the default unresolved views. It remains
-visible under **All matches**, and unchecking it anywhere restores it globally.
-Existing per-group choices from older review pages are migrated automatically.
+appears. Every duplicate group containing that hidden item is treated as
+resolved and disappears from the default unresolved views, even when the group
+also contains multiple good items. It remains visible under **All matches**, and
+unchecking it anywhere restores it globally. Existing per-group choices from
+older review pages are migrated automatically.
 
 The scanner never edits `items.json`, hides content, deletes R2 objects, or
 publishes anything. Upload age is evidence only; it does not prove authorship.
