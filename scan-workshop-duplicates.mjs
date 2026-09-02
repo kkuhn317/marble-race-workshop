@@ -17,6 +17,8 @@ const STATE_PATH = join(CACHE_ROOT, "fingerprints.json");
 const MIN_LAYOUT_TOKENS = 4;
 const MIN_NEAR_TOKENS = 20;
 const NEAR_THRESHOLD = 0.9;
+const GEOMETRY_NEAR_THRESHOLD = 0.85;
+const FINGERPRINT_VERSION = 2;
 const MINHASH_SEEDS = Array.from({ length: 20 }, (_, index) => 0x9e3779b1 ^ Math.imul(index + 1, 0x85ebca6b));
 
 export function parseArguments(argv) {
@@ -52,7 +54,8 @@ export function canonicalize(value, depth = 0) {
 
 export function extractLayoutTokens(level) {
   const tokens = [];
-  walk(level?.BlockGroups, (item) => {
+  const geometry = level?.BlockGroups ?? (Array.isArray(level?.Children) ? level : null);
+  walk(geometry, (item) => {
     if (!item || typeof item !== "object") return;
     const attributes = Object.fromEntries(Object.entries(item.Attributes || {})
       .filter(([key]) => !/(?:renderer|material|texture|audio|music|_uv)/i.test(key))
@@ -72,6 +75,19 @@ export function jaccard(left, right) {
   return union === 0 ? 0 : intersection / union;
 }
 
+export function geometryTokensFromLayout(layoutTokens) {
+  return [...new Set((layoutTokens || []).map((token) => {
+    const parsed = JSON.parse(token);
+    const attributes = parsed.Attributes || {};
+    return stableStringify({
+      ID: parsed.ID,
+      Position: normalizeVector(attributes.transform_0_position),
+      Rotation: normalizeVector(attributes.transform_0_rotation),
+      Scale: normalizeVector(attributes.transform_0_scale),
+    });
+  }))].sort();
+}
+
 export function buildMatches(items, records) {
   const byId = new Map(items.map((item) => [Number(item.Id), item]));
   const matches = [];
@@ -86,7 +102,16 @@ export function buildMatches(items, records) {
   }
 
   const components = records.flatMap((record) => record.Components || [])
-    .filter((component) => component.Kind === "level" && component.TokenCount >= MIN_LAYOUT_TOKENS);
+    .filter((component) => component.Kind === "level" && component.TokenCount >= MIN_LAYOUT_TOKENS)
+    .map((component) => {
+      const geometryTokens = component.GeometryTokens || geometryTokensFromLayout(component.LayoutTokens);
+      return {
+        ...component,
+        GeometryTokens: geometryTokens,
+        GeometryHash: component.GeometryHash || hashText(stableStringify(geometryTokens)),
+        GeometryMinHash: component.GeometryMinHash || minhash(geometryTokens),
+      };
+    });
   const exactGroups = groupBy(components, (component) => component.CanonicalHash);
   for (const group of exactGroups.values()) {
     const ids = uniqueIds(group);
@@ -104,6 +129,20 @@ export function buildMatches(items, records) {
     if (ids.length < 2 || allPairsCovered(coveredPairs, ids)) continue;
     matches.push(makeMatch(
       "exact-layout", 94, "Identical track objects and gameplay attributes; visual materials may differ",
+      ids, summarizeComponents(group), byId,
+    ));
+    addCoveredPairs(coveredPairs, ids);
+  }
+
+  const geometryGroups = groupBy(
+    components.filter((component) => component.GeometryTokens.length >= 8),
+    (component) => component.GeometryHash,
+  );
+  for (const group of geometryGroups.values()) {
+    const ids = uniqueIds(group);
+    if (ids.length < 2 || allPairsCovered(coveredPairs, ids)) continue;
+    matches.push(makeMatch(
+      "exact-geometry", 92, "Identical object types, positions, rotations, and sizes; version-specific attributes may differ",
       ids, summarizeComponents(group), byId,
     ));
     addCoveredPairs(coveredPairs, ids);
@@ -127,6 +166,25 @@ export function buildMatches(items, records) {
     coveredPairs.add(pairKey);
   }
 
+
+  const geometryComponents = components.filter((component) => component.GeometryTokens.length >= MIN_NEAR_TOKENS);
+  const geometryCandidates = minhashCandidates(geometryComponents, "GeometryMinHash", "GeometryTokens");
+  for (const [leftIndex, rightIndex] of geometryCandidates) {
+    const left = geometryComponents[leftIndex];
+    const right = geometryComponents[rightIndex];
+    if (left.ItemId === right.ItemId) continue;
+    const pairKey = idPair(left.ItemId, right.ItemId);
+    if (coveredPairs.has(pairKey)) continue;
+    const similarity = jaccard(left.GeometryTokens, right.GeometryTokens);
+    if (similarity < GEOMETRY_NEAR_THRESHOLD) continue;
+    matches.push(makeMatch(
+      "near-geometry", Math.round(72 + similarity * 23),
+      `${Math.round(similarity * 100)}% of object types and transforms match; other attributes or a few objects differ`,
+      [left.ItemId, right.ItemId], summarizeComponents([left, right]), byId,
+    ));
+    coveredPairs.add(pairKey);
+  }
+
   return matches
     .filter((match) => match.Items.length >= 2)
     .sort((left, right) => right.Confidence - left.Confidence
@@ -136,12 +194,23 @@ export function buildMatches(items, records) {
 
 export function makeFingerprintRecord(item, payloadSha256, components) {
   return {
+    FingerprintVersion: FINGERPRINT_VERSION,
     ItemId: Number(item.Id),
     PayloadUri: String(item.PayloadUri),
     PayloadLength: Number(item.PayloadLength),
     PayloadSha256: payloadSha256,
     Components: components,
   };
+}
+
+export function isReusableFingerprint(record, item) {
+  if (!record || record.PayloadUri !== item.PayloadUri || record.PayloadLength !== Number(item.PayloadLength)) return false;
+  if (record.FingerprintVersion === FINGERPRINT_VERSION) return true;
+  // Version 1 correctly handled the older all-in-one level.json format. Only
+  // records containing descriptor-only levels need to be downloaded again.
+  return Array.isArray(record.Components)
+    && record.Components.length > 0
+    && record.Components.every((component) => component.TokenCount > 0);
 }
 
 async function main() {
@@ -171,7 +240,7 @@ async function main() {
     for (const item of items) {
       index += 1;
       const cached = stateById.get(Number(item.Id));
-      if (cached && cached.PayloadUri === item.PayloadUri && cached.PayloadLength === Number(item.PayloadLength)) {
+      if (isReusableFingerprint(cached, item)) {
         console.log(`[${index}/${items.length}] ${item.Name} (ID ${item.Id}): cached.`);
         records.push(cached);
         continue;
@@ -238,16 +307,26 @@ async function fingerprintItem(item) {
       if (fileStat.size > 64 * 1024 * 1024) continue;
       try {
         const parsed = JSON.parse(await readFile(filePath, "utf8"));
-        const layoutTokens = extractLayoutTokens(parsed);
+        const siblingBlockPath = join(dirname(filePath), "block.json");
+        let siblingBlock = null;
+        if (existsSync(siblingBlockPath)) {
+          const blockStat = await stat(siblingBlockPath);
+          if (blockStat.size <= 64 * 1024 * 1024) siblingBlock = JSON.parse(await readFile(siblingBlockPath, "utf8"));
+        }
+        const layoutTokens = extractLayoutTokens(siblingBlock || parsed);
+        const geometryTokens = geometryTokensFromLayout(layoutTokens);
         components.push({
           ItemId: Number(item.Id),
           Kind: "level",
           Path: relative(extractedRoot, filePath).replaceAll("\\", "/"),
-          CanonicalHash: hashText(stableStringify(canonicalize(parsed))),
+          CanonicalHash: hashText(stableStringify(canonicalize(siblingBlock ? { Level: parsed, Geometry: siblingBlock } : parsed))),
           LayoutHash: hashText(stableStringify(layoutTokens)),
           TokenCount: layoutTokens.length,
           LayoutTokens: layoutTokens,
           MinHash: minhash(layoutTokens),
+          GeometryHash: hashText(stableStringify(geometryTokens)),
+          GeometryTokens: geometryTokens,
+          GeometryMinHash: minhash(geometryTokens),
         });
       } catch {
         // One malformed nested JSON file should not prevent scanning the archive.
@@ -318,11 +397,11 @@ function summarizeComponents(components) {
   return components.map((component) => ({ ItemId: component.ItemId, Path: component.Path, TokenCount: component.TokenCount }));
 }
 
-function minhashCandidates(components) {
+function minhashCandidates(components, signatureKey = "MinHash", tokenKey = "LayoutTokens") {
   const buckets = new Map();
   const pairs = new Set();
   components.forEach((component, index) => {
-    const signature = component.MinHash || minhash(component.LayoutTokens);
+    const signature = component[signatureKey] || minhash(component[tokenKey]);
     for (let band = 0; band < 5; band += 1) {
       const key = `${band}:${signature.slice(band * 4, band * 4 + 4).join(",")}`;
       const existing = buckets.get(key) || [];
@@ -350,6 +429,15 @@ function hash32(text, seed) {
     hash = Math.imul(hash, 0x01000193);
   }
   return hash >>> 0;
+}
+
+function normalizeVector(value) {
+  if (value === undefined || value === null) return "";
+  return String(value).split(",").map((part) => {
+    const number = Number(part.trim());
+    if (!Number.isFinite(number)) return part.trim();
+    return String(Math.round(number * 1e6) / 1e6);
+  }).join(",");
 }
 
 function walk(value, visit) {

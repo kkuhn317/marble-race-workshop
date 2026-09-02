@@ -166,8 +166,9 @@ The scanner never edits `items.json`, hides content, deletes R2 objects, or
 publishes anything. Upload age is evidence only; it does not prove authorship.
 Exact archive matches receive the highest confidence. The scanner also finds
 identical layouts after authorship/GUID metadata or visual materials change,
-and layouts with at least 90% object overlap. Empty/template levels are ignored
-to limit false positives.
+layouts with at least 90% detailed-object overlap, and cross-version geometry
+with at least 85% matching object types and transforms. Empty/template levels
+are ignored to limit false positives.
 
 By default only the 621 mirrored official items are scanned. To also compare
 your custom uploads, run:
