@@ -15,9 +15,12 @@ const PUBLIC_DIR = path.join(ROOT, "public");
 
 const MIME_TYPES = {
   ".bmp": "image/bmp",
+  ".css": "text/css; charset=utf-8",
   ".gif": "image/gif",
+  ".html": "text/html; charset=utf-8",
   ".jpeg": "image/jpeg",
   ".jpg": "image/jpeg",
+  ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".png": "image/png",
   ".webp": "image/webp",
@@ -41,7 +44,12 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (requestUrl.pathname === "/" || requestUrl.pathname === "/api") {
+    if (requestUrl.pathname === "/") {
+      servePublicFile("/index.html", request, response);
+      return;
+    }
+
+    if (requestUrl.pathname === "/api") {
       sendJson(response, 200, {
         name: "Marble Race Items API",
         status: "ok",
@@ -75,7 +83,10 @@ const server = http.createServer(async (request, response) => {
       return;
     }
 
-    if (requestUrl.pathname.startsWith("/previews/") || requestUrl.pathname.startsWith("/payloads/")) {
+    if (requestUrl.pathname.startsWith("/previews/")
+      || requestUrl.pathname.startsWith("/payloads/")
+      || requestUrl.pathname === "/styles.css"
+      || requestUrl.pathname === "/app.js") {
       servePublicFile(requestUrl.pathname, request, response);
       return;
     }

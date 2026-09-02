@@ -314,6 +314,10 @@ game's single-item lookup, which cannot represent an empty result; the prefixes
 keep it on the normal list search so an unknown ID quietly returns no results.
 Hidden items remain excluded from ID searches.
 
+The server homepage is a mobile-friendly workshop browser. It loads visible
+items directly from `/api/Items`, displays their numeric IDs, and supports
+client-side searching, type filters, sorting, item details, and downloads.
+
 This implements the catalog API, but a real level still has to use the payload
 format expected by Marble Race. The supplied API document does not define that
 file format.

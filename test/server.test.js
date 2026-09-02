@@ -42,6 +42,17 @@ test("Items returns all registered workshop items", async () => {
   assert.ok(items.filter((item) => item.ResourceType === 2).length >= 2);
 });
 
+test("Local server serves the workshop browser and its assets", async () => {
+  const homepage = await fetch(`http://127.0.0.1:${PORT}/`);
+  const stylesheet = await fetch(`http://127.0.0.1:${PORT}/styles.css`);
+  const script = await fetch(`http://127.0.0.1:${PORT}/app.js`);
+  assert.equal(homepage.status, 200);
+  assert.match(homepage.headers.get("content-type"), /^text\/html/);
+  assert.match(await homepage.text(), /id="item-grid"/);
+  assert.match(stylesheet.headers.get("content-type"), /^text\/css/);
+  assert.match(script.headers.get("content-type"), /^text\/javascript/);
+});
+
 test("Items accepts custom-server URL path variants", async () => {
   const expectedCount = await fetch(`http://127.0.0.1:${PORT}/api/Items`).then((response) => response.json()).then((items) => items.length);
   for (const path of ["/Items", "/api/api/Items"]) {

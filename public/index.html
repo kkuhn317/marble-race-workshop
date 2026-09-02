@@ -3,15 +3,62 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#071a2b">
+    <meta name="description" content="Browse levels, campaigns, and assets from the Marble Race Workshop.">
     <title>Marble Race Workshop</title>
-    <style>
-      body { max-width: 42rem; margin: 4rem auto; padding: 0 1rem; font: 18px/1.5 system-ui, sans-serif; }
-      code { background: #eee; padding: .15rem .3rem; }
-    </style>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
   </head>
   <body>
-    <h1>Marble Race Workshop</h1>
-    <p>This server publishes custom content for Marble Race.</p>
-    <p>API endpoint: <a href="/api/Items"><code>/api/Items</code></a></p>
+    <a class="skip-link" href="#catalog">Skip to workshop items</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Marble Race Workshop home">
+        <span class="brand-marble" aria-hidden="true"></span>
+        <span><strong>Marble Race</strong><small>Community workshop archive</small></span>
+      </a>
+      <a class="server-link" href="/api/Items?limit=1000">View API</a>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">ROLL THROUGH THE ARCHIVE</p>
+          <h1 id="page-title">Every course.<br><span>Easy to find.</span></h1>
+          <p class="hero-text">Browse community-made levels and campaigns, find their workshop IDs, and download the originals preserved by this server.</p>
+        </div>
+        <div class="hero-stat" aria-live="polite"><span id="total-count">—</span><small>items online</small></div>
+        <div class="track-lines" aria-hidden="true"></div>
+      </section>
+
+      <section class="catalog-shell" id="catalog" aria-labelledby="catalog-title">
+        <div class="catalog-heading">
+          <div><p class="section-kicker">WORKSHOP CATALOG</p><h2 id="catalog-title">Find your next race</h2></div>
+          <p id="result-count" class="result-count" aria-live="polite">Loading workshop…</p>
+        </div>
+
+        <form class="toolbar" id="filter-form" role="search">
+          <label class="search-box">
+            <span class="visually-hidden">Search workshop items</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
+            <input id="search" name="q" type="search" autocomplete="off" placeholder="Search name, creator, or ID…">
+            <kbd>/</kbd>
+          </label>
+          <label class="select-field"><span>Type</span><select id="type-filter" name="type">
+            <option value="all">All items</option><option value="0">Levels</option><option value="2">Campaigns</option><option value="1">Assets</option>
+          </select></label>
+          <label class="select-field"><span>Sort</span><select id="sort-filter" name="sort">
+            <option value="new">Newest first</option><option value="old">Oldest first</option><option value="name">Name A–Z</option><option value="author">Creator A–Z</option><option value="id-asc">ID: low to high</option><option value="id-desc">ID: high to low</option>
+          </select></label>
+        </form>
+
+        <div id="status" class="status" role="status"><span class="loader" aria-hidden="true"></span><span>Loading the workshop archive…</span></div>
+        <div id="item-grid" class="item-grid" aria-live="polite"></div>
+        <div class="load-more-wrap"><button id="load-more" class="load-more" type="button" hidden>Show more items</button></div>
+      </section>
+    </main>
+
+    <footer><span class="footer-marble" aria-hidden="true"></span><p>An independent archive for the Marble Race community.</p><p><a href="https://kevin-kuhn.dev/">kevin-kuhn.dev</a></p></footer>
+    <dialog id="item-dialog" class="item-dialog" aria-labelledby="dialog-name"><button class="dialog-close" id="dialog-close" type="button" aria-label="Close item details">×</button><div id="dialog-content"></div></dialog>
+    <noscript><div class="noscript">JavaScript is needed for the visual catalog. You can still <a href="/api/Items?limit=1000">view the raw workshop list</a>.</div></noscript>
   </body>
 </html>
