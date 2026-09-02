@@ -67,7 +67,7 @@ const server = http.createServer(async (request, response) => {
 
       const item = loadVisibleItems().find((candidate) => Number(candidate.Id) === Number(idText));
       if (!item) {
-        sendJson(response, 404, { error: "Item not found" }, request.method === "HEAD");
+        sendJson(response, 200, null, request.method === "HEAD");
         return;
       }
 

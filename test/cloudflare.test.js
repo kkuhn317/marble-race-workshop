@@ -63,13 +63,14 @@ test("Cloudflare Items finds a visible item by its exact numeric ID", async () =
   assert.deepEqual(result.map((item) => item.Id), [10001]);
 });
 
-test("Cloudflare GetItem returns one item and 404 for an unknown id", async () => {
+test("Cloudflare GetItem returns one item and a quiet null for an unknown id", async () => {
   const { onRequestGet } = await import("../functions/api/GetItem.js");
   const found = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=1") });
   const missing = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=42424242") });
   assert.equal(found.status, 200);
   assert.equal((await found.json()).Name, "Shuriken Race");
-  assert.equal(missing.status, 404);
+  assert.equal(missing.status, 200);
+  assert.equal(await missing.json(), null);
 });
 
 test("Cloudflare hides moderated items from listings and direct lookups", async () => {
@@ -83,7 +84,9 @@ test("Cloudflare hides moderated items from listings and direct lookups", async 
 
   assert.ok(hiddenItemIds.size > 0);
   assert.ok(!listed.some((item) => hiddenItemIds.has(item.Id)));
-  assert.equal(getItem({ request: new Request(`https://marble.example.dev/api/GetItem?id=${hiddenId}`) }).status, 404);
+  const hiddenResponse = getItem({ request: new Request(`https://marble.example.dev/api/GetItem?id=${hiddenId}`) });
+  assert.equal(hiddenResponse.status, 200);
+  assert.equal(await hiddenResponse.json(), null);
   const searched = await listItems({
     request: new Request(`https://marble.example.dev/api/Items?search=${hiddenId}&limit=1000`),
   }).json();

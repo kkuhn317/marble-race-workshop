@@ -13,9 +13,9 @@ export function onRequestGet(context) {
   const item = isHiddenItemId(id)
     ? undefined
     : items.map(applyMetadataOverrides).find((candidate) => candidate.Id === id);
-  return item
-    ? json(publicItem(item, context.request.url))
-    : json({ error: "Item not found" }, 404);
+  // Marble Race uses GetItem for numeric searches and displays non-success
+  // responses as popups. A JSON null is a successful empty result.
+  return json(item ? publicItem(item, context.request.url) : null);
 }
 
 export function onRequestOptions() {
