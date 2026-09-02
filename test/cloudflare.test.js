@@ -45,6 +45,12 @@ test("Cloudflare GetItem returns one item and 404 for an unknown id", async () =
   assert.equal(missing.status, 404);
 });
 
+test("Cloudflare JSON preserves exact 64-bit Steam author IDs", async () => {
+  const { stringifyApiJson } = await import("../cloudflare/catalog.mjs");
+  const body = stringifyApiJson({ AuthorId: { __rawInteger: "76561199387555910" } });
+  assert.equal(body, '{"AuthorId":76561199387555910}');
+});
+
 test("Worker entry point routes API requests and delegates assets", async () => {
   const worker = (await import("../worker.mjs")).default;
   const env = {

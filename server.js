@@ -3,6 +3,7 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const { randomUUID } = require("node:crypto");
 
 const HOST = process.env.MARBLE_HOST || "0.0.0.0";
 const PORT = parseInteger(process.env.MARBLE_PORT, 3000, 1, 65535);
@@ -174,7 +175,7 @@ function publicItem(item, request) {
     Name: String(item.Name || ""),
     ResourceType: Number(item.ResourceType),
     TimeStamp: Number(item.TimeStamp),
-    AuthorId: Number(item.AuthorId || 0),
+    AuthorId: rawInteger(item.AuthorId),
     AuthorName: String(item.AuthorName || ""),
     PreviewUri: previewUri,
     PayloadUri: payloadUri,
@@ -229,7 +230,7 @@ function safePublicPath(urlPath) {
 }
 
 function sendJson(response, status, value, headOnly = false) {
-  const body = Buffer.from(JSON.stringify(value, null, 2));
+  const body = Buffer.from(stringifyApiJson(value, 2));
   response.writeHead(status, {
     ...corsHeaders(),
     "Content-Type": "application/json; charset=utf-8",
@@ -237,6 +238,30 @@ function sendJson(response, status, value, headOnly = false) {
     "Cache-Control": "no-store",
   });
   response.end(headOnly ? undefined : body);
+}
+
+function stringifyApiJson(value, spacing) {
+  const integers = [];
+  const markerPrefix = `__MARBLE_INT64_${randomUUID()}_`;
+  let body = JSON.stringify(value, (_key, candidate) => {
+    if (candidate && typeof candidate === "object" && typeof candidate.__rawInteger === "string") {
+      const marker = `${markerPrefix}${integers.length}__`;
+      integers.push(candidate.__rawInteger);
+      return marker;
+    }
+    return candidate;
+  }, spacing);
+  integers.forEach((integer, index) => {
+    body = body.replace(`"${markerPrefix}${index}__"`, integer);
+  });
+  return body;
+}
+
+function rawInteger(value) {
+  const text = String(value ?? 0);
+  if (!/^-?\d+$/.test(text)) return 0;
+  if (Number.isSafeInteger(Number(text))) return Number(text);
+  return { __rawInteger: text };
 }
 
 function corsHeaders() {

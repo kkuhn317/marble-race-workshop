@@ -153,7 +153,7 @@ export const items = [
 ];
 
 export function json(value, status = 200) {
-  return new Response(JSON.stringify(value), {
+  return new Response(stringifyApiJson(value), {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
@@ -170,7 +170,7 @@ export function publicItem(item, requestUrl) {
     Name: item.Name,
     ResourceType: item.ResourceType,
     TimeStamp: item.TimeStamp,
-    AuthorId: item.AuthorId,
+    AuthorId: rawInteger(item.AuthorId),
     AuthorName: item.AuthorName,
     PreviewUri: new URL(item.PreviewUri, origin).toString(),
     PayloadUri: new URL(item.PayloadUri, origin).toString(),
@@ -178,4 +178,28 @@ export function publicItem(item, requestUrl) {
     PayloadLength: item.PayloadLength,
     Version: item.Version,
   };
+}
+
+export function stringifyApiJson(value) {
+  const integers = [];
+  const markerPrefix = `__MARBLE_INT64_${crypto.randomUUID()}_`;
+  let body = JSON.stringify(value, (_key, candidate) => {
+    if (candidate && typeof candidate === "object" && typeof candidate.__rawInteger === "string") {
+      const marker = `${markerPrefix}${integers.length}__`;
+      integers.push(candidate.__rawInteger);
+      return marker;
+    }
+    return candidate;
+  });
+  integers.forEach((integer, index) => {
+    body = body.replace(`"${markerPrefix}${index}__"`, integer);
+  });
+  return body;
+}
+
+function rawInteger(value) {
+  const text = String(value ?? 0);
+  if (!/^-?\d+$/.test(text)) return 0;
+  if (Number.isSafeInteger(Number(text))) return Number(text);
+  return { __rawInteger: text };
 }

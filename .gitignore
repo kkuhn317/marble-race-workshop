@@ -1,4 +1,5 @@
 node_modules/
 .package-work/
+.mirror-cache/
 Shuriken Race.zip
 npm-debug.log*

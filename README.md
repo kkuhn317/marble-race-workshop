@@ -82,8 +82,61 @@ The editor updates both catalog files, runs the complete test suite, and offers
 to commit and deploy the changes. If validation fails, it restores the previous
 catalog automatically.
 
-The publisher requires `7z` and `git` on `PATH`, plus Node.js for the test
-suite. Run `npm install` once to install Wrangler, then run
+## Mirror the official workshop
+
+Double-click `mirror-main-workshop.bat` to create or update a preservation
+mirror of the official Marble Race workshop. The mirror is added directly to
+this server's existing catalogue. Official IDs are preserved, while locally
+published items continue using IDs starting at `990000000001`, so the two ID
+ranges do not collide.
+
+Before making changes, the tool displays a plan and asks for confirmation. It:
+
+1. reads every page from the official Marble Race Items API;
+2. treats the numeric official `Description` value as its Steam Workshop ID;
+3. requests the real description and tags from Steam in batches;
+4. downloads each payload and preview as a stream and verifies the exact payload
+   size, ZIP integrity, safe archive paths, root JSON, and preview format;
+5. uploads the original files without repacking them under the `official/`
+   prefix in the existing R2 bucket;
+6. saves a local checkpoint after every completed item, so rerunning after an
+   interruption skips completed uploads;
+7. writes `main-workshop-manifest.json` with source URLs, Steam IDs, timestamps,
+   public mirror URLs, and SHA-256 hashes;
+8. retains previously mirrored items if they later disappear from the source;
+9. merges the mirror with the custom catalogue and runs the full test suite; and
+10. optionally commits, pushes, and waits for the mirrored catalogue to appear
+    on the live API.
+
+The checkpoint and temporary downloads are stored in `.mirror-cache`, which is
+not committed. Payloads and mirrored previews are stored only in R2; Git stores
+the catalogue and preservation manifest.
+
+To inspect the complete plan without downloading or changing anything:
+
+```powershell
+node mirror-main-workshop.mjs --plan
+```
+
+To download and validate one official item without uploading it:
+
+```powershell
+node mirror-main-workshop.mjs --validate-downloads --item-id 1066
+```
+
+For a future unattended incremental update:
+
+```powershell
+node mirror-main-workshop.mjs --non-interactive --push
+```
+
+`--max-items` and `--item-id` are deliberately restricted to the read-only plan
+and validation modes. This prevents a test run from accidentally deploying an
+incomplete official catalogue. Use `--force` on a full run only when every
+mirrored file needs to be copied again.
+
+The publisher and mirror require `7z` and `git` on `PATH`, plus Node.js for the
+test suite. Run `npm install` once to install Wrangler, then run
 `npx wrangler login` once so the publisher can upload to R2. Payloads are
 served from `https://content.marble.kevin-kuhn.dev` and are no longer committed
 to Git, so archives larger than GitHub's 100 MiB file limit are supported.
