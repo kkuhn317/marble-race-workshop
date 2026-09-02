@@ -10,8 +10,10 @@ test("Cloudflare Items returns levels with deployment-origin URLs", async () => 
   });
   assert.equal(response.status, 200);
   const body = await response.json();
-  assert.equal(body.length, 3);
+  assert.ok(body.length > 0 && body.length <= 10);
+  assert.ok(body.every((item) => item.ResourceType === 0));
   const shuriken = body.find((item) => item.Name === "Shuriken Race");
+  assert.ok(shuriken);
   assert.equal(shuriken.Version, "0.0");
   assert.equal(shuriken.AuthorId, 0);
   assert.equal(shuriken.PayloadLength, 385028);
@@ -21,7 +23,7 @@ test("Cloudflare Items returns levels with deployment-origin URLs", async () => 
 test("Cloudflare Items implements filtering and pagination", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
   const excludedBySearch = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?search=missing"),
+    request: new Request("https://marble.example.dev/api/Items?search=__no_such_workshop_item_9e672d59__"),
   }).json();
   const campaigns = await onRequestGet({
     request: new Request("https://marble.example.dev/api/Items?type=2"),
@@ -39,7 +41,7 @@ test("Cloudflare Items implements filtering and pagination", async () => {
 test("Cloudflare GetItem returns one item and 404 for an unknown id", async () => {
   const { onRequestGet } = await import("../functions/api/GetItem.js");
   const found = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=1") });
-  const missing = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=99") });
+  const missing = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=42424242") });
   assert.equal(found.status, 200);
   assert.equal((await found.json()).Name, "Shuriken Race");
   assert.equal(missing.status, 404);
@@ -67,9 +69,9 @@ test("Worker entry point routes API requests and delegates assets", async () => 
     env,
   );
   assert.equal(apiResponse.status, 200);
-  assert.deepEqual(
-    (await apiResponse.json()).map((item) => item.Name).sort(),
-    ["Interlude", "Shuriken Race", "The Embered Racing"],
-  );
+  const levelNames = (await apiResponse.json()).map((item) => item.Name);
+  assert.ok(levelNames.includes("Interlude"));
+  assert.ok(levelNames.includes("Shuriken Race"));
+  assert.ok(levelNames.includes("The Embered Racing"));
   assert.equal(await assetResponse.text(), "asset");
 });

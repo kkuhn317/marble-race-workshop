@@ -31,7 +31,7 @@ test.after(() => {
 });
 
 test("Items returns all registered workshop items", async () => {
-  const response = await fetch(`http://127.0.0.1:${PORT}/api/Items`);
+  const response = await fetch(`http://127.0.0.1:${PORT}/api/Items?limit=1000`);
   assert.equal(response.status, 200);
   const items = await response.json();
   assert.ok(items.length >= 5);
@@ -60,7 +60,7 @@ test("The registered level has a local preview and an R2 payload", async () => {
 });
 
 test("GetItem returns 404 for an unknown item", async () => {
-  const response = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=999`);
+  const response = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=42424242`);
   assert.equal(response.status, 404);
 });
 
