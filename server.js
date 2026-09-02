@@ -10,6 +10,7 @@ const PORT = parseInteger(process.env.MARBLE_PORT, 3000, 1, 65535);
 const ROOT = __dirname;
 const ITEMS_FILE = path.join(ROOT, "items.json");
 const HIDDEN_ITEMS_FILE = path.join(ROOT, "hidden-workshop-items.json");
+const METADATA_OVERRIDES_FILE = path.join(ROOT, "metadata-overrides.json");
 const PUBLIC_DIR = path.join(ROOT, "public");
 
 const MIME_TYPES = {
@@ -108,7 +109,10 @@ function loadItems() {
 
 function loadVisibleItems() {
   const hiddenItemIds = loadHiddenItemIds();
-  return loadItems().filter((item) => !hiddenItemIds.has(Number(item.Id)));
+  const overrides = loadMetadataOverrides();
+  return loadItems()
+    .filter((item) => !hiddenItemIds.has(Number(item.Id)))
+    .map((item) => ({ ...item, ...(overrides[String(item.Id)] || {}) }));
 }
 
 function loadHiddenItemIds() {
@@ -123,6 +127,20 @@ function loadHiddenItemIds() {
     throw new Error("hidden-workshop-items.json must contain a HiddenItemIds array.");
   }
   return new Set(parsed.HiddenItemIds.map(Number));
+}
+
+function loadMetadataOverrides() {
+  let parsed;
+  try {
+    parsed = JSON.parse(fs.readFileSync(METADATA_OVERRIDES_FILE, "utf8"));
+  } catch (error) {
+    throw new Error(`Could not read metadata-overrides.json: ${error.message}`);
+  }
+
+  if (!parsed || !parsed.Items || typeof parsed.Items !== "object" || Array.isArray(parsed.Items)) {
+    throw new Error("metadata-overrides.json must contain an Items object.");
+  }
+  return parsed.Items;
 }
 
 // Different game builds/custom-server screens may expect either a host URL or

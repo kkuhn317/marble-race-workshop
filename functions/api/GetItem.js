@@ -1,5 +1,6 @@
 import { items, json, publicItem } from "../../cloudflare/catalog.mjs";
 import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
+import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -11,7 +12,7 @@ export function onRequestGet(context) {
   const id = Number(idText);
   const item = isHiddenItemId(id)
     ? undefined
-    : items.find((candidate) => candidate.Id === id);
+    : items.map(applyMetadataOverrides).find((candidate) => candidate.Id === id);
   return item
     ? json(publicItem(item, context.request.url))
     : json({ error: "Item not found" }, 404);

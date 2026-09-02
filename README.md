@@ -82,6 +82,31 @@ The editor updates both catalog files, runs the complete test suite, and offers
 to commit and deploy the changes. If validation fails, it restores the previous
 catalog automatically.
 
+## Bulk-edit workshop metadata
+
+Double-click `bulk-edit-workshop-metadata.bat` to change the same author name,
+item name, description, or minimum game version everywhere it exactly matches.
+For example, choose **Author name**, enter the old username, and then enter the
+corrected username. Before changing anything, the tool lists every affected
+item and marks items that are currently hidden.
+
+Bulk changes are stored in `metadata-overrides.json` instead of rewriting the
+preserved source metadata. This keeps the corrections in place after future
+official-workshop mirror updates. Upload dates, IDs, previews, payloads, and
+download sizes are left unchanged. The tool runs all tests and asks before it
+commits and deploys the changes.
+
+For unattended use:
+
+```powershell
+node bulk-edit-workshop-metadata.mjs `
+  --field author `
+  --find "Old Username" `
+  --replace "Correct Username" `
+  --non-interactive `
+  --push
+```
+
 ## Mirror the official workshop
 
 Double-click `mirror-main-workshop.bat` to create or update a preservation

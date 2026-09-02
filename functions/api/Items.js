@@ -1,5 +1,6 @@
 import { items, json, publicItem } from "../../cloudflare/catalog.mjs";
 import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
+import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -18,6 +19,7 @@ export function onRequestGet(context) {
   const sort = (url.searchParams.get("sort") || "new").toLowerCase();
 
   const result = items
+    .map(applyMetadataOverrides)
     .filter((item) => {
       const searchable = [item.Name, item.Description, ...(item.Tags || [])]
         .filter(Boolean)

@@ -11,6 +11,15 @@ test("Cloudflare moderation matches the saved reversible decision list", async (
   assert.deepEqual([...hiddenItemIds].sort((a, b) => a - b), [...saved.HiddenItemIds].sort((a, b) => a - b));
 });
 
+test("Cloudflare metadata overrides match the persistent override file", async () => {
+  const { metadataOverrides } = await import("../cloudflare/metadata-overrides.mjs");
+  const saved = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../metadata-overrides.json"), "utf8"));
+  assert.deepEqual(
+    Object.fromEntries([...metadataOverrides].map(([id, value]) => [String(id), value])),
+    saved.Items,
+  );
+});
+
 test("Cloudflare Items returns levels with deployment-origin URLs", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
   const response = onRequestGet({
@@ -67,6 +76,23 @@ test("Cloudflare hides moderated items from listings and direct lookups", async 
   assert.ok(hiddenItemIds.size > 0);
   assert.ok(!listed.some((item) => hiddenItemIds.has(item.Id)));
   assert.equal(getItem({ request: new Request(`https://marble.example.dev/api/GetItem?id=${hiddenId}`) }).status, 404);
+});
+
+test("Cloudflare applies metadata overrides before searching and returning items", async () => {
+  const { onRequestGet: listItems } = await import("../functions/api/Items.js");
+  const { onRequestGet: getItem } = await import("../functions/api/GetItem.js");
+  const { metadataOverrides } = await import("../cloudflare/metadata-overrides.mjs");
+  metadataOverrides.set(1, { Name: "Temporary Override Name", AuthorName: "Corrected Author" });
+  try {
+    const found = await getItem({ request: new Request("https://marble.example.dev/api/GetItem?id=1") }).json();
+    const searched = await listItems({
+      request: new Request("https://marble.example.dev/api/Items?search=temporary%20override%20name&limit=1000"),
+    }).json();
+    assert.equal(found.AuthorName, "Corrected Author");
+    assert.ok(searched.some((item) => item.Id === 1 && item.Name === "Temporary Override Name"));
+  } finally {
+    metadataOverrides.delete(1);
+  }
 });
 
 test("Cloudflare JSON preserves exact 64-bit Steam author IDs", async () => {
