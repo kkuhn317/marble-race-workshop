@@ -282,8 +282,9 @@ function requireRun(command, arguments_) {
 }
 
 function openUrl(url) {
-  const escaped = String(url).replaceAll('"', '""');
-  spawn("cmd.exe", ["/d", "/s", "/c", `start "" "${escaped}"`], { detached: true, stdio: "ignore", windowsHide: true }).unref();
+  const child = spawn("explorer.exe", [String(url)], { detached: true, stdio: "ignore", windowsHide: true });
+  child.on("error", (error) => console.error(`Could not open the browser automatically: ${error.message}`));
+  child.unref();
 }
 
 async function serveUiFile(pathname, response) {
@@ -344,7 +345,8 @@ const invokedPath = process.argv[1] ? resolve(process.argv[1]) : "";
 if (invokedPath === resolve(fileURLToPath(import.meta.url))) {
   createWorkshopManager().then(({ url }) => {
     console.log("Marble Race Workshop Manager is running.");
-    console.log(url.replace(/token=[^&]+/, "token=hidden"));
+    console.log("If the browser did not open, copy this complete address:");
+    console.log(url);
     console.log("Keep this window open while using the manager. Press Ctrl+C to stop it.");
   }).catch((error) => {
     console.error(`Workshop Manager could not start: ${error.message}`);
