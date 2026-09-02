@@ -21,7 +21,7 @@ $ErrorActionPreference = "Stop"
 
 $script:RepoRoot = $PSScriptRoot
 $staticAssetLimit = 25MB
-$customIdFloor = [int64]990000000001
+$customIdFloor = [int64]10001
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ("marble-workshop-publish-" + [guid]::NewGuid().ToString("N"))
 
 function Get-ObjectProperty {
@@ -506,8 +506,13 @@ try {
         Write-Host "Updating existing workshop item ID $itemId."
     }
     else {
-        $usedCustomIds = @($items | ForEach-Object { [int64]$_.Id } | Where-Object { $_ -ge $customIdFloor })
+        $usedCustomIds = @($items | Where-Object {
+            [string](Get-ObjectProperty $_ "MirrorSource" "") -ne "official-main" -and
+            [int64]$_.Id -ge $customIdFloor
+        } | ForEach-Object { [int64]$_.Id })
         $itemId = if ($usedCustomIds.Count -eq 0) { $customIdFloor } else { [int64](($usedCustomIds | Measure-Object -Maximum).Maximum + 1) }
+        $allUsedIds = @($items | ForEach-Object { [int64]$_.Id })
+        while ($allUsedIds -contains $itemId) { $itemId++ }
         Write-Host "Assigned new workshop item ID $itemId."
     }
 

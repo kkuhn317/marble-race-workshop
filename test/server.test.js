@@ -52,10 +52,10 @@ test("Items accepts custom-server URL path variants", async () => {
 });
 
 test("Items finds a visible item by its exact numeric ID", async () => {
-  const response = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=990000000001&limit=1000`);
+  const response = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=10001&limit=1000`);
   assert.equal(response.status, 200);
   const items = await response.json();
-  assert.deepEqual(items.map((item) => item.Id), [990000000001]);
+  assert.deepEqual(items.map((item) => item.Id), [10001]);
 });
 
 test("The registered level has a local preview and an R2 payload", async () => {

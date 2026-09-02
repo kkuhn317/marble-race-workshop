@@ -112,8 +112,8 @@ node bulk-edit-workshop-metadata.mjs `
 Double-click `mirror-main-workshop.bat` to create or update a preservation
 mirror of the official Marble Race workshop. The mirror is added directly to
 this server's existing catalogue. Official IDs are preserved, while locally
-published items continue using IDs starting at `990000000001`, so the two ID
-ranges do not collide.
+published items use IDs starting at `10001`. The publisher skips any ID that is
+already occupied, so future official items cannot silently collide with them.
 
 Before making changes, the tool displays a plan and asks for confirmation. It:
 

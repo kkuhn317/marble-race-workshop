@@ -58,9 +58,9 @@ test("Cloudflare Items implements filtering and pagination", async () => {
 test("Cloudflare Items finds a visible item by its exact numeric ID", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
   const result = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?search=990000000001&limit=1000"),
+    request: new Request("https://marble.example.dev/api/Items?search=10001&limit=1000"),
   }).json();
-  assert.deepEqual(result.map((item) => item.Id), [990000000001]);
+  assert.deepEqual(result.map((item) => item.Id), [10001]);
 });
 
 test("Cloudflare GetItem returns one item and 404 for an unknown id", async () => {

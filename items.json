@@ -19,7 +19,7 @@
     "Rating": 0
   },
   {
-    "Id": 990000000001,
+    "Id": 10001,
     "Name": "Hamsterball V 2.4.2",
     "ResourceType": 2,
     "TimeStamp": 1788278093,
@@ -39,7 +39,7 @@
     "Rating": 0
   },
   {
-    "Id": 990000000002,
+    "Id": 10002,
     "Name": "Kry Pack 2",
     "ResourceType": 2,
     "TimeStamp": 1787673969,
@@ -58,7 +58,7 @@
     "Rating": 0
   },
   {
-    "Id": 990000000003,
+    "Id": 10003,
     "Name": "Interlude",
     "ResourceType": 0,
     "TimeStamp": 1787673969,
@@ -77,7 +77,7 @@
     "Rating": 0
   },
   {
-    "Id": 990000000004,
+    "Id": 10004,
     "Name": "The Embered Racing",
     "ResourceType": 0,
     "TimeStamp": 1787673969,
@@ -97,7 +97,7 @@
     "Rating": 0
   },
   {
-    "Id": 990000000005,
+    "Id": 10005,
     "Name": "Deluxe Series",
     "ResourceType": 2,
     "TimeStamp": 1788277525,
@@ -115,7 +115,7 @@
     "Rating": 0
   },
   {
-    "Id": 990000000006,
+    "Id": 10006,
     "Name": "Kry Pack 3",
     "ResourceType": 2,
     "TimeStamp": 1788281477,
@@ -133,7 +133,7 @@
     "Rating": 0
   },
   {
-    "Id": 990000000007,
+    "Id": 10007,
     "Name": "Rcubed Pack 3.0",
     "ResourceType": 2,
     "TimeStamp": 1788282142,
