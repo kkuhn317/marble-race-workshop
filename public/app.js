@@ -112,7 +112,8 @@ function renderItems() {
 }
 
 function createItemCard(item) {
-  const article = create("article", "item-card");
+  const typeName = typeNameFor(item);
+  const article = create("article", `item-card ${typeName.toLocaleLowerCase()}`);
   const previewButton = create("button", "preview-button");
   previewButton.type = "button";
   previewButton.setAttribute("aria-label", `View ${item.Name}, workshop ID ${item.Id}`);
@@ -121,7 +122,6 @@ function createItemCard(item) {
   image.src = item.PreviewUri; image.alt = ""; image.loading = "lazy"; image.decoding = "async";
   image.addEventListener("error", () => image.replaceWith(create("span", "preview-fallback", item.Name.slice(0, 1).toLocaleUpperCase())), { once: true });
   previewButton.append(image);
-  const typeName = typeNameFor(item);
   article.append(create("span", `type-pill ${typeName.toLocaleLowerCase()}`, typeName), create("span", "id-pill", `ID ${item.Id}`), previewButton);
   const body = create("div", "card-body");
   body.append(create("h3", "", item.Name));

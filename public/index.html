@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#071a2b">
+    <meta name="theme-color" content="#e8f2ff">
     <meta name="description" content="Browse levels, campaigns, and assets from the Marble Race Workshop.">
     <title>Marble Race Workshop</title>
     <link rel="stylesheet" href="/styles.css">
@@ -12,30 +12,19 @@
   <body>
     <a class="skip-link" href="#catalog">Skip to workshop items</a>
     <header class="site-header">
-      <a class="brand" href="/" aria-label="Marble Race Workshop home">
+      <div class="brand">
         <span class="brand-marble" aria-hidden="true"></span>
-        <span><strong>Marble Race</strong><small>Community workshop archive</small></span>
-      </a>
-      <a class="server-link" href="/api/Items?limit=1000">View API</a>
+        <div>
+          <h1 id="page-title">Marble Race Workshop</h1>
+          <p>Browse levels, campaigns, and assets. Every item shows its ID.</p>
+        </div>
+      </div>
+      <div class="item-total" aria-live="polite"><strong id="total-count">—</strong><span>items</span></div>
     </header>
 
     <main>
-      <section class="hero" aria-labelledby="page-title">
-        <div class="hero-copy">
-          <p class="eyebrow">ROLL THROUGH THE ARCHIVE</p>
-          <h1 id="page-title">Every course.<br><span>Easy to find.</span></h1>
-          <p class="hero-text">Browse community-made levels and campaigns, find their workshop IDs, and download the originals preserved by this server.</p>
-        </div>
-        <div class="hero-stat" aria-live="polite"><span id="total-count">—</span><small>items online</small></div>
-        <div class="track-lines" aria-hidden="true"></div>
-      </section>
-
-      <section class="catalog-shell" id="catalog" aria-labelledby="catalog-title">
-        <div class="catalog-heading">
-          <div><p class="section-kicker">WORKSHOP CATALOG</p><h2 id="catalog-title">Find your next race</h2></div>
-          <p id="result-count" class="result-count" aria-live="polite">Loading workshop…</p>
-        </div>
-
+      <section class="catalog-shell" id="catalog" aria-labelledby="page-title">
+        <p id="result-count" class="result-count" aria-live="polite">Loading workshop…</p>
         <form class="toolbar" id="filter-form" role="search">
           <label class="search-box">
             <span class="visually-hidden">Search workshop items</span>
@@ -57,7 +46,7 @@
       </section>
     </main>
 
-    <footer><span class="footer-marble" aria-hidden="true"></span><p>An independent archive for the Marble Race community.</p><p><a href="https://kevin-kuhn.dev/">kevin-kuhn.dev</a></p></footer>
+    <footer><p>Marble Race Workshop</p><p><a href="/api/Items?limit=1000">View API</a></p></footer>
     <dialog id="item-dialog" class="item-dialog" aria-labelledby="dialog-name"><button class="dialog-close" id="dialog-close" type="button" aria-label="Close item details">×</button><div id="dialog-content"></div></dialog>
     <noscript><div class="noscript">JavaScript is needed for the visual catalog. You can still <a href="/api/Items?limit=1000">view the raw workshop list</a>.</div></noscript>
   </body>
