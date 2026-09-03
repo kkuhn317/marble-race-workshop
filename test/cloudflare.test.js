@@ -43,16 +43,20 @@ test("Cloudflare Items implements filtering and pagination", async () => {
     request: new Request("https://marble.example.dev/api/Items?search=__no_such_workshop_item_9e672d59__"),
   }).json();
   const campaigns = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?type=2"),
+    request: new Request("https://marble.example.dev/api/Items?type=2&limit=1000"),
+  }).json();
+  const allItems = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?limit=1000"),
   }).json();
   const page = await onRequestGet({
     request: new Request("https://marble.example.dev/api/Items?skip=4&limit=1"),
   }).json();
   assert.deepEqual(excludedBySearch, []);
-  assert.ok(campaigns.some((item) => item.Name === "Hamsterball V 2.4.2"));
-  assert.ok(campaigns.some((item) => item.Name === "Kry Pack 2"));
+  assert.ok(campaigns.length > 0);
+  assert.ok(campaigns.every((item) => item.ResourceType === 2));
   assert.ok(campaigns.every((item) => /^https:\/\/content\.marble\.kevin-kuhn\.dev\//.test(item.PayloadUri)));
   assert.equal(page.length, 1);
+  assert.equal(page[0].Id, allItems[4].Id);
 });
 
 test("Cloudflare Items finds a visible item by prefixed numeric ID", async () => {
