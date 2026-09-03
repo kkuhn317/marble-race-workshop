@@ -511,7 +511,7 @@ try {
     $defaultDescription = if (-not [string]::IsNullOrWhiteSpace($embeddedDescription)) { $embeddedDescription } elseif ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Description" "") } else { "" }
     $defaultVersion = if (-not [string]::IsNullOrWhiteSpace($embeddedVersion) -and $embeddedVersion -ne "0.0") { $embeddedVersion } elseif ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Version" "0.0") } else { "0.0" }
     $archiveTags = @(Get-ObjectProperty $metadata "Tags" @())
-    $defaultTags = if ($archiveTags.Count -gt 0) { $archiveTags } elseif ($null -ne $existingItem) { @(Get-ObjectProperty $existingItem "Tags" @()) } else { @() }
+    $defaultTags = @(if ($archiveTags.Count -gt 0) { $archiveTags } elseif ($null -ne $existingItem) { @(Get-ObjectProperty $existingItem "Tags" @()) })
     if ($defaultTags.Count -eq 0) { $defaultTags = @($detected.Kind.ToLowerInvariant()) }
     $displayName = Read-WithDefault "Display name" $(if ($Name) { $Name } else { $defaultName }) (-not [string]::IsNullOrWhiteSpace($Name))
     $authorName = Read-WithDefault "Author" $(if ($Author) { $Author } else { $defaultAuthor }) (-not [string]::IsNullOrWhiteSpace($Author))

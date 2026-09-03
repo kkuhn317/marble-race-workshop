@@ -136,4 +136,7 @@ test("item updater keeps the selected ID and existing catalogue metadata", () =>
   assert.match(publisher, /\$defaultAuthor = if \(-not \[string\]::IsNullOrWhiteSpace\(\$embeddedAuthor\)/);
   assert.match(publisher, /\$defaultDescription = if \(-not \[string\]::IsNullOrWhiteSpace\(\$embeddedDescription\)/);
   assert.match(publisher, /\$defaultVersion = if \(-not \[string\]::IsNullOrWhiteSpace\(\$embeddedVersion\)/);
+  assert.match(publisher, /\$defaultTags = @\(if \(\$archiveTags\.Count -gt 0\)/);
+  const publishSelector = fs.readFileSync(path.resolve(__dirname, "../select-and-publish-workshop-item.ps1"), "utf8");
+  assert.match(publishSelector, /publisher-error\.txt/);
 });

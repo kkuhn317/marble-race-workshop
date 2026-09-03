@@ -7,3 +7,4 @@ duplicate-review.html
 .duplicate-scan-samples/
 Shuriken Race.zip
 npm-debug.log*
+.workshop-manager-logs/

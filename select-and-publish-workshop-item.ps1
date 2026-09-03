@@ -30,6 +30,19 @@ try {
     Write-Host "Finished."
     Read-Host "Press Enter to close"
 }
+catch {
+    $logRoot = Join-Path $PSScriptRoot ".workshop-manager-logs"
+    [IO.Directory]::CreateDirectory($logRoot) | Out-Null
+    $logPath = Join-Path $logRoot "publisher-error.txt"
+    $details = "Publisher failed: $($_.Exception.Message)" + [Environment]::NewLine + $_.ScriptStackTrace
+    [IO.File]::WriteAllText($logPath, $details + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+    Write-Host ""
+    Write-Host $details -ForegroundColor Red
+    Write-Host "The error was saved to $logPath" -ForegroundColor Yellow
+    Write-Host ""
+    Read-Host "Press Enter to close"
+    exit 1
+}
 finally {
     $dialog.Dispose()
     $owner.Dispose()
