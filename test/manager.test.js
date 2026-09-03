@@ -119,8 +119,12 @@ test("Steam recovery bookmarklet uses only the download endpoint", async () => {
 
 test("item updater keeps the selected ID and existing catalogue metadata", () => {
   const publisher = fs.readFileSync(path.resolve(__dirname, "../publish-workshop-item.ps1"), "utf8");
+  const manager = fs.readFileSync(path.resolve(__dirname, "../workshop-manager.mjs"), "utf8");
+  const updateLauncher = fs.readFileSync(path.resolve(__dirname, "../select-and-update-workshop-item.bat"), "utf8");
   assert.match(publisher, /\[Int64\]\$UpdateItemId = 0/);
   assert.match(publisher, /Updating selected workshop item ID/);
   assert.match(publisher, /foreach \(\$property in \$existingItem\.PSObject\.Properties\)/);
   assert.match(publisher, /\$newItem\["PayloadUri"\] = \$payloadUri/);
+  assert.match(manager, /\["\/d", "\/k", "call", launcher, String\(id\)\]/);
+  assert.match(updateLauncher, /-STA/);
 });

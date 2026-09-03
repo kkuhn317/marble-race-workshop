@@ -280,9 +280,9 @@ async function launchItemUpdate(idValue) {
   const items = await readJson(ITEMS_PATH);
   const item = items.find((candidate) => Number(candidate.Id) === id);
   if (!item) throw new Error(`Workshop item #${id} does not exist.`);
-  const launcher = resolve(ROOT, "select-and-update-workshop-item.ps1");
+  const launcher = resolve(ROOT, "select-and-update-workshop-item.bat");
   if (!existsSync(launcher)) throw new Error("The item updater is not available yet.");
-  spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", launcher, "-ItemId", String(id)], {
+  spawn("cmd.exe", ["/d", "/k", "call", launcher, String(id)], {
     cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false,
   }).unref();
   return { message: `Choose the new archive for #${id} in the file window.` };
