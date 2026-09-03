@@ -249,7 +249,7 @@ try {
     Expand-SafeZip (Resolve-Path -LiteralPath $ArchivePath).Path $extractRoot
     $steam = Get-Content -Raw -LiteralPath $MetadataPath | ConvertFrom-Json
     $modern = Resolve-ModernRoot $extractRoot
-    $resourceType = -1; $kind = ""; $version = "1.0.0"; $embeddedAuthor = ""; $requiredJson = ""; $rootMetadata = $null
+    $resourceType = -1; $kind = ""; $version = "1.0.0"; $embeddedAuthor = ""; $requiredJson = ""; $rootMetadata = $null; $preserveLegacyPayload = $false
 
     if ($null -ne $modern) {
         Copy-ContentTree $modern.Root $contentRoot
@@ -297,8 +297,8 @@ try {
         $blockGroups = Get-Property $payload "BlockGroups"
         if ($null -ne $blockGroups) {
             $resourceType = 0; $kind = "Level"; $requiredJson = "level.json"
-            Normalize-BlockAttributes $blockGroups
-            Write-Utf8Json (Join-Path $contentRoot "block.json") $blockGroups
+            $preserveLegacyPayload = $true
+            [IO.File]::Copy($payloadPath, (Join-Path $contentRoot $requiredJson), $true)
             $version = [string](Get-Property $payload "AppVersion" "1.0.0")
             if ([string]::IsNullOrWhiteSpace($version)) { $version = "1.0.0" }
             $embeddedAuthor = [string](Get-Property $payload "Author" "")
@@ -309,29 +309,14 @@ try {
                 if ($bytes.Length -ge 8 -and $bytes[0] -eq 0x89 -and $bytes[1] -eq 0x50) { $thumbnailName = "thumbnail.png" }
                 [IO.File]::WriteAllBytes((Join-Path $contentRoot $thumbnailName), $bytes)
             }
-            Write-LegacyMaterials @(Get-Property $payload "Materials" @()) $contentRoot $true
-            $level = [ordered]@{
-                RngSeed = [int64](Get-Property $payload "RngSeed" 0)
-                UiColor = Normalize-Color ([string](Get-Property $payload "MediumColor" "0xD7E7FF"))
-                BackgroundColor = Normalize-Color ([string](Get-Property $payload "BackgroundColor" "0xD7E7FF"))
-                ThumbnailPath = $thumbnailName
-                LevelType = [string](Get-Property $payload "LevelType" "Race")
-                WorkshopId = [int64]$steam.publishedfileid
-                Timestamp = [int64]$steam.time_created
-                Author = [string]$steam.author_name
-                Description = [string]$steam.description
-                Tags = @($steam.tags)
-                Version = $version
-                Type = "Level"
-            }
-            Write-Utf8Json (Join-Path $contentRoot "level.json") $level
-            $rootMetadata = [pscustomobject]$level
-            $preview = Find-Preview $contentRoot $level
+            $rootMetadata = $payload
+            $preview = if (Test-Path -LiteralPath (Join-Path $contentRoot $thumbnailName) -PathType Leaf) { Join-Path $contentRoot $thumbnailName } else { $null }
         }
         else {
             $resourceType = 1; $kind = "Block"; $requiredJson = "block.json"; $version = "1.0.0"
-            Normalize-BlockAttributes $payload
-            Write-Utf8Json (Join-Path $contentRoot "block.json") $payload
+            $preserveLegacyPayload = $true
+            [IO.File]::Copy($payloadPath, (Join-Path $contentRoot $requiredJson), $true)
+            $embeddedAuthor = [string](Get-Property $payload "Author" "")
             $preview = $null
         }
     }
@@ -340,7 +325,7 @@ try {
     if ($null -eq $preview) {
         $preview = Join-Path $contentRoot "thumbnail.jpg"
         New-PlaceholderPreview $preview ([string]$steam.title) ([string](Get-Property $rootMetadata "BackgroundColor" "0x86B7FF"))
-        if ($null -ne $rootMetadata -and $resourceType -ne 1) {
+        if ($null -ne $rootMetadata -and $resourceType -ne 1 -and -not $preserveLegacyPayload) {
             $rootMetadata | Add-Member -NotePropertyName "ThumbnailPath" -NotePropertyValue "thumbnail.jpg" -Force
             Write-Utf8Json (Join-Path $contentRoot $requiredJson) $rootMetadata
         }

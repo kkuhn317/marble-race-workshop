@@ -98,6 +98,15 @@ test("transitional converter handles levels deeper than PowerShell's JSON limit"
   }
 });
 
+test("legacy recovery keeps the game's integer migration version intact", () => {
+  const preparer = fs.readFileSync(path.resolve(__dirname, "../prepare-recovered-steam-item.ps1"), "utf8");
+  const importer = fs.readFileSync(path.resolve(__dirname, "../import-recovered-steam-workshop.mjs"), "utf8");
+  assert.match(preparer, /\[IO\.File\]::Copy\(\$payloadPath, \(Join-Path \$contentRoot \$requiredJson\), \$true\)/);
+  assert.doesNotMatch(preparer, /Version = \$version\s+Type = "Level"/);
+  assert.match(importer, /LEGACY_PREPARATION_VERSION = 2/);
+  assert.match(importer, /-legacy\$\{preparationVersion\}/);
+});
+
 test("Steam recovery bookmarklet uses only the download endpoint", async () => {
   const { buildSteamRecoveryBookmarklet } = await import("../workshop-manager.mjs");
   const bookmarklet = buildSteamRecoveryBookmarklet(["1577565384", "1577565384", "abc"]);

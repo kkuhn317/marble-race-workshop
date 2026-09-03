@@ -24,6 +24,7 @@ const R2_BUCKET = "marble-race-workshop-content";
 const R2_PUBLIC_BASE = "https://content.marble.kevin-kuhn.dev";
 const MIRROR_SOURCE = "steam-recovery";
 const RECOVERED_ID_FLOOR = 2000;
+const LEGACY_PREPARATION_VERSION = 2;
 
 export function parseRecoveryArguments(argv) {
   const options = {
@@ -147,7 +148,8 @@ async function main() {
     console.log(`\n[${index + 1}/${candidates.length}] ${steam.title || candidate.embeddedName || candidate.steamId}`);
     const archiveSha = await hashFile(candidate.archivePath);
     let record = stateMap.get(candidate.steamId);
-    if (!record || record.ArchiveSha256 !== archiveSha || Number(record.Id) !== candidate.assignedId || !existsSync(record.PreparedPayloadPath) || !existsSync(record.PreparedPreviewPath)) {
+    const legacyNeedsRebuild = candidate.format === "legacy" && Number(record?.PreparationVersion || 1) < LEGACY_PREPARATION_VERSION;
+    if (!record || legacyNeedsRebuild || record.ArchiveSha256 !== archiveSha || Number(record.Id) !== candidate.assignedId || !existsSync(record.PreparedPayloadPath) || !existsSync(record.PreparedPreviewPath)) {
       record = await prepareCandidate(candidate, steam, archiveSha);
       stateMap.set(candidate.steamId, record);
       await writeState(stateMap);
@@ -329,7 +331,8 @@ async function prepareCandidate(candidate, steam, archiveSha) {
   const [info, payloadStats] = await Promise.all([readJson(infoPath), stat(payloadPath)]);
   const previewType = await detectImage(previewPath);
   const timestamp = Number(steam.time_created || candidate.embeddedTimestamp || 0);
-  const stem = `${id}-${timestamp || candidate.steamId}`;
+  const preparationVersion = candidate.format === "legacy" ? LEGACY_PREPARATION_VERSION : 1;
+  const stem = `${id}-${timestamp || candidate.steamId}${candidate.format === "legacy" ? `-legacy${preparationVersion}` : ""}`;
   const payloadKey = `steam-recovery/payloads/${stem}.zip`;
   const previewKey = `steam-recovery/previews/${stem}.${previewType.extension}`;
   return {
@@ -338,7 +341,7 @@ async function prepareCandidate(candidate, steam, archiveSha) {
     PayloadKey: payloadKey, PreviewKey: previewKey,
     PayloadUri: `${R2_PUBLIC_BASE}/${payloadKey}`, PreviewUri: `${R2_PUBLIC_BASE}/${previewKey}`,
     PayloadLength: payloadStats.size, PayloadSha256: await hashFile(payloadPath), PreviewSha256: await hashFile(previewPath),
-    PreviewContentType: previewType.contentType, Uploaded: false,
+    PreviewContentType: previewType.contentType, PreparationVersion: preparationVersion, Uploaded: false,
   };
 }
 
