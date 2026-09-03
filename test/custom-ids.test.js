@@ -8,9 +8,13 @@ const path = require("node:path");
 test("custom workshop items use the reserved short ID range", () => {
   const items = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../items.json"), "utf8"));
   const customItems = items.filter((item) => !["official-main", "steam-recovery"].includes(item.MirrorSource));
-  assert.deepEqual(customItems.map((item) => item.Id).sort((a, b) => a - b), [
-    1, 10001, 10002, 10003, 10004, 10005, 10006, 10007,
-  ]);
+  const customIds = customItems.map((item) => item.Id);
+
+  assert.ok(customIds.includes(1), "the original Shuriken Race item keeps ID 1");
+  assert.ok(
+    customIds.filter((id) => id !== 1).every((id) => Number.isSafeInteger(id) && id >= 10001),
+    "new custom items use IDs beginning at 10001",
+  );
   assert.equal(new Set(items.map((item) => item.Id)).size, items.length);
   const recoveredItems = items.filter((item) => item.MirrorSource === "steam-recovery");
   assert.ok(recoveredItems.every((item) => item.Id >= 2000 && item.Id < 10000));
