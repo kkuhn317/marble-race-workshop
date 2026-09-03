@@ -17607,10 +17607,10 @@ export const items = [
     "TimeStamp": 1538604939,
     "AuthorId": "76561198058516625",
     "AuthorName": "BookwormKevin&Ryan",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2000-1538604939.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2000-1538604939.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2000-1538604939-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2000-1538604939-legacy2.zip",
     "Description": "hahahahah",
-    "PayloadLength": 54540,
+    "PayloadLength": 98102,
     "Version": "1.0.0",
     "Tags": [
       "hard"
@@ -17625,7 +17625,7 @@ export const items = [
     "SteamWorkshopId": "1529701110",
     "SteamAuthorId": "76561198058516625",
     "SteamTimeUpdated": 1538604939,
-    "PayloadSha256": "57d9c31e4f97692448fa572f3a2125016264ac015284242aaa590227ed88f288",
+    "PayloadSha256": "ca560baf1efa5737c7cf850e6d81bd7984bfcdcd7ac5284451b4e0305182f0d8",
     "PreviewSha256": "6f7e6021b7dd99f9bce1bb4c281d020e587c2fc8add45019e51e3c0d5ca950ed",
     "RecoveryArchiveName": "depot_851640_2022400822782063482.zip"
   },
@@ -17636,10 +17636,10 @@ export const items = [
     "TimeStamp": 1538838194,
     "AuthorId": "76561198058516625",
     "AuthorName": "BookwormKevin&Ryan",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2001-1538838194.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2001-1538838194.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2001-1538838194-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2001-1538838194-legacy2.zip",
     "Description": "A replica of the first level of Hamsterball",
-    "PayloadLength": 31457,
+    "PayloadLength": 47991,
     "Version": "1.0.0",
     "Tags": [
       "Warm-Up"
@@ -17654,7 +17654,7 @@ export const items = [
     "SteamWorkshopId": "1531938574",
     "SteamAuthorId": "76561198058516625",
     "SteamTimeUpdated": 1538838194,
-    "PayloadSha256": "4903b53044ba687714f8995d47e217c60dbd3906523ee478f9f1ffb926cf7847",
+    "PayloadSha256": "d9f8328d6c69a386bddae80028927e4ba50b279880c85a71f32075867ef41aed",
     "PreviewSha256": "597598232b3b56d5ebd9798cd56707d3a16029e1eff01821a67a4b66496db463",
     "RecoveryArchiveName": "depot_851640_4199682590921055821.zip"
   },
@@ -17665,10 +17665,10 @@ export const items = [
     "TimeStamp": 1538925342,
     "AuthorId": "76561198137042408",
     "AuthorName": "Teleporter B",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2002-1538925342.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2002-1538925342.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2002-1538925342-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2002-1538925342-legacy2.zip",
     "Description": "If you simple want to get from point A to point B, then test your Marble Race skills on this simple track. No frills, just a good way to learn how to play.",
-    "PayloadLength": 44674,
+    "PayloadLength": 73789,
     "Version": "1.0.0",
     "Tags": [
       "Warm-Up",
@@ -17685,7 +17685,7 @@ export const items = [
     "SteamWorkshopId": "1533072316",
     "SteamAuthorId": "76561198137042408",
     "SteamTimeUpdated": 1538925342,
-    "PayloadSha256": "aa53ffeadc285f4e46d6ed97641d7cc154ed58e46dac973ec755c68321bbde19",
+    "PayloadSha256": "760507fe246c45d06dea06b64f21d50a2f86b45e07dd2e67996f49d91d08e35c",
     "PreviewSha256": "5e3f7b2ad87c99f7a3db77bede4892e64af55ef635594a09c07dd248fe6abcda",
     "RecoveryArchiveName": "depot_851640_1123922972891005423.zip"
   },
@@ -17696,10 +17696,10 @@ export const items = [
     "TimeStamp": 1539626060,
     "AuthorId": "76561197995003053",
     "AuthorName": "p0ke",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2003-1539626060.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2003-1539626060.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2003-1539626060-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2003-1539626060-legacy2.zip",
     "Description": "Rotating stuff including a ferris wheel, invisible slides and a big jump to the end.",
-    "PayloadLength": 56959,
+    "PayloadLength": 79736,
     "Version": "1.0.0",
     "Tags": [
       "level"
@@ -17714,7 +17714,7 @@ export const items = [
     "SteamWorkshopId": "1539991715",
     "SteamAuthorId": "76561197995003053",
     "SteamTimeUpdated": 1539626060,
-    "PayloadSha256": "07d0ad5240a8ea855dd4e26c505fd7b8e003a6135a2ebdc81873fefca4fe5d06",
+    "PayloadSha256": "18f601bd874e0e80fb90c581eb431da55ac359b098c020bb4649d6c4aaa3a625",
     "PreviewSha256": "d5e88a2da98b1601f579c74ce39463edfaa36edaff76eebfe98491c2dcd3cc4e",
     "RecoveryArchiveName": "depot_851640_7228276839242859072.zip"
   },
@@ -17725,10 +17725,10 @@ export const items = [
     "TimeStamp": 1540562432,
     "AuthorId": "76561197995003053",
     "AuthorName": "p0ke",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2004-1540562432.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2004-1540562432.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2004-1540562432-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2004-1540562432-legacy2.zip",
     "Description": "Experiments with wipes, rails and some more stuff",
-    "PayloadLength": 55371,
+    "PayloadLength": 58695,
     "Version": "1.0.0",
     "Tags": [
       "level"
@@ -17743,7 +17743,7 @@ export const items = [
     "SteamWorkshopId": "1548313665",
     "SteamAuthorId": "76561197995003053",
     "SteamTimeUpdated": 1540562432,
-    "PayloadSha256": "55bdca4070ebe064faed0e1f134f1afcffeb2f59e1c33315fe8cec785b8c2f6c",
+    "PayloadSha256": "1f25689eb651afaffc170d26b2dd1a2e369eb1829da71029f2e9f1ec31c48d65",
     "PreviewSha256": "5eb732baa782c3d56691f1f8b124c6ad02d4a34146aa7389cf52366fdc485cc2",
     "RecoveryArchiveName": "depot_851640_2946443076827078895.zip"
   },
@@ -17754,10 +17754,10 @@ export const items = [
     "TimeStamp": 1540647515,
     "AuthorId": "76561197995003053",
     "AuthorName": "p0ke",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2005-1540647515.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2005-1540647515.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2005-1540647515-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2005-1540647515-legacy2.zip",
     "Description": "Arena with 2 very disturbing black boxes :)",
-    "PayloadLength": 42701,
+    "PayloadLength": 72911,
     "Version": "1.0.0",
     "Tags": [
       "level"
@@ -17772,7 +17772,7 @@ export const items = [
     "SteamWorkshopId": "1549246676",
     "SteamAuthorId": "76561197995003053",
     "SteamTimeUpdated": 1540647515,
-    "PayloadSha256": "e043b055923e6d575213d1260bae5202e399893ecda2e53aa397b8ae5e93645c",
+    "PayloadSha256": "de024c7c10c32e69449b4432d9ecb63c1a15e35860cb0cc504fb60ff56138877",
     "PreviewSha256": "a7c558e10b708211e910816bce6d82f8cef2f5c15505941a8a46aa3d0040b3bf",
     "RecoveryArchiveName": "depot_851640_5396764371751784065.zip"
   },
@@ -17783,10 +17783,10 @@ export const items = [
     "TimeStamp": 1540678500,
     "AuthorId": "76561198058516625",
     "AuthorName": "BookwormKevin",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2006-1540678500.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2006-1540678500.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2006-1540678500-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2006-1540678500-legacy2.zip",
     "Description": "My current progress in replicating Beginner Race from hamsterball",
-    "PayloadLength": 32889,
+    "PayloadLength": 52772,
     "Version": "1.0.0",
     "Tags": [
       "Hamsterball"
@@ -17801,7 +17801,7 @@ export const items = [
     "SteamWorkshopId": "1549756237",
     "SteamAuthorId": "76561198058516625",
     "SteamTimeUpdated": 1540678500,
-    "PayloadSha256": "17518d76d0dbe256b51b9f7e703c8c14768b3e1acfd508308b3cb905bdfad1e7",
+    "PayloadSha256": "d248e029311adc2f0ed62e2c729de7ca43fff6f9ea48afeb6fc6b94720c0e7cc",
     "PreviewSha256": "9f7716c47a2b68f04afad6d581cc524dca094baed57701d79c709e0949de3ad1",
     "RecoveryArchiveName": "depot_851640_9136963519357123652.zip"
   },
@@ -17812,10 +17812,10 @@ export const items = [
     "TimeStamp": 1541783926,
     "AuthorId": "76561197999598595",
     "AuthorName": "kuhhirte",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2007-1541783926.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2007-1541783926.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2007-1541783926-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2007-1541783926-legacy2.zip",
     "Description": "A short track with towers and other green stuff.",
-    "PayloadLength": 37315,
+    "PayloadLength": 51321,
     "Version": "1.0.14",
     "Tags": [
       "race"
@@ -17830,7 +17830,7 @@ export const items = [
     "SteamWorkshopId": "1560557556",
     "SteamAuthorId": "76561197999598595",
     "SteamTimeUpdated": 1542623332,
-    "PayloadSha256": "5003f2f5d2dc4bdfc26085a1910b55abf73557a7c15f8983209f4ace8a304945",
+    "PayloadSha256": "8312ea0ae2f7ee33f758626d06522cad8db50864133245445ca12816a534e104",
     "PreviewSha256": "de9a2ff741fdb6dc966eea51cbc5c7a8ea440f49c43913fc5b0f91ea929294fd",
     "RecoveryArchiveName": "depot_851640_6451432480175500412.zip"
   },
@@ -17841,10 +17841,10 @@ export const items = [
     "TimeStamp": 1542147042,
     "AuthorId": "76561197999598595",
     "AuthorName": "kuhhirte",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2008-1542147042.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2008-1542147042.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2008-1542147042-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2008-1542147042-legacy2.zip",
     "Description": "A short track with buttons and other orange stuff.",
-    "PayloadLength": 47051,
+    "PayloadLength": 67794,
     "Version": "1.0.0",
     "Tags": [
       "race"
@@ -17859,7 +17859,7 @@ export const items = [
     "SteamWorkshopId": "1564435972",
     "SteamAuthorId": "76561197999598595",
     "SteamTimeUpdated": 1542147042,
-    "PayloadSha256": "e7a7ccaa1d22d918a1f0d263c6023356a109a3576e28e5eb4c326d2cb56cf1c9",
+    "PayloadSha256": "013ccde112507a154b0ef42bd3a9a08596216b4e54a9bf65a51707887029da48",
     "PreviewSha256": "66baaef6902ad9e97e87b018a014098f102d93d13b57e949cdf25eaf8d2cdbcb",
     "RecoveryArchiveName": "depot_851640_6894456380039532810.zip"
   },
@@ -17870,10 +17870,10 @@ export const items = [
     "TimeStamp": 1542410307,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2009-1542410307.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2009-1542410307.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2009-1542410307-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2009-1542410307-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 56021,
+    "PayloadLength": 73595,
     "Version": "1.0.0",
     "Tags": [
       "level"
@@ -17888,7 +17888,7 @@ export const items = [
     "SteamWorkshopId": "1566592340",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542410307,
-    "PayloadSha256": "f3ad4f3249b56eb5a3f7c8548b564dd6fb89a529eb5de867bd9fa62a127bfad0",
+    "PayloadSha256": "65c60d672fc825b4c117a87b25c12197962ea3b90a0b97b6ca969934ccfe25c5",
     "PreviewSha256": "cc6f5c21a1f028eddb150dd230d35fdbd9c17da22ee6386c5230d08d900e1b43",
     "RecoveryArchiveName": "depot_851640_8231620257549901159.zip"
   },
@@ -17928,10 +17928,10 @@ export const items = [
     "TimeStamp": 1542523709,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2011-1542523709.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2011-1542523709.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2011-1542523709-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2011-1542523709-legacy2.zip",
     "Description": "The first part to the Mater World!",
-    "PayloadLength": 49591,
+    "PayloadLength": 71132,
     "Version": "1.0.0",
     "Tags": [
       "level"
@@ -17946,7 +17946,7 @@ export const items = [
     "SteamWorkshopId": "1567856955",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542523709,
-    "PayloadSha256": "005d0b1041b658ea50a8d4d0e6ec406839885faff0ff0576cd6b1c53dadd2d64",
+    "PayloadSha256": "f7f2a08c2e28fb33433605f0f640340e6d1b0b97e51b259059c921595823c922",
     "PreviewSha256": "dc74cfa32342a9950c523e456c81865a88fbbf5348115adfd41c37b12f144d3b",
     "RecoveryArchiveName": "depot_851640_312657304478289912.zip"
   },
@@ -17957,10 +17957,10 @@ export const items = [
     "TimeStamp": 1542580716,
     "AuthorId": "76561198870604595",
     "AuthorName": "luno",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2012-1542580716.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2012-1542580716.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2012-1542580716-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2012-1542580716-legacy2.zip",
     "Description": "fanmade pink B",
-    "PayloadLength": 32448,
+    "PayloadLength": 41942,
     "Version": "1.0.0",
     "Tags": [
       "level"
@@ -17975,7 +17975,7 @@ export const items = [
     "SteamWorkshopId": "1568589048",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542580716,
-    "PayloadSha256": "23cd88fb993990fbf9b13739a50f6066c6ac2541929ac1d4f6df8685d3f28ade",
+    "PayloadSha256": "ec4bb5effd09ad81b671e063ec189bcb2efaed79b2e0c522f853f9d3a686748b",
     "PreviewSha256": "1a466a3576eb26ca3c7a72995791016b2db79e310b7dc3ed26ae90635accec0a",
     "RecoveryArchiveName": "depot_851640_1816408792666147308.zip"
   },
@@ -17986,10 +17986,10 @@ export const items = [
     "TimeStamp": 1542610780,
     "AuthorId": "76561198870604595",
     "AuthorName": "marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2013-1542610780.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2013-1542610780.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2013-1542610780-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2013-1542610780-legacy2.zip",
     "Description": "Test your skills against others in the Adept Arena!",
-    "PayloadLength": 57199,
+    "PayloadLength": 101641,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18004,7 +18004,7 @@ export const items = [
     "SteamWorkshopId": "1568801137",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542610780,
-    "PayloadSha256": "add1ba64665d7cf4dd611cfc47e779f2cd47192aa984322823114609ead5202f",
+    "PayloadSha256": "613bcf92d7b20dcea1ae8e75cd93552eec1be709ecaa94b4be3be771f0d6d194",
     "PreviewSha256": "f615aed9b974531c3918c85ed700c5eeaa26ee80a354f5b87a438f6ef158f777",
     "RecoveryArchiveName": "depot_851640_7733425519068225043.zip"
   },
@@ -18015,10 +18015,10 @@ export const items = [
     "TimeStamp": 1542621441,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2014-1542621441.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2014-1542621441.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2014-1542621441-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2014-1542621441-legacy2.zip",
     "Description": "This Race will test your skill against many foes! like the Bowling Ball, and the mighty cone!",
-    "PayloadLength": 40767,
+    "PayloadLength": 59037,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18033,7 +18033,7 @@ export const items = [
     "SteamWorkshopId": "1568854930",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542621441,
-    "PayloadSha256": "f8e819e76552fc23240becf775567e3168adef00d329725bf2c21dc2d7c40f7f",
+    "PayloadSha256": "907ad294e038f58e9396641134bf21c95d58c4be73e3cd84f23585ac48982b94",
     "PreviewSha256": "e9a888d58c099a0854bcdc521214ad2c9a94d305140892d573387331569c4671",
     "RecoveryArchiveName": "depot_851640_3059765473818333117.zip"
   },
@@ -18044,10 +18044,10 @@ export const items = [
     "TimeStamp": 1542625411,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2015-1542625411.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2015-1542625411.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2015-1542625411-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2015-1542625411-legacy2.zip",
     "Description": "Test your durbility in this spiky knife arena!",
-    "PayloadLength": 61757,
+    "PayloadLength": 111150,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18062,7 +18062,7 @@ export const items = [
     "SteamWorkshopId": "1568876957",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542625411,
-    "PayloadSha256": "c51e2b3bb4da7b12772b6ec50d4e30bd70be3648bdc32151e21f4dcdae25b045",
+    "PayloadSha256": "c21961e37b0bd1f8099e1df4b411d2eed6cab5d71ed341ce8577d8af057f0ecd",
     "PreviewSha256": "a366355af0444c0c2f1914261c8de0fbb50c1e345f5392b90447c2a39012935b",
     "RecoveryArchiveName": "depot_851640_1276007124635674303.zip"
   },
@@ -18073,10 +18073,10 @@ export const items = [
     "TimeStamp": 1542630098,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2016-1542630098.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2016-1542630098.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2016-1542630098-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2016-1542630098-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 39406,
+    "PayloadLength": 50001,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18091,7 +18091,7 @@ export const items = [
     "SteamWorkshopId": "1568906076",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542630098,
-    "PayloadSha256": "3586406e2a9afb2a3e68090bc0be716b5b23e0eee885345ecf47238a0e9c7ccc",
+    "PayloadSha256": "0a5fc04b6413314dc341b1ace27c18c8c180451a08049ce47e2e267b43068b0e",
     "PreviewSha256": "a92f280406f48cafa2ca8390be9ccc9f5544f50030501f76785cdc94e8ea4258",
     "RecoveryArchiveName": "depot_851640_3246371847732736239.zip"
   },
@@ -18102,10 +18102,10 @@ export const items = [
     "TimeStamp": 1542682114,
     "AuthorId": "76561198870604595",
     "AuthorName": "luno",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2017-1542682114.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2017-1542682114.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2017-1542682114-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2017-1542682114-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 31170,
+    "PayloadLength": 51365,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18120,7 +18120,7 @@ export const items = [
     "SteamWorkshopId": "1569400499",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542682114,
-    "PayloadSha256": "c3821d74550552e0e4a4fb667f3697691ee3fd9431be5a0754c9a1e985cd4f81",
+    "PayloadSha256": "b40ab3bc11e628f28028eea461c3c59140db8ae2be6b1209c3845c3875682bc6",
     "PreviewSha256": "0a8c864264eb4c1b0c1aebdba7c46ddba4b323c38019dab071668fdd85c709ca",
     "RecoveryArchiveName": "depot_851640_7295816142054887470.zip"
   },
@@ -18131,10 +18131,10 @@ export const items = [
     "TimeStamp": 1542684897,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2018-1542684897.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2018-1542684897.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2018-1542684897-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2018-1542684897-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 51002,
+    "PayloadLength": 73703,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18149,7 +18149,7 @@ export const items = [
     "SteamWorkshopId": "1569418815",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542684897,
-    "PayloadSha256": "df18d48c58cf1674f425e81a84336255c468a24d8531e2d0183889c219216761",
+    "PayloadSha256": "a674061516be027ce2bc50eeb14278a6c8bca816b4484992c33bfb742be5a803",
     "PreviewSha256": "605d5dd3c4be9dd4d2f18e3b66f6dfec1bf940f74f7130bce84bafde4ec503db",
     "RecoveryArchiveName": "depot_851640_2819974011395483340.zip"
   },
@@ -18160,10 +18160,10 @@ export const items = [
     "TimeStamp": 1542703293,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2019-1542703293.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2019-1542703293.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2019-1542703293-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2019-1542703293-legacy2.zip",
     "Description": "teaser for impractical race!",
-    "PayloadLength": 67950,
+    "PayloadLength": 123481,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18178,7 +18178,7 @@ export const items = [
     "SteamWorkshopId": "1569520311",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542703293,
-    "PayloadSha256": "ae36e36cc075abab12dc53c6af088698b03045f27be46a438d0b9ef6b0267bae",
+    "PayloadSha256": "b84cc00fae5b84437529c4dd0924ce12af9c1091505f3f1b740bcff6f657147a",
     "PreviewSha256": "c68bb19e9ad09edd510d4c958c9ca70dea4c1a3d9e44c541f21c6df589595d5e",
     "RecoveryArchiveName": "depot_851640_677288968938061610.zip"
   },
@@ -18189,10 +18189,10 @@ export const items = [
     "TimeStamp": 1542760065,
     "AuthorId": "76561198058516625",
     "AuthorName": "BookwormKevin&Ryan",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2020-1542760065.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2020-1542760065.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2020-1542760065-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2020-1542760065-legacy2.zip",
     "Description": "I added some pillars in the background",
-    "PayloadLength": 42062,
+    "PayloadLength": 68822,
     "Version": "1.0.14",
     "Tags": [
       "Hamsterball"
@@ -18207,7 +18207,7 @@ export const items = [
     "SteamWorkshopId": "1570037503",
     "SteamAuthorId": "76561198058516625",
     "SteamTimeUpdated": 1542760065,
-    "PayloadSha256": "4d32eb7c12a90a5feb524f27bde30a4fde42920d99fe8f31db4f8d4f3646d632",
+    "PayloadSha256": "8994771189bb4e6da84becb2df52b531a07de372568e7302e0012c0bc64e86a6",
     "PreviewSha256": "f7edf1916bdb56488449a3f294e7db86ae3b279b73774026bf8191a9051b354f",
     "RecoveryArchiveName": "depot_851640_8488735105214466396.zip"
   },
@@ -18218,10 +18218,10 @@ export const items = [
     "TimeStamp": 1542784996,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2021-1542784996.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2021-1542784996.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2021-1542784996-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2021-1542784996-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 66750,
+    "PayloadLength": 121032,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18236,7 +18236,7 @@ export const items = [
     "SteamWorkshopId": "1570183550",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542784996,
-    "PayloadSha256": "bd31b5d25b524e039aad1ccd6f034228c90583a0d0a093b7f13b59735265994f",
+    "PayloadSha256": "594c70f92cdb2a80d799de0d9b7a64e9ce58696009901062424e4b840aed7f8a",
     "PreviewSha256": "c830d135b3610a20c0a4d92881e87caaa022a8f414586389a3a0b9894df7191c",
     "RecoveryArchiveName": "depot_851640_8361795290750777501.zip"
   },
@@ -18247,10 +18247,10 @@ export const items = [
     "TimeStamp": 1542816622,
     "AuthorId": "76561198058516625",
     "AuthorName": "BookwormKevin",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2022-1542816622.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2022-1542816622.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2022-1542816622-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2022-1542816622-legacy2.zip",
     "Description": "A replication of the second level from Hamsterball",
-    "PayloadLength": 39529,
+    "PayloadLength": 61795,
     "Version": "1.0.14",
     "Tags": [
       "Hamsterball"
@@ -18265,7 +18265,7 @@ export const items = [
     "SteamWorkshopId": "1570408778",
     "SteamAuthorId": "76561198058516625",
     "SteamTimeUpdated": 1542816622,
-    "PayloadSha256": "729163a253b846e246bba673cd106ccb53d84096d0a8ff019bfcfc55ad3aac2e",
+    "PayloadSha256": "266821cc394f605052c54e8a65e4123dc72e0f481829be075f0060639064c3a5",
     "PreviewSha256": "5ed3c2eee669da44cea86b310ef99f7b5e771383fbf1a29aedb90d7eb4f160c2",
     "RecoveryArchiveName": "depot_851640_7879804696002576949.zip"
   },
@@ -18276,10 +18276,10 @@ export const items = [
     "TimeStamp": 1542841402,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2023-1542841402.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2023-1542841402.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2023-1542841402-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2023-1542841402-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 45090,
+    "PayloadLength": 77969,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18294,7 +18294,7 @@ export const items = [
     "SteamWorkshopId": "1570699296",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542841402,
-    "PayloadSha256": "0f6cbee19848f7dcf3f7ffc11d47813f0f3c9b417553c857cef2789d199260a8",
+    "PayloadSha256": "002362daf89927b781a335f3eeaf3a3a087375c80a5ef31a8d09c67aa059fbb2",
     "PreviewSha256": "682cf7f093d25027fb504c5364c88944d2bb960753ebe7090fc42eb1423bc23f",
     "RecoveryArchiveName": "depot_851640_4430081374136613943.zip"
   },
@@ -18305,10 +18305,10 @@ export const items = [
     "TimeStamp": 1542846050,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2024-1542846050.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2024-1542846050.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2024-1542846050-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2024-1542846050-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 11468,
+    "PayloadLength": 11878,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18323,7 +18323,7 @@ export const items = [
     "SteamWorkshopId": "1570739163",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1542846050,
-    "PayloadSha256": "1582b737dbd1258d7aef400a28caac9c8191edf72794ad5074dd960ae32da221",
+    "PayloadSha256": "469ad9032bc8cd02674f1c1d7995f5a6ccdd8e97d7f3fe0ec70724c1f26c79da",
     "PreviewSha256": "e93e9edc7fc8558e8f4cc34afbbdb9ba1893c88c88dc6140c9c153106443104c",
     "RecoveryArchiveName": "depot_851640_2224388673887334147.zip"
   },
@@ -18334,10 +18334,10 @@ export const items = [
     "TimeStamp": 1543174810,
     "AuthorId": "76561198331575445",
     "AuthorName": "BlueLight218",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2025-1543174810.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2025-1543174810.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2025-1543174810-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2025-1543174810-legacy2.zip",
     "Description": "A nice and simple arena for autumn! Includes a little bit of decoration, little bit of borders, and a constant shifting object in the center. (Side note: This is my first arena.)",
-    "PayloadLength": 41697,
+    "PayloadLength": 70670,
     "Version": "1.0.14",
     "Tags": [
       "arena"
@@ -18352,7 +18352,7 @@ export const items = [
     "SteamWorkshopId": "1574632518",
     "SteamAuthorId": "76561198331575445",
     "SteamTimeUpdated": 1543174810,
-    "PayloadSha256": "a78661031693aa5657167be00c39c3fbc9795fed6381637472a9e9ab480ecf3b",
+    "PayloadSha256": "075eb7f90b6c453f0dc43d669c3629709f584802aa2bc43c2ba19bdbe0e04ec3",
     "PreviewSha256": "a8364e940a2debc760b703227f4703f764bfc572624c3bd0c4ef8b089799023c",
     "RecoveryArchiveName": "depot_851640_4513684142498084781.zip"
   },
@@ -18363,10 +18363,10 @@ export const items = [
     "TimeStamp": 1543492365,
     "AuthorId": "76561198141201307",
     "AuthorName": "RealOfficialTurf",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2026-1543492365.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2026-1543492365.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2026-1543492365-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2026-1543492365-legacy2.zip",
     "Description": "Made this back before the game was on Steam. Here's one.\n\nBack when there's no invincible zone to avoid fall damage, I felt challenged to make a map that has jumps, to see how far I can do without breaking the ball and making the level playable. Then, invincible zones were added. The level becomes better now.\n\nThere's one secret on this level (Hint: It's not the invisible blocks).\n\nEnjoy!\n\n(Fanart by Marecube)",
-    "PayloadLength": 25348,
+    "PayloadLength": 32556,
     "Version": "1.0.15",
     "Tags": [
       "air"
@@ -18381,7 +18381,7 @@ export const items = [
     "SteamWorkshopId": "1577565384",
     "SteamAuthorId": "76561198141201307",
     "SteamTimeUpdated": 1543722994,
-    "PayloadSha256": "23543ed5970a2a50131730ad88fdbe12529fb6098920c1a90f4bb41beec30427",
+    "PayloadSha256": "15fd37f28d586264f6c040a8a21a6c15cbbe699abc9caa99ac32d3e7ec3dd3f6",
     "PreviewSha256": "65d75c17e3fbbb9863451a4ce753c47e39140bdd78eb6ebd11d9fc7e8ecafb15",
     "RecoveryArchiveName": "depot_851640_1463014795981319842 (1).zip"
   },
@@ -18392,10 +18392,10 @@ export const items = [
     "TimeStamp": 1543648786,
     "AuthorId": "76561198141201307",
     "AuthorName": "RealOfficialTurf",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2027-1543648786.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2027-1543648786.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2027-1543648786-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2027-1543648786-legacy2.zip",
     "Description": "NOTE: Requires 2 players to play. It's possible to play this with one person controlling both playerballs.\n\nA level about helping each other, and staying together till the end.\n\nFeatures:\n- Buttons\n- Switches\n- Slider switch\n- Secret arena\n- And some small stuff.\n\nEnjoy.",
-    "PayloadLength": 40159,
+    "PayloadLength": 62827,
     "Version": "1.0.15",
     "Tags": [
       "Multiplayer",
@@ -18411,7 +18411,7 @@ export const items = [
     "SteamWorkshopId": "1579187255",
     "SteamAuthorId": "76561198141201307",
     "SteamTimeUpdated": 1543648786,
-    "PayloadSha256": "6f763831b693220b4d7c725ba9682643257ec1332419077fd65a128526660174",
+    "PayloadSha256": "844d78934e90cd1514861b8081b45fddff45c54e3f3edb7031651eb3a8e2fb98",
     "PreviewSha256": "c0e87725a75fc14340e7a088b317c71af2d05723388a519a25c1f238c9aa3c01",
     "RecoveryArchiveName": "depot_851640_7368198640649540183.zip"
   },
@@ -18422,10 +18422,10 @@ export const items = [
     "TimeStamp": 1543716968,
     "AuthorId": "76561198058516625",
     "AuthorName": "BookwormKevin",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2028-1543716968.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2028-1543716968.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2028-1543716968-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2028-1543716968-legacy2.zip",
     "Description": "A replica of Up Race from Hamsterball by BookwormKevin",
-    "PayloadLength": 50585,
+    "PayloadLength": 77806,
     "Version": "1.0.15",
     "Tags": [
       "Up"
@@ -18440,7 +18440,7 @@ export const items = [
     "SteamWorkshopId": "1580168038",
     "SteamAuthorId": "76561198058516625",
     "SteamTimeUpdated": 1543716968,
-    "PayloadSha256": "149142ee693f46e83a8bffc0aa7679010e04ecbe667f726b3aa550bf07691170",
+    "PayloadSha256": "5d82cb645bf25e3aa7e3fd0ad201dd0d4a18621af574029ac41d79e738df8900",
     "PreviewSha256": "e51db97b7d3eaa5de41ba08e0d5d468301c6b0f2df0c559080457caad3bf3d0b",
     "RecoveryArchiveName": "depot_851640_4434906070358570495.zip"
   },
@@ -18451,10 +18451,10 @@ export const items = [
     "TimeStamp": 1543887990,
     "AuthorId": "76561198058516625",
     "AuthorName": "BookwormKevin",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2029-1543887990.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2029-1543887990.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2029-1543887990-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2029-1543887990-legacy2.zip",
     "Description": "A remake of Up Race From HamsterBall, reupload by BookwormKevin",
-    "PayloadLength": 51535,
+    "PayloadLength": 79386,
     "Version": "1.0.15",
     "Tags": [
       "race",
@@ -18470,7 +18470,7 @@ export const items = [
     "SteamWorkshopId": "1581960096",
     "SteamAuthorId": "76561198058516625",
     "SteamTimeUpdated": 1543887990,
-    "PayloadSha256": "ca29ead15798885f5652005f2828efdfbad09fc3543343e9aff779caa8ce8c8e",
+    "PayloadSha256": "257d9381b9a929e64e6525fcb576641af85dcdbe47a9e38f0e74e0eb3bcf17a0",
     "PreviewSha256": "aa33d0be45614e63c647a2266e00d09b3ebd57bbc526331dcb5226195ad5dd73",
     "RecoveryArchiveName": "depot_851640_6170279945802253430.zip"
   },
@@ -18481,10 +18481,10 @@ export const items = [
     "TimeStamp": 1544119682,
     "AuthorId": "76561198868026311",
     "AuthorName": "cartbox123",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2030-1544119682.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2030-1544119682.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2030-1544119682-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2030-1544119682-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 18303,
+    "PayloadLength": 25279,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18499,7 +18499,7 @@ export const items = [
     "SteamWorkshopId": "1583856542",
     "SteamAuthorId": "76561198868026311",
     "SteamTimeUpdated": 1544119682,
-    "PayloadSha256": "783f22acbb5099e159f871ad8707f15868ccd31f613145a4dfb2e165e2e7e4e6",
+    "PayloadSha256": "c78d512e3ef078c156b52febc88f288c5130187a8694294ef0f07557d1841ea8",
     "PreviewSha256": "2189a70076dd1c0d2b0cc326aaf24d99ceb60200d61180a8936bb6d426c09e39",
     "RecoveryArchiveName": "depot_851640_734903685103314173.zip"
   },
@@ -18510,10 +18510,10 @@ export const items = [
     "TimeStamp": 1547025559,
     "AuthorId": "76561198384900434",
     "AuthorName": "Luky0805",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2031-1547025559.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2031-1547025559.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2031-1547025559-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2031-1547025559-legacy2.zip",
     "Description": "Go to editor, then click on grid button on top.",
-    "PayloadLength": 14258,
+    "PayloadLength": 17316,
     "Version": "1.0.15",
     "Tags": [
       "level",
@@ -18531,7 +18531,7 @@ export const items = [
     "SteamWorkshopId": "1619418274",
     "SteamAuthorId": "76561198384900434",
     "SteamTimeUpdated": 1547025559,
-    "PayloadSha256": "a491508d768a49fc7eb9bcb74f720fa4ef17a3302237ecf1bb032b77a0e35d52",
+    "PayloadSha256": "fca627cae48c396728605a06739d4209e41f5d334636ff589d6bb03de6a8dda7",
     "PreviewSha256": "febf9548dbd14d0cbb6e5b01df755bc6e68ac5ac85146b8f723147d4de2ae43c",
     "RecoveryArchiveName": "depot_851640_3681264517033907947.zip"
   },
@@ -18542,10 +18542,10 @@ export const items = [
     "TimeStamp": 1548009115,
     "AuthorId": "76561198399225504",
     "AuthorName": "PLUTO9696",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2032-1548009115.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2032-1548009115.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2032-1548009115-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2032-1548009115-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 42058,
+    "PayloadLength": 68822,
     "Version": "1.0.14",
     "Tags": [
       "level"
@@ -18560,7 +18560,7 @@ export const items = [
     "SteamWorkshopId": "1630637907",
     "SteamAuthorId": "76561198399225504",
     "SteamTimeUpdated": 1548009115,
-    "PayloadSha256": "27d86211aac3729d502208801688f55386d00cf6e679ba47f8486ea630464880",
+    "PayloadSha256": "8dd251e685d4d6c4a10633c7231f42842a3de57236fca737e368e88052f8280c",
     "PreviewSha256": "f7edf1916bdb56488449a3f294e7db86ae3b279b73774026bf8191a9051b354f",
     "RecoveryArchiveName": "depot_851640_845127473682712532.zip"
   },
@@ -18571,10 +18571,10 @@ export const items = [
     "TimeStamp": 1549238575,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2033-1549238575.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2033-1549238575.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2033-1549238575-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2033-1549238575-legacy2.zip",
     "Description": "keep moving!",
-    "PayloadLength": 56145,
+    "PayloadLength": 88024,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18589,7 +18589,7 @@ export const items = [
     "SteamWorkshopId": "1644478038",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1549238575,
-    "PayloadSha256": "32d45633f0acc24d33c4b4a4b162bae5574b6a8afd0826bb567c615acc51600c",
+    "PayloadSha256": "ae7e847fe005d37131745bdeff1a80f3755f0a5f8c73460a44ea1b95994cd31b",
     "PreviewSha256": "8fccc0fba18579b14e661e9b2861ed80a2e5f2cedabcc9d6f3f8c16524cfefeb",
     "RecoveryArchiveName": "depot_851640_5171323089781428502.zip"
   },
@@ -18600,10 +18600,10 @@ export const items = [
     "TimeStamp": 1549715809,
     "AuthorId": "76561198254085358",
     "AuthorName": "162534XXX",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2034-1549715809.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2034-1549715809.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2034-1549715809-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2034-1549715809-legacy2.zip",
     "Description": "My first map!Hope you enjoy!",
-    "PayloadLength": 13905,
+    "PayloadLength": 15994,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18618,7 +18618,7 @@ export const items = [
     "SteamWorkshopId": "1649860299",
     "SteamAuthorId": "76561198254085358",
     "SteamTimeUpdated": 1549715809,
-    "PayloadSha256": "857eb8d745aa4ae638092d0bae61f625994a67ebfa3920bc90c6360506a5ed63",
+    "PayloadSha256": "c8c08a775d5a49f8ef819c921028acc47ec55d9cbd909994f2c2015e51a3447f",
     "PreviewSha256": "8e573535522c682790074e8f1c9c0257a2f08c14cf088c31c401706d051cd4a1",
     "RecoveryArchiveName": "depot_851640_5706501840562767174.zip"
   },
@@ -18629,10 +18629,10 @@ export const items = [
     "TimeStamp": 1549725171,
     "AuthorId": "76561198254085358",
     "AuthorName": "162534XXX",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2035-1549725171.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2035-1549725171.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2035-1549725171-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2035-1549725171-legacy2.zip",
     "Description": "Archived from Steam Workshop item 1650037278.",
-    "PayloadLength": 38981,
+    "PayloadLength": 66241,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18647,7 +18647,7 @@ export const items = [
     "SteamWorkshopId": "1650037278",
     "SteamAuthorId": "76561198254085358",
     "SteamTimeUpdated": 1549725171,
-    "PayloadSha256": "63eae2340b4dee09be6b2a35af4458781759a67a65ac24679d60857e12a30870",
+    "PayloadSha256": "62166500118de3a17c6253dd0d78e1f6930976f91c16098e31c8e4704f984e16",
     "PreviewSha256": "4a3cd8f257f7e26eb729392ab9b8f60416ae940a05a83e94e16bd7ddbb99ef75",
     "RecoveryArchiveName": "depot_851640_4166703358253452918.zip"
   },
@@ -18658,10 +18658,10 @@ export const items = [
     "TimeStamp": 1549772043,
     "AuthorId": "76561198019924203",
     "AuthorName": "krankyj",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2036-1549772043.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2036-1549772043.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2036-1549772043-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2036-1549772043-legacy2.zip",
     "Description": "target time: 20.0",
-    "PayloadLength": 26203,
+    "PayloadLength": 38619,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18676,7 +18676,7 @@ export const items = [
     "SteamWorkshopId": "1650887936",
     "SteamAuthorId": "76561198019924203",
     "SteamTimeUpdated": 1549772043,
-    "PayloadSha256": "cfbd1fe350af5a6b2a0770d0cade6b5f7d5715e03481c5a431213a3a359fa720",
+    "PayloadSha256": "d8946d3449d0eb4bb153908e20edac4d177518128444ad6c7231eadf79d23d8f",
     "PreviewSha256": "dcf64ff5703b0f77322f204700cc78f8cb154dfa8eb425ea6a2706839e2816df",
     "RecoveryArchiveName": "depot_851640_2976252286490645727.zip"
   },
@@ -18687,10 +18687,10 @@ export const items = [
     "TimeStamp": 1549859682,
     "AuthorId": "76561198091894224",
     "AuthorName": "Chiayang Lin Gonzalez",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2037-1549859682.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2037-1549859682.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2037-1549859682-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2037-1549859682-legacy2.zip",
     "Description": "My first level!\n\nDIFFICULTY: BEGINNER\nTARGET TIME RANGE: 1 - 1 1/2 minutes\n\nInspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.). \n\"Greenhorn\" means someone who is new to a task and doesn't have a lot of experience, so this race should be easy enough; just be careful though! \n\nTips: \n\n1. Make you sure you activate (roll over) the \"Checkpoint Pads\" (grey & white checkerboards) in this level. I may add these checkpoint pads on EVERY (future) level I make.\n\n2. Be careful rolling around; not a lot of fences. \n\nFeatures:\n• Vacuum enemies\n• 8-ball\n• Moving platform, and two elevators with bumpers\n• Mini bumpers\n• \"Pusher blocks\"",
-    "PayloadLength": 48956,
+    "PayloadLength": 61726,
     "Version": "1.0.15",
     "Tags": [
       "race",
@@ -18707,7 +18707,7 @@ export const items = [
     "SteamWorkshopId": "1652218699",
     "SteamAuthorId": "76561198091894224",
     "SteamTimeUpdated": 1549859682,
-    "PayloadSha256": "6b41c251730b3411cd7b0c1690a55fbe28f4096a6b7f37f65dc7e6981714cef8",
+    "PayloadSha256": "aec23f16677b87f109c06037c1f42dc7c93641eb7735ede8910744f6755d475b",
     "PreviewSha256": "10b25d125725be6f8788cd53579fa57bc8cf210afcab646331d74557520cfa4e",
     "RecoveryArchiveName": "depot_851640_927466323360509243.zip"
   },
@@ -18718,10 +18718,10 @@ export const items = [
     "TimeStamp": 1550138211,
     "AuthorId": "76561198091894224",
     "AuthorName": "Chiayang Lin Gonzalez",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2038-1550138211.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2038-1550138211.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2038-1550138211-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2038-1550138211-legacy2.zip",
     "Description": "Inspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.) AND Orbit Spherez from Candystand.com, which was a game I used to play, back during my middle school years. \n\nDIFFICULTY: ADVANCED\nTARGET TIME RANGE: 1 1/2 - 5 minutes\n\nNOTE: This is a very challenging course; only play if you have the confidence/skills within the game!\n\nFEATURES:\n• Checkpoint Pads (grey & white checkerboards - roll over to activate!!)\n• 4x4 pyramids\n• Moving platforms, moving mace, and a couple of moving rail fences\n• \"Pusher Blocks\"\n• \"8-ball\" (Hint: use the \"pusher blocks\" to knock the 8-ball off the track, to your advantage!)\n• A roller-coaster like bridge with speed-ups at the bottom areas\n• Lots of bumpers, narrow platforms, turns and ramps, and a few tightrope bridges",
-    "PayloadLength": 56510,
+    "PayloadLength": 73821,
     "Version": "1.0.15",
     "Tags": [
       "race",
@@ -18738,7 +18738,7 @@ export const items = [
     "SteamWorkshopId": "1655127054",
     "SteamAuthorId": "76561198091894224",
     "SteamTimeUpdated": 1550138211,
-    "PayloadSha256": "7adc228dc4e46d8f34bcf0ff8ce0d91be9031cecac1690622e4061bcf9431d87",
+    "PayloadSha256": "b804a48d5e5eaf99e36b477d07d36dbd21ed3b7923258d47fd490940a1575f48",
     "PreviewSha256": "5c2a28e28db190b00bb66f0423a5cd2da39fc434b9bf72d2539224e97fbee30e",
     "RecoveryArchiveName": "depot_851640_8949967370199500422.zip"
   },
@@ -18749,10 +18749,10 @@ export const items = [
     "TimeStamp": 1550378140,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2039-1550378140.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2039-1550378140.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2039-1550378140-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2039-1550378140-legacy2.zip",
     "Description": "yes",
-    "PayloadLength": 58935,
+    "PayloadLength": 95404,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18767,7 +18767,7 @@ export const items = [
     "SteamWorkshopId": "1658209823",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550378140,
-    "PayloadSha256": "b23ad4c9c21b1efe420cdc4b7959d4b82480d17d7d27e67089215151f074bbfb",
+    "PayloadSha256": "103778e92185ed1743d4a5882122e678d3f4094c32e1ed46924601fa798a3b63",
     "PreviewSha256": "068f86e4e4ea0d15a3c3f2dc2d5dd361fab8ce162b74e9b0cecdf7b323b30618",
     "RecoveryArchiveName": "depot_851640_2847542535132567433.zip"
   },
@@ -18778,10 +18778,10 @@ export const items = [
     "TimeStamp": 1550457299,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2040-1550457299.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2040-1550457299.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2040-1550457299-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2040-1550457299-legacy2.zip",
     "Description": "very hard",
-    "PayloadLength": 53000,
+    "PayloadLength": 42530,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18796,7 +18796,7 @@ export const items = [
     "SteamWorkshopId": "1659361467",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550457299,
-    "PayloadSha256": "f47aad0abe3035968a4d8f28fbba52db3b13cf5600bd9ea299e70665221da254",
+    "PayloadSha256": "12223617b66e6ea072bfd5dcbcce3146d4058180d02adc6976a058da14133318",
     "PreviewSha256": "8e265d2aa96be1baf1c4c202d8a8e881c0a4285a78f5ddfaf76a11166095afdb",
     "RecoveryArchiveName": "depot_851640_5007158625604292263.zip"
   },
@@ -18807,10 +18807,10 @@ export const items = [
     "TimeStamp": 1550457940,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2041-1550457940.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2041-1550457940.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2041-1550457940-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2041-1550457940-legacy2.zip",
     "Description": ".",
-    "PayloadLength": 31044,
+    "PayloadLength": 52093,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18825,7 +18825,7 @@ export const items = [
     "SteamWorkshopId": "1659367264",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550457940,
-    "PayloadSha256": "8bc805c85af5f2ee187294ecfdbd59091f68f4b303396a89c8d2c9efd2132ef0",
+    "PayloadSha256": "4379bebf89182590dd30adad496c20e4cd0135cdadb6a4e4dc1e5d745e16fc44",
     "PreviewSha256": "c7d0d6e07db3753a6bc59ec8f76f33b8bcbf7b8ec18d5548c8cf6a3daab682e8",
     "RecoveryArchiveName": "depot_851640_5923286161173101605.zip"
   },
@@ -18836,10 +18836,10 @@ export const items = [
     "TimeStamp": 1550459235,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2042-1550459235.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2042-1550459235.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2042-1550459235-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2042-1550459235-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 53168,
+    "PayloadLength": 95926,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18854,7 +18854,7 @@ export const items = [
     "SteamWorkshopId": "1659379225",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550459235,
-    "PayloadSha256": "f0eed19d9a2ac79b9f486c4e8fb15edf131403172f79ffca8292b51500e47ec4",
+    "PayloadSha256": "da94bf01aa2d45ce16db0990f774905f13d7039596bbd61b8bc84a9746794478",
     "PreviewSha256": "266919eac9e0cb9d9c979898e794f7b61883691a9780ede200bf502308d0fcc7",
     "RecoveryArchiveName": "depot_851640_9080248517970939028.zip"
   },
@@ -18865,10 +18865,10 @@ export const items = [
     "TimeStamp": 1550460253,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2043-1550460253.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2043-1550460253.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2043-1550460253-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2043-1550460253-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 36717,
+    "PayloadLength": 59783,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18883,7 +18883,7 @@ export const items = [
     "SteamWorkshopId": "1659388171",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550460253,
-    "PayloadSha256": "22af7a6d47cbb12a2ca80a2e3e0d233688d27f7bd72d52b8f2f02ab99085939e",
+    "PayloadSha256": "dbaf87cfb2bab825531715aff46de3266c92afa47fcf5c1d884916a0f6846b47",
     "PreviewSha256": "aa33d4350524dbce51fa49ea7e7a6afe581ed716949116fe80935cf60db2d889",
     "RecoveryArchiveName": "depot_851640_5677124748495490106.zip"
   },
@@ -18894,10 +18894,10 @@ export const items = [
     "TimeStamp": 1550784972,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2044-1550784972.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2044-1550784972.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2044-1550784972-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2044-1550784972-legacy2.zip",
     "Description": "makes use of the bumpers!",
-    "PayloadLength": 56197,
+    "PayloadLength": 83241,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18912,7 +18912,7 @@ export const items = [
     "SteamWorkshopId": "1662747877",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550784972,
-    "PayloadSha256": "7991dceb4697de1461133df4f628b9bdc88ea311696edafe75fa8b8112da27e4",
+    "PayloadSha256": "04f879def0f9e215517b1792b42f67001e79052f62bdf0659316862b003771d0",
     "PreviewSha256": "b48e29aa9c3841fb2f4913c0016871ea2cc761efd5cdabd6e693db4ae6426de1",
     "RecoveryArchiveName": "depot_851640_8904624646558836700.zip"
   },
@@ -18923,10 +18923,10 @@ export const items = [
     "TimeStamp": 1550784994,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2045-1550784994.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2045-1550784994.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2045-1550784994-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2045-1550784994-legacy2.zip",
     "Description": "Archived from Steam Workshop item 1662748173.",
-    "PayloadLength": 56814,
+    "PayloadLength": 102976,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -18941,7 +18941,7 @@ export const items = [
     "SteamWorkshopId": "1662748173",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550784994,
-    "PayloadSha256": "232245effd66bed3a3fc054efce2255a9741ec05942a842ac910d670ab7596fb",
+    "PayloadSha256": "f5fd8b3bb7a31eaa14d2ea5de0f38efbcdfcac89da0023740ab6aaf980254dbb",
     "PreviewSha256": "f1523241fe3155aea86e008b43a8bcb287c3ad113c21f7870a34e502f5c80ff4",
     "RecoveryArchiveName": "depot_851640_2392610713812880342.zip"
   },
@@ -18952,10 +18952,10 @@ export const items = [
     "TimeStamp": 1550964514,
     "AuthorId": "76561198870604595",
     "AuthorName": "luno",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2046-1550964514.png",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2046-1550964514.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2046-1550964514-legacy2.png",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2046-1550964514-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 1227,
+    "PayloadLength": 838,
     "Version": "1.0.0",
     "Tags": [
       "block"
@@ -18970,7 +18970,7 @@ export const items = [
     "SteamWorkshopId": "1664990068",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550964514,
-    "PayloadSha256": "b0f1770d70894d2761d6498c9c5f5e748a3ba18488b7ba0570dc01e383ea0df0",
+    "PayloadSha256": "12576b2618a02818a8467176226839deac128bff2eecca5ec71bfb709dee8df7",
     "PreviewSha256": "cefa8cd3f08742e4f09268f49fc93a273d894f626eb9615577f2aff5e57c71fe",
     "RecoveryArchiveName": "depot_851640_603160847947623886.zip"
   },
@@ -18981,10 +18981,10 @@ export const items = [
     "TimeStamp": 1550964598,
     "AuthorId": "76561198870604595",
     "AuthorName": "luno",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2047-1550964598.png",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2047-1550964598.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2047-1550964598-legacy2.png",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2047-1550964598-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 724,
+    "PayloadLength": 670,
     "Version": "1.0.0",
     "Tags": [
       "block"
@@ -18999,7 +18999,7 @@ export const items = [
     "SteamWorkshopId": "1664991276",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550964598,
-    "PayloadSha256": "e8e82f1ae5f0f2571f8497a76cb236a348ce306743d2758af105c2b28bbb043b",
+    "PayloadSha256": "49130ee662380155aca2fbc6412eff1e3a3b3e5867de4b9cc3d1d0103598e14c",
     "PreviewSha256": "687acd6dddbe38e18ddac93a93bbe24c244f21cb21e3c08e2f0a332c46e3bad0",
     "RecoveryArchiveName": "depot_851640_8672958506219076009.zip"
   },
@@ -19010,10 +19010,10 @@ export const items = [
     "TimeStamp": 1550964655,
     "AuthorId": "76561198870604595",
     "AuthorName": "luno",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2048-1550964655.png",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2048-1550964655.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2048-1550964655-legacy2.png",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2048-1550964655-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 711,
+    "PayloadLength": 669,
     "Version": "1.0.0",
     "Tags": [
       "block"
@@ -19028,7 +19028,7 @@ export const items = [
     "SteamWorkshopId": "1664991976",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550964655,
-    "PayloadSha256": "274a3e5a4581150fd2d7b6c9b7e8186123cdb41363c4e03711aa95536da8498a",
+    "PayloadSha256": "311bf03ce48204f64860cdf1433fd30b8432f53f0f76117c0dd7fbc94229edbe",
     "PreviewSha256": "ebd554532a1090d6b106ecd9912b393e2093769ddc15748274df6a3b5271d01d",
     "RecoveryArchiveName": "depot_851640_1621637673840708876.zip"
   },
@@ -19039,10 +19039,10 @@ export const items = [
     "TimeStamp": 1550964695,
     "AuthorId": "76561198870604595",
     "AuthorName": "luno",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2049-1550964695.png",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2049-1550964695.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2049-1550964695-legacy2.png",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2049-1550964695-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 717,
+    "PayloadLength": 676,
     "Version": "1.0.0",
     "Tags": [
       "block"
@@ -19057,7 +19057,7 @@ export const items = [
     "SteamWorkshopId": "1664992442",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1550964695,
-    "PayloadSha256": "401237817d1e13f5d8de2bdcd3832d6be3cd9cb83e8659d7d2b76e6720f6deff",
+    "PayloadSha256": "66ba2faa9f76d5e74deae7cec83780802ad682a18756fbb0822d9db891bddc51",
     "PreviewSha256": "86fd6bb3bc53aec0feae20f2cb5e6bd9506c6ec3e524504fda106362ca86a3d7",
     "RecoveryArchiveName": "depot_851640_8389782377034370010.zip"
   },
@@ -19068,10 +19068,10 @@ export const items = [
     "TimeStamp": 1551051324,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2050-1551051324.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2050-1551051324.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2050-1551051324-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2050-1551051324-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 38631,
+    "PayloadLength": 65352,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19086,7 +19086,7 @@ export const items = [
     "SteamWorkshopId": "1666200020",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1551051324,
-    "PayloadSha256": "263fbaa8aec617da60f80abcc3ae0259c5f10a4c6e98e3da17f4fe06bdb9d338",
+    "PayloadSha256": "7bf982d29f978d164a333918c33d99dd25e1fa177a467c0617e7063b0e6510c8",
     "PreviewSha256": "6c3d7abe8d70839f4de86ecdaa1012cebed626fbcda20173ee4b335ae383cf4e",
     "RecoveryArchiveName": "depot_851640_1385902626185307593.zip"
   },
@@ -19097,10 +19097,10 @@ export const items = [
     "TimeStamp": 1551051988,
     "AuthorId": "76561198870604595",
     "AuthorName": "Marecube",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2051-1551051988.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2051-1551051988.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2051-1551051988-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2051-1551051988-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 83308,
+    "PayloadLength": 137981,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19115,7 +19115,7 @@ export const items = [
     "SteamWorkshopId": "1666207254",
     "SteamAuthorId": "76561198870604595",
     "SteamTimeUpdated": 1551051988,
-    "PayloadSha256": "2790c7a04852916ea20560a13cbaf820695859f294c04f4b4ffa68093cce42e6",
+    "PayloadSha256": "6557b3c773b91fcc66b932b9de377b04a343573c20a37b873bce0e4dfd708217",
     "PreviewSha256": "c019a7d77d4e9da55daf16a693e5605727ea6369bfc4d3b4646088d1dd5d2ab3",
     "RecoveryArchiveName": "depot_851640_5755527881105451131.zip"
   },
@@ -19126,10 +19126,10 @@ export const items = [
     "TimeStamp": 1551746364,
     "AuthorId": "76561198314577471",
     "AuthorName": "Swid",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2052-1551746364.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2052-1551746364.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2052-1551746364-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2052-1551746364-legacy2.zip",
     "Description": ":)",
-    "PayloadLength": 49429,
+    "PayloadLength": 82706,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19144,7 +19144,7 @@ export const items = [
     "SteamWorkshopId": "1673567908",
     "SteamAuthorId": "76561198314577471",
     "SteamTimeUpdated": 1551746364,
-    "PayloadSha256": "c48ab429ac98c4ef9f6e073ede28131d56760df2e2c7b747c0847316f6a0f9be",
+    "PayloadSha256": "7ed2da0eaf5042b6541531758a35d83d799478ce6d8e4a86c26f8d2eda7d8154",
     "PreviewSha256": "c7d3b1a68c1e0a0dda8e2846391143ec891e15267829c238ea3fbe451b01dd8e",
     "RecoveryArchiveName": "depot_851640_8411597086736217711.zip"
   },
@@ -19155,10 +19155,10 @@ export const items = [
     "TimeStamp": 1552199178,
     "AuthorId": "76561198091894224",
     "AuthorName": "Chiayang Lin Gonzalez",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2053-1552199178.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2053-1552199178.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2053-1552199178-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2053-1552199178-legacy2.zip",
     "Description": "Inspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.) AND the Odd Race from Hamsterball (Gold), but this level is just my OWN design with my OWN concepts ONLY.\n\nDIFFICULTY: INTERMEDIATE to ADVANCED\nTARGET TIME RANGE: 1 1/2 - 3 1/2 minutes\n\nTIPS:\n• Just roll to/roll on/roll over the vertical walls, the \"forcezones\" from the level editor will do it for you!\n• You may need accurate, ninja-like control of your ball at THE FINAL PART OF THE LEVEL. Control your landing while your ball is flying. Be very careful though.\n\nFEATURES:\n• 90 degree angle vertical walls\n• Checkpoint Pads (grey & white checkerboards - roll over to activate!!)\n• Cylindrical pins (safety barriers, obstructive)\n• Regular and mini-bumpers\n• Moving blocks and still/moving cones (obstructive)\n• A few alternate routes near some of the walls",
-    "PayloadLength": 86857,
+    "PayloadLength": 120423,
     "Version": "1.0.15",
     "Tags": [
       "race",
@@ -19175,7 +19175,7 @@ export const items = [
     "SteamWorkshopId": "1678665330",
     "SteamAuthorId": "76561198091894224",
     "SteamTimeUpdated": 1552199178,
-    "PayloadSha256": "6674857db224a9cefdca8ca5f2c685b59f05a731bd964820e7b17364f8a81a01",
+    "PayloadSha256": "25b308307c4396b3cb2364df55a15adc37657e4b8925600d5398f6771a82da7b",
     "PreviewSha256": "76f4821a7ce669e660ba397cbca9af0632cf1aa0ff2bddaf0c067d2417d6e39f",
     "RecoveryArchiveName": "depot_851640_4986986767064137866.zip"
   },
@@ -19186,10 +19186,10 @@ export const items = [
     "TimeStamp": 1553258236,
     "AuthorId": "76561198865263172",
     "AuthorName": "TaxingHawk",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2054-1553258236.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2054-1553258236.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2054-1553258236-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2054-1553258236-legacy2.zip",
     "Description": "Name, lol",
-    "PayloadLength": 25465,
+    "PayloadLength": 27046,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19204,7 +19204,7 @@ export const items = [
     "SteamWorkshopId": "1690020319",
     "SteamAuthorId": "76561198865263172",
     "SteamTimeUpdated": 1553258236,
-    "PayloadSha256": "0eb148acc3ece7177397f05b0fba750bdcd745f43e96b00aaa1c83b29e65da34",
+    "PayloadSha256": "388d7a719b01eeea6d3bb54b62cf117b66a608a72f1fc93f1ade353d1a1e809a",
     "PreviewSha256": "75f686ff2dad12f4fe91637e9edfb08092dd8ac59044090d471ec67e565188fb",
     "RecoveryArchiveName": "depot_851640_4236039803464039587.zip"
   },
@@ -19215,10 +19215,10 @@ export const items = [
     "TimeStamp": 1554474901,
     "AuthorId": "76561198254085358",
     "AuthorName": "162534XXX",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2055-1554474901.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2055-1554474901.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2055-1554474901-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2055-1554474901-legacy2.zip",
     "Description": "Archived from Steam Workshop item 1703849175.",
-    "PayloadLength": 38772,
+    "PayloadLength": 62093,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19233,7 +19233,7 @@ export const items = [
     "SteamWorkshopId": "1703849175",
     "SteamAuthorId": "76561198254085358",
     "SteamTimeUpdated": 1554474901,
-    "PayloadSha256": "b81eb20b2b2c3551831c035fb5fe5a848c8dcb795093750e84e2f806cd728984",
+    "PayloadSha256": "72bebbf6a725af4a174e26c289e409042ae28c83e369cc7f922bdc24836fcb3d",
     "PreviewSha256": "fe5e00540af480a46c6244e815cd44d40224590277cddf6a7d4836f7d00668e6",
     "RecoveryArchiveName": "depot_851640_2706319130616554590.zip"
   },
@@ -19244,10 +19244,10 @@ export const items = [
     "TimeStamp": 1554651058,
     "AuthorId": "76561198823824014",
     "AuthorName": "LalyP531",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2056-1554651058.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2056-1554651058.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2056-1554651058-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2056-1554651058-legacy2.zip",
     "Description": "YAY :D",
-    "PayloadLength": 16121,
+    "PayloadLength": 20356,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19262,7 +19262,7 @@ export const items = [
     "SteamWorkshopId": "1706219723",
     "SteamAuthorId": "76561198823824014",
     "SteamTimeUpdated": 1554651058,
-    "PayloadSha256": "6025c1a1514fcff25a7ec26d5746b771c3cde3de8e6f5c094fc8231952eee584",
+    "PayloadSha256": "5aa5671d734ab49945f0ee54821e9cb2327a743ae112ccc311073d6a4c5490e1",
     "PreviewSha256": "af311c872bd24739fc3a630055886f11a2b946ddbb8375d368a8552e6a1a5f2e",
     "RecoveryArchiveName": "depot_851640_8033747893963891284.zip"
   },
@@ -19273,10 +19273,10 @@ export const items = [
     "TimeStamp": 1555113706,
     "AuthorId": "76561198104232601",
     "AuthorName": "aden8r",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2057-1555113706.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2057-1555113706.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2057-1555113706-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2057-1555113706-legacy2.zip",
     "Description": "Chapter Light, Level A",
-    "PayloadLength": 21911,
+    "PayloadLength": 31744,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19291,7 +19291,7 @@ export const items = [
     "SteamWorkshopId": "1710819634",
     "SteamAuthorId": "76561198104232601",
     "SteamTimeUpdated": 1555113706,
-    "PayloadSha256": "e53919e1072809b655248811bf4c43afcf53b7f79df6b74188adb8e8e06cdbe7",
+    "PayloadSha256": "b051a5ab5f712e0e6f64b363af17f988bd7ff97a5da22e9ff80f5d31f0bc5ca2",
     "PreviewSha256": "d48b82744b3c870473d117125a95858540feb010511c106692b29ae12e50199e",
     "RecoveryArchiveName": "depot_851640_6056024042026863504.zip"
   },
@@ -19302,10 +19302,10 @@ export const items = [
     "TimeStamp": 1555176472,
     "AuthorId": "76561198104232601",
     "AuthorName": "aden8r",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2058-1555176472.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2058-1555176472.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2058-1555176472-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2058-1555176472-legacy2.zip",
     "Description": "Not your normal race!",
-    "PayloadLength": 16910,
+    "PayloadLength": 20895,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19320,7 +19320,7 @@ export const items = [
     "SteamWorkshopId": "1711576932",
     "SteamAuthorId": "76561198104232601",
     "SteamTimeUpdated": 1555176472,
-    "PayloadSha256": "d0137c8bfaf204c2fb3cd7615f2b2ddda3347be1f0b72355f974413f6184f51e",
+    "PayloadSha256": "88b0124e5a9be8b31ebe83834526d9319f913ccfb7b4ff6eebc8cfc0a7425588",
     "PreviewSha256": "57bdbc026f91d41883e3c59138f6d15f5d89adace0930699184669c9e381150a",
     "RecoveryArchiveName": "depot_851640_8785844900841505657.zip"
   },
@@ -19331,10 +19331,10 @@ export const items = [
     "TimeStamp": 1555887736,
     "AuthorId": "76561198038097524",
     "AuthorName": "ShogunPlus",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2059-1555887736.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2059-1555887736.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2059-1555887736-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2059-1555887736-legacy2.zip",
     "Description": "My own concept for Purple A, instead of hazards, it has an emphasis on just controlling the movement of the marble.",
-    "PayloadLength": 50980,
+    "PayloadLength": 81793,
     "Version": "1.1.0",
     "Tags": [
       "level"
@@ -19349,7 +19349,7 @@ export const items = [
     "SteamWorkshopId": "1719911884",
     "SteamAuthorId": "76561198038097524",
     "SteamTimeUpdated": 1555889091,
-    "PayloadSha256": "f51385ca8eea2ae40f9e98480f3891dc6a1d9aa39a9d43f7458d9349ec2300d8",
+    "PayloadSha256": "0a9b95cfb1e329176d1d16ce6661681183030eac277cc018ebe7f5430c828d4e",
     "PreviewSha256": "f12b4bde37a41ed915ea031292a9011b9903886b2763418f57ab1355cfe6c9eb",
     "RecoveryArchiveName": "depot_851640_7515254569118431515.zip"
   },
@@ -19360,10 +19360,10 @@ export const items = [
     "TimeStamp": 1555992559,
     "AuthorId": "76561198372307051",
     "AuthorName": "bloodyvermillion123",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2060-1555992559.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2060-1555992559.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2060-1555992559-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2060-1555992559-legacy2.zip",
     "Description": "This is my first level, please don't judge me too hard.  This here is the piano race! Nothing special, just a piano level.",
-    "PayloadLength": 19609,
+    "PayloadLength": 22781,
     "Version": "1.0.15",
     "Tags": [
       "#piano",
@@ -19379,7 +19379,7 @@ export const items = [
     "SteamWorkshopId": "1721024307",
     "SteamAuthorId": "76561198372307051",
     "SteamTimeUpdated": 1555992559,
-    "PayloadSha256": "c71d72aa18863626e37163d991808dbff03e7df0933798fa8bf2601722e3bc0a",
+    "PayloadSha256": "78fa021cca024b68c34d6f749b5250878d0049ae6fbac749c42761319224d964",
     "PreviewSha256": "a31ffea9a2fb109776250f2cde8d92237dd14984bd5153eb22d7c772205a0762",
     "RecoveryArchiveName": "depot_851640_7277777038834938754.zip"
   },
@@ -19390,10 +19390,10 @@ export const items = [
     "TimeStamp": 1555992638,
     "AuthorId": "76561198372307051",
     "AuthorName": "bloodyvermillion123",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2061-1555992638.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2061-1555992638.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2061-1555992638-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2061-1555992638-legacy2.zip",
     "Description": "Nothing special, just a piano arena.",
-    "PayloadLength": 22793,
+    "PayloadLength": 32413,
     "Version": "1.0.15",
     "Tags": [
       "#piano",
@@ -19409,7 +19409,7 @@ export const items = [
     "SteamWorkshopId": "1721024864",
     "SteamAuthorId": "76561198372307051",
     "SteamTimeUpdated": 1555992638,
-    "PayloadSha256": "4bc0ed8ba2debc255d184bd91470de8f121dd7fb03781f7529b5ee78261a0d65",
+    "PayloadSha256": "36f46c01ed6f4ec088248ff5aa39ab26d14a11421deb9b0dffb531018f6b87d2",
     "PreviewSha256": "e444ae75e2135d47fbb4816050a11d6fb690da1c30c6351739781ce116a27723",
     "RecoveryArchiveName": "depot_851640_9089606799650406325.zip"
   },
@@ -19420,10 +19420,10 @@ export const items = [
     "TimeStamp": 1556064688,
     "AuthorId": "76561198372307051",
     "AuthorName": "bloodyvermillion123",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2062-1556064688.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2062-1556064688.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2062-1556064688-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2062-1556064688-legacy2.zip",
     "Description": "Do you like ice and snow? This level is perfect for you!",
-    "PayloadLength": 29102,
+    "PayloadLength": 18884,
     "Version": "1.0.15",
     "Tags": [
       "race",
@@ -19446,7 +19446,7 @@ export const items = [
     "SteamWorkshopId": "1721777812",
     "SteamAuthorId": "76561198372307051",
     "SteamTimeUpdated": 1556064688,
-    "PayloadSha256": "420b637f7f1f04459b9542687cb4799785ad7067ba509925a42883cb0551e5af",
+    "PayloadSha256": "e063b5dedd5e8c8b0d4807072e572ce5dc05b17899f97d2580c890b602130a91",
     "PreviewSha256": "dc8f6f36453823f1fbd4d11c4c01795e5d572420061f0c741c6c9b8cb52ffd9d",
     "RecoveryArchiveName": "depot_851640_2887066910701703830.zip"
   },
@@ -19457,10 +19457,10 @@ export const items = [
     "TimeStamp": 1556064775,
     "AuthorId": "76561198372307051",
     "AuthorName": "bloodyvermillion123",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2063-1556064775.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2063-1556064775.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2063-1556064775-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2063-1556064775-legacy2.zip",
     "Description": "Do you like ice and snow? This Arena is perfect for you!",
-    "PayloadLength": 18782,
+    "PayloadLength": 23909,
     "Version": "1.0.15",
     "Tags": [
       "arena",
@@ -19481,7 +19481,7 @@ export const items = [
     "SteamWorkshopId": "1721778593",
     "SteamAuthorId": "76561198372307051",
     "SteamTimeUpdated": 1556064775,
-    "PayloadSha256": "5ff580cfdaba54056cb7fc54ac405efefc2ba061edd59932a9cc425c3f4919c4",
+    "PayloadSha256": "c233de460df33add050226bd1aa0115a6ab8fb4a32f75d92cfc4639bfd2e5bba",
     "PreviewSha256": "cffd1d63bc1c4a9d8235fc53d55b2fe79b42a4c78ee80851c1a17ad10702607f",
     "RecoveryArchiveName": "depot_851640_2434309505059324672.zip"
   },
@@ -19492,10 +19492,10 @@ export const items = [
     "TimeStamp": 1556387281,
     "AuthorId": "76561198372307051",
     "AuthorName": "bloodyvermillion123",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2064-1556387281.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2064-1556387281.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2064-1556387281-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2064-1556387281-legacy2.zip",
     "Description": "Its a maze in a cube! (might be a little buggy now, but ill fix that eventually)",
-    "PayloadLength": 27054,
+    "PayloadLength": 35844,
     "Version": "1.0.15",
     "Tags": [
       "race",
@@ -19514,7 +19514,7 @@ export const items = [
     "SteamWorkshopId": "1725172772",
     "SteamAuthorId": "76561198372307051",
     "SteamTimeUpdated": 1556387281,
-    "PayloadSha256": "e3ec778149393e88185c9458e3d762aa05ad645ad819651722ac2ce92c749aaa",
+    "PayloadSha256": "a0e50f666fcc1d73b4bb32070a706422c875a734c8df8259acaa1c5f47b4d490",
     "PreviewSha256": "5ba0e17a186bb5101a1b98f26858c2e5405f1215e68c262342ef5427ae32e519",
     "RecoveryArchiveName": "depot_851640_6518933702188084903.zip"
   },
@@ -19525,10 +19525,10 @@ export const items = [
     "TimeStamp": 1557632265,
     "AuthorId": "76561198254085358",
     "AuthorName": "162534XXX",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2065-1557632265.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2065-1557632265.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2065-1557632265-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2065-1557632265-legacy2.zip",
     "Description": "Put your description here, it will be visible on item page in workshop",
-    "PayloadLength": 58338,
+    "PayloadLength": 93698,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19543,7 +19543,7 @@ export const items = [
     "SteamWorkshopId": "1739082644",
     "SteamAuthorId": "76561198254085358",
     "SteamTimeUpdated": 1557632265,
-    "PayloadSha256": "002f93e628dc0daf434e77de02b5034f8fcd393751728399a1de2e5783a38c48",
+    "PayloadSha256": "d12608f2936f6878cdaae4046949fe40b769f0c5c2f8137532d4d245283871c8",
     "PreviewSha256": "b10b7399c638b512244eaec6223dddd4317d76c0150883b96ca747452de118ae",
     "RecoveryArchiveName": "depot_851640_2691843279402800009.zip"
   },
@@ -19554,10 +19554,10 @@ export const items = [
     "TimeStamp": 1557971305,
     "AuthorId": "76561198439058396",
     "AuthorName": "alexandregiovannimau",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2066-1557971305.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2066-1557971305.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2066-1557971305-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2066-1557971305-legacy2.zip",
     "Description": "Warning : this level is hard.",
-    "PayloadLength": 68323,
+    "PayloadLength": 99916,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19572,7 +19572,7 @@ export const items = [
     "SteamWorkshopId": "1742323675",
     "SteamAuthorId": "76561198439058396",
     "SteamTimeUpdated": 1557971305,
-    "PayloadSha256": "6d2a26e680d03bb01dd9e1ffd862470424006aa2d7f568ab21cc60dd4c03f59f",
+    "PayloadSha256": "9ebf6639ac61fe4634b5e254a409d1eef4ca653425b563055c8054a26a6942cd",
     "PreviewSha256": "eda9ecaf9c6c7e8cd3b1b8d85eeb5660f5f0ee975f6fa6e3acdc37800d50f295",
     "RecoveryArchiveName": "depot_851640_8562071101732174701.zip"
   },
@@ -19583,10 +19583,10 @@ export const items = [
     "TimeStamp": 1560007228,
     "AuthorId": "76561198439058396",
     "AuthorName": "KHMOS",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2067-1560007228.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2067-1560007228.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2067-1560007228-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2067-1560007228-legacy2.zip",
     "Description": "How does it ends up here?",
-    "PayloadLength": 68200,
+    "PayloadLength": 84875,
     "Version": "1.0.15",
     "Tags": [
       "level"
@@ -19601,7 +19601,7 @@ export const items = [
     "SteamWorkshopId": "1764316735",
     "SteamAuthorId": "76561198439058396",
     "SteamTimeUpdated": 1560007228,
-    "PayloadSha256": "bbe82b4dda745507e588dccb74552a7febd2bd47c251502cba704504609fa4db",
+    "PayloadSha256": "c3881ef4d7935f8f2ae7f288d6c354a9ff322846c0b03e15475345e17f5e16ce",
     "PreviewSha256": "8e837f39a6d06b81b23406b5dd4f9b6b37d81da064a3baf3f6fea08dd3461125",
     "RecoveryArchiveName": "depot_851640_7460547619494616356.zip"
   },
@@ -19612,10 +19612,10 @@ export const items = [
     "TimeStamp": 1561100153,
     "AuthorId": "76561198439058396",
     "AuthorName": "alexandregiovannimau",
-    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2068-1561100153.jpg",
-    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2068-1561100153.zip",
+    "PreviewUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/previews/2068-1561100153-legacy2.jpg",
+    "PayloadUri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2068-1561100153-legacy2.zip",
     "Description": "The gravitation on this planet is realy weird. Proceed with caution.",
-    "PayloadLength": 32045,
+    "PayloadLength": 43999,
     "Version": "1.0.15",
     "Tags": [
       "Space"
@@ -19630,7 +19630,7 @@ export const items = [
     "SteamWorkshopId": "1776381289",
     "SteamAuthorId": "76561198439058396",
     "SteamTimeUpdated": 1561100153,
-    "PayloadSha256": "7c4d33b5f71190f38ba5b3e4d1c49988ee996ba679ea6ea361cb77be7dd0c414",
+    "PayloadSha256": "d2494a5f3a62374e716af19ff917d24be1856e3d3be6652c6adc5fef61e2f557",
     "PreviewSha256": "ed53bb3e22d03efa005ab5cc3b5f83233b89b5d3aa4652d220153ab4b19ea841",
     "RecoveryArchiveName": "depot_851640_5360061087952015020.zip"
   },
