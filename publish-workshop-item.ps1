@@ -471,6 +471,7 @@ try {
     $detected = Resolve-ContentRoot $extractPath
     $metadata = Get-Content -Raw -LiteralPath $detected.JsonPath | ConvertFrom-Json
     $archiveName = [IO.Path]::GetFileNameWithoutExtension($resolvedArchive)
+    $embeddedName = [string](Get-ObjectProperty $metadata "Name" "")
     $embeddedAuthor = [string](Get-ObjectProperty $metadata "Author" "Unknown")
     $embeddedDescription = [string](Get-ObjectProperty $metadata "Description" "")
     $embeddedVersion = [string](Get-ObjectProperty $metadata "Version" "0.0")
@@ -504,11 +505,13 @@ try {
         }
     }
 
-    $defaultName = if ($null -ne $existingItem) { [string]$existingItem.Name } else { $archiveName }
-    $defaultAuthor = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "AuthorName" "Unknown") } else { $embeddedAuthor }
-    $defaultDescription = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Description" "") } else { $embeddedDescription }
-    $defaultVersion = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Version" "0.0") } else { $embeddedVersion }
-    $defaultTags = if ($null -ne $existingItem) { @(Get-ObjectProperty $existingItem "Tags" @()) } else { @(Get-ObjectProperty $metadata "Tags" @()) }
+    $archiveDisplayName = if ([string]::IsNullOrWhiteSpace($embeddedName)) { $archiveName } else { $embeddedName }
+    $defaultName = if (-not [string]::IsNullOrWhiteSpace($archiveDisplayName)) { $archiveDisplayName } elseif ($null -ne $existingItem) { [string]$existingItem.Name } else { $archiveName }
+    $defaultAuthor = if (-not [string]::IsNullOrWhiteSpace($embeddedAuthor) -and $embeddedAuthor -ne "Unknown") { $embeddedAuthor } elseif ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "AuthorName" "Unknown") } else { "Unknown" }
+    $defaultDescription = if (-not [string]::IsNullOrWhiteSpace($embeddedDescription)) { $embeddedDescription } elseif ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Description" "") } else { "" }
+    $defaultVersion = if (-not [string]::IsNullOrWhiteSpace($embeddedVersion) -and $embeddedVersion -ne "0.0") { $embeddedVersion } elseif ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Version" "0.0") } else { "0.0" }
+    $archiveTags = @(Get-ObjectProperty $metadata "Tags" @())
+    $defaultTags = if ($archiveTags.Count -gt 0) { $archiveTags } elseif ($null -ne $existingItem) { @(Get-ObjectProperty $existingItem "Tags" @()) } else { @() }
     if ($defaultTags.Count -eq 0) { $defaultTags = @($detected.Kind.ToLowerInvariant()) }
     $displayName = Read-WithDefault "Display name" $(if ($Name) { $Name } else { $defaultName }) (-not [string]::IsNullOrWhiteSpace($Name))
     $authorName = Read-WithDefault "Author" $(if ($Author) { $Author } else { $defaultAuthor }) (-not [string]::IsNullOrWhiteSpace($Author))

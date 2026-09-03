@@ -133,4 +133,7 @@ test("item updater keeps the selected ID and existing catalogue metadata", () =>
   assert.match(publisher, /Tags, comma-separated/);
   assert.doesNotMatch(publisher, /\$isExactUpdate -or/);
   assert.match(publisher, /\$excludedBackupFiles\.Count -eq 0\) \{ \[int64\]0 \}/);
+  assert.match(publisher, /\$defaultAuthor = if \(-not \[string\]::IsNullOrWhiteSpace\(\$embeddedAuthor\)/);
+  assert.match(publisher, /\$defaultDescription = if \(-not \[string\]::IsNullOrWhiteSpace\(\$embeddedDescription\)/);
+  assert.match(publisher, /\$defaultVersion = if \(-not \[string\]::IsNullOrWhiteSpace\(\$embeddedVersion\)/);
 });
