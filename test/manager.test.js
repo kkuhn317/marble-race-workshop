@@ -56,6 +56,7 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(script, /\/api\/steam-recovery/);
   const server = fs.readFileSync(path.resolve(__dirname, "../workshop-manager.mjs"), "utf8");
   assert.match(server, /\["\/d", "\/k", "call", selected\.path\]/);
+  assert.match(server, /select-and-publish-workshop-item\.bat/);
 });
 
 test("recovered Steam importer assigns stable short IDs and preserves dates", async () => {
@@ -127,4 +128,8 @@ test("item updater keeps the selected ID and existing catalogue metadata", () =>
   assert.match(publisher, /\$newItem\["PayloadUri"\] = \$payloadUri/);
   assert.match(manager, /\["\/d", "\/k", "call", launcher, String\(id\)\]/);
   assert.match(updateLauncher, /-STA/);
+  const publishLauncher = fs.readFileSync(path.resolve(__dirname, "../select-and-publish-workshop-item.bat"), "utf8");
+  assert.match(publishLauncher, /-STA/);
+  assert.match(publisher, /Tags, comma-separated/);
+  assert.doesNotMatch(publisher, /\$isExactUpdate -or/);
 });

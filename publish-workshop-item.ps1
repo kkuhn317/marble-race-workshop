@@ -7,6 +7,7 @@ param(
     [string]$Author,
     [string]$Description,
     [string]$Version,
+    [string]$Tags,
     [string]$PreviewPath,
     [string]$ServerBaseUrl = "https://marble.kevin-kuhn.dev/api",
     [string]$R2Bucket = "marble-race-workshop-content",
@@ -420,13 +421,37 @@ function Read-WithDefault {
     param(
         [string]$Label,
         [string]$CurrentValue,
-        [bool]$WasSupplied
+        [bool]$WasSupplied,
+        [bool]$AllowClear = $false
     )
 
     if ($NonInteractive -or $WasSupplied) { return $CurrentValue }
     $answer = Read-Host "$Label [$CurrentValue]"
     if ([string]::IsNullOrWhiteSpace($answer)) { return $CurrentValue }
+    if ($AllowClear -and $answer.Trim() -eq "<clear>") { return "" }
     return $answer.Trim()
+}
+
+function Save-MetadataOverrides {
+    param(
+        [string]$JsonPath,
+        [string]$ModulePath,
+        [object]$Document
+    )
+
+    $json = ConvertTo-Json -InputObject $Document -Depth 100
+    [IO.File]::WriteAllText($JsonPath, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+    $pairs = @()
+    foreach ($property in @($Document.Items.PSObject.Properties | Sort-Object { [int64]$_.Name })) {
+        $pairs += ,([object[]]@([int64]$property.Name, $property.Value))
+    }
+    $pairsJson = ConvertTo-Json -InputObject ([object[]]$pairs) -Depth 100
+    $module = "export const metadataOverrides = new Map($pairsJson);`n`n" +
+        "export function applyMetadataOverrides(item) {`n" +
+        "  const override = metadataOverrides.get(Number(item.Id));`n" +
+        "  return override ? { ...item, ...override } : item;`n" +
+        "}`n"
+    [IO.File]::WriteAllText($ModulePath, $module, [Text.UTF8Encoding]::new($false))
 }
 
 try {
@@ -458,10 +483,22 @@ try {
         $null -ne $_.PSObject.Properties["Name"]
     })
     $existingItem = $null
+    $existingBaseItem = $null
+    $savedOverride = $null
+    $overridesPath = Join-Path $script:RepoRoot "metadata-overrides.json"
+    $overridesModulePath = Join-Path $script:RepoRoot "cloudflare\metadata-overrides.mjs"
+    $overridesDocument = Get-Content -Raw -LiteralPath $overridesPath | ConvertFrom-Json
     if ($UpdateItemId -gt 0) {
         $idMatches = @($items | Where-Object { [int64]$_.Id -eq $UpdateItemId })
         if ($idMatches.Count -ne 1) { throw "Workshop item ID $UpdateItemId does not exist." }
-        $existingItem = $idMatches[0]
+        $existingBaseItem = $idMatches[0]
+        $effectiveProperties = [ordered]@{}
+        foreach ($property in $existingBaseItem.PSObject.Properties) { $effectiveProperties[$property.Name] = $property.Value }
+        $savedOverride = $overridesDocument.Items.PSObject.Properties[[string]$UpdateItemId]
+        if ($null -ne $savedOverride) {
+            foreach ($property in $savedOverride.Value.PSObject.Properties) { $effectiveProperties[$property.Name] = $property.Value }
+        }
+        $existingItem = [pscustomobject]$effectiveProperties
         if ([int](Get-ObjectProperty $existingItem "ResourceType" -1) -ne $detected.ResourceType) {
             throw "The replacement archive is a $($detected.Kind), but workshop item $UpdateItemId has a different type."
         }
@@ -471,11 +508,14 @@ try {
     $defaultAuthor = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "AuthorName" "Unknown") } else { $embeddedAuthor }
     $defaultDescription = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Description" "") } else { $embeddedDescription }
     $defaultVersion = if ($null -ne $existingItem) { [string](Get-ObjectProperty $existingItem "Version" "0.0") } else { $embeddedVersion }
-    $isExactUpdate = $null -ne $existingItem
-    $displayName = Read-WithDefault "Display name" $(if ($Name) { $Name } else { $defaultName }) ($isExactUpdate -or -not [string]::IsNullOrWhiteSpace($Name))
-    $authorName = Read-WithDefault "Author" $(if ($Author) { $Author } else { $defaultAuthor }) ($isExactUpdate -or -not [string]::IsNullOrWhiteSpace($Author))
-    $itemDescription = Read-WithDefault "Description" $(if ($Description) { $Description } else { $defaultDescription }) ($isExactUpdate -or -not [string]::IsNullOrWhiteSpace($Description))
-    $itemVersion = Read-WithDefault "Minimum game version" $(if ($Version) { $Version } else { $defaultVersion }) ($isExactUpdate -or -not [string]::IsNullOrWhiteSpace($Version))
+    $defaultTags = if ($null -ne $existingItem) { @(Get-ObjectProperty $existingItem "Tags" @()) } else { @(Get-ObjectProperty $metadata "Tags" @()) }
+    if ($defaultTags.Count -eq 0) { $defaultTags = @($detected.Kind.ToLowerInvariant()) }
+    $displayName = Read-WithDefault "Display name" $(if ($Name) { $Name } else { $defaultName }) (-not [string]::IsNullOrWhiteSpace($Name))
+    $authorName = Read-WithDefault "Author" $(if ($Author) { $Author } else { $defaultAuthor }) (-not [string]::IsNullOrWhiteSpace($Author))
+    $itemDescription = Read-WithDefault "Description (type <clear> to empty)" $(if ($Description) { $Description } else { $defaultDescription }) (-not [string]::IsNullOrWhiteSpace($Description)) $true
+    $itemVersion = Read-WithDefault "Minimum game version" $(if ($Version) { $Version } else { $defaultVersion }) (-not [string]::IsNullOrWhiteSpace($Version))
+    $tagsText = Read-WithDefault "Tags, comma-separated (type <clear> to empty)" $(if ($Tags) { $Tags } else { $defaultTags -join ", " }) (-not [string]::IsNullOrWhiteSpace($Tags)) $true
+    $metadataTags = @($tagsText.Split(",", [StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object { $_.Trim() } | Where-Object { $_ })
     if ([string]::IsNullOrWhiteSpace($displayName) -or $displayName -in @(".", "..") -or
         $displayName.IndexOfAny([IO.Path]::GetInvalidFileNameChars()) -ge 0) {
         throw "Display name must be a non-empty, filesystem-safe directory name."
@@ -483,6 +523,10 @@ try {
     if ([string]::IsNullOrWhiteSpace($itemVersion)) { $itemVersion = "0.0" }
 
     $effectivePreviewPath = $PreviewPath
+    if ($null -ne $existingItem -and -not $NonInteractive -and [string]::IsNullOrWhiteSpace($effectivePreviewPath)) {
+        $previewAnswer = Read-Host "New preview PNG/JPEG path (Enter keeps current preview)"
+        if (-not [string]::IsNullOrWhiteSpace($previewAnswer)) { $effectivePreviewPath = $previewAnswer.Trim().Trim('"') }
+    }
     if ($null -ne $existingItem -and [string]::IsNullOrWhiteSpace($effectivePreviewPath)) {
         $existingPreviewUri = [string](Get-ObjectProperty $existingItem "PreviewUri" "")
         if ($existingPreviewUri.StartsWith("/previews/", [StringComparison]::OrdinalIgnoreCase)) {
@@ -567,8 +611,12 @@ try {
     $itemsBackup = Join-Path $tempRoot "items.json.backup"
     $catalogPath = Join-Path $script:RepoRoot "cloudflare\catalog.mjs"
     $catalogBackup = Join-Path $tempRoot "catalog.mjs.backup"
+    $overridesBackup = Join-Path $tempRoot "metadata-overrides.json.backup"
+    $overridesModuleBackup = Join-Path $tempRoot "metadata-overrides.mjs.backup"
     Copy-Item -LiteralPath $itemsPath -Destination $itemsBackup
     Copy-Item -LiteralPath $catalogPath -Destination $catalogBackup
+    Copy-Item -LiteralPath $overridesPath -Destination $overridesBackup
+    Copy-Item -LiteralPath $overridesModulePath -Destination $overridesModuleBackup
     $previewExisted = Test-Path -LiteralPath $previewTarget -PathType Leaf
     $previewBackup = Join-Path $tempRoot "preview.backup"
     if ($previewExisted) { Copy-Item -LiteralPath $previewTarget -Destination $previewBackup }
@@ -582,8 +630,6 @@ try {
         Copy-Item -LiteralPath $previewSource -Destination $previewTarget -Force
     }
 
-    $metadataTags = if ($null -ne $existingItem) { @(Get-ObjectProperty $existingItem "Tags" @()) } else { @(Get-ObjectProperty $metadata "Tags" @()) }
-    if ($metadataTags.Count -eq 0) { $metadataTags = @($detected.Kind.ToLowerInvariant()) }
     if ($null -ne $existingItem) {
         $newItem = [ordered]@{}
         foreach ($property in $existingItem.PSObject.Properties) { $newItem[$property.Name] = $property.Value }
@@ -633,6 +679,10 @@ try {
         $itemsJson = ConvertTo-Json -InputObject ([object[]]$updatedItems) -Depth 100
         [IO.File]::WriteAllText($itemsPath, $itemsJson + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
         Sync-CloudflareCatalog $itemsJson
+        if ($null -ne $existingBaseItem -and $null -ne $savedOverride) {
+            $overridesDocument.Items.PSObject.Properties.Remove([string]$itemId)
+            Save-MetadataOverrides $overridesPath $overridesModulePath $overridesDocument
+        }
 
         Push-Location $script:RepoRoot
         try {
@@ -649,6 +699,8 @@ try {
     catch {
         Copy-Item -LiteralPath $itemsBackup -Destination $itemsPath -Force
         Copy-Item -LiteralPath $catalogBackup -Destination $catalogPath -Force
+        Copy-Item -LiteralPath $overridesBackup -Destination $overridesPath -Force
+        Copy-Item -LiteralPath $overridesModuleBackup -Destination $overridesModulePath -Force
         if ($previewExisted) {
             Copy-Item -LiteralPath $previewBackup -Destination $previewTarget -Force
         }
@@ -670,6 +722,9 @@ try {
     }
 
     Invoke-RepoGit @("add", "--", "items.json", "cloudflare/catalog.mjs", $previewRelative) | Out-Null
+    if ($null -ne $existingBaseItem -and $null -ne $savedOverride) {
+        Invoke-RepoGit @("add", "--", "metadata-overrides.json", "cloudflare/metadata-overrides.mjs") | Out-Null
+    }
     $commitAction = if ($null -ne $existingItem) { "Update" } else { "Publish" }
     Invoke-RepoGit @("commit", "-m", "$commitAction workshop item: $displayName") | Write-Host
     Invoke-RepoGit @("push", "origin", "HEAD") | Write-Host

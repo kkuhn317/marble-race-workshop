@@ -255,7 +255,7 @@ function deployChanges() {
 function launchTool(toolValue) {
   const tool = String(toolValue || "");
   const launchers = {
-    publish: { path: resolve(ROOT, "select-and-publish-workshop-item.ps1"), powershell: true, label: "publisher" },
+    publish: { path: resolve(ROOT, "select-and-publish-workshop-item.bat"), label: "publisher" },
     edit: { path: resolve(ROOT, "edit-workshop-item.bat"), label: "item editor" },
     bulk: { path: resolve(ROOT, "bulk-edit-workshop-metadata.bat"), label: "bulk metadata editor" },
     duplicates: { path: resolve(ROOT, "scan-workshop-duplicates.bat"), label: "duplicate scanner" },
