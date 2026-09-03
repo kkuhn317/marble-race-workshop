@@ -4,6 +4,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const os = require("node:os");
+const { execFileSync } = require("node:child_process");
 
 test("manager generates deterministic moderation modules", async () => {
   const { buildModerationModule } = await import("../workshop-manager.mjs");
@@ -53,7 +55,7 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(script, /\/api\/deploy/);
   assert.match(script, /\/api\/steam-recovery/);
   const server = fs.readFileSync(path.resolve(__dirname, "../workshop-manager.mjs"), "utf8");
-  assert.match(server, /\["\/d", "\/k", selected\.path\]/);
+  assert.match(server, /\["\/d", "\/k", "call", selected\.path\]/);
 });
 
 test("recovered Steam importer assigns stable short IDs and preserves dates", async () => {
@@ -67,6 +69,33 @@ test("recovered Steam importer assigns stable short IDs and preserves dates", as
   assert.equal(item.TimeStamp, 1540000000);
   assert.equal(item.AuthorName, "Builder");
   assert.equal(item.SteamWorkshopId, "100");
+});
+
+test("transitional converter handles levels deeper than PowerShell's JSON limit", () => {
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "marble-transition-test-"));
+  try {
+    const levelPath = path.join(temporary, "level.json");
+    const steamPath = path.join(temporary, "steam.json");
+    const blockPath = path.join(temporary, "block.json");
+    const summaryPath = path.join(temporary, "summary.json");
+    const root = { Item: { Attributes: { MIXED_Key: "value" } } };
+    let cursor = root;
+    for (let index = 0; index < 130; index += 1) {
+      const child = { Item: { Attributes: { Another_Key: String(index) } } };
+      cursor.Children = [child];
+      cursor = child;
+    }
+    fs.writeFileSync(levelPath, JSON.stringify({ BlockGroups: root, Materials: [], Version: "1.3.0" }));
+    fs.writeFileSync(steamPath, JSON.stringify({ publishedfileid: "123", time_created: 456, author_name: "Builder", description: "Old level", tags: ["level"] }));
+    execFileSync(process.execPath, [path.resolve(__dirname, "../convert-transitional-level.mjs"), levelPath, steamPath, blockPath, summaryPath]);
+    const block = JSON.parse(fs.readFileSync(blockPath, "utf8"));
+    const level = JSON.parse(fs.readFileSync(levelPath, "utf8"));
+    assert.equal(block.Item.Attributes.mixed_key, "value");
+    assert.equal(level.WorkshopId, 123);
+    assert.equal(level.BlockGroups, undefined);
+  } finally {
+    fs.rmSync(temporary, { recursive: true, force: true });
+  }
 });
 
 test("Steam recovery bookmarklet uses only the download endpoint", async () => {

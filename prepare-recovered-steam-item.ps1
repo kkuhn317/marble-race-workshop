@@ -253,9 +253,23 @@ try {
 
     if ($null -ne $modern) {
         Copy-ContentTree $modern.Root $contentRoot
-        $rootMetadata = Get-Content -Raw -LiteralPath (Join-Path $contentRoot ([IO.Path]::GetFileName($modern.JsonPath))) | ConvertFrom-Json
         $resourceType = [int]$modern.ResourceType; $kind = $modern.Kind
         $requiredJson = @("level.json", "block.json", "campaign.json")[$resourceType]
+        $rootJsonPath = Join-Path $contentRoot ([IO.Path]::GetFileName($modern.JsonPath))
+        $rootJsonText = [IO.File]::ReadAllText($rootJsonPath)
+        $isTransitionalLevel = $resourceType -eq 0 -and $rootJsonText -match '"BlockGroups"\s*:'
+        if ($isTransitionalLevel) {
+            $transitionSummaryPath = Join-Path $tempRoot "transition-summary.json"
+            $transitionHelper = Join-Path $PSScriptRoot "convert-transitional-level.mjs"
+            & node $transitionHelper $rootJsonPath $MetadataPath (Join-Path $contentRoot "block.json") $transitionSummaryPath
+            if ($LASTEXITCODE -ne 0) { throw "Could not convert the transitional level JSON." }
+            $transitionSummary = Get-Content -Raw -LiteralPath $transitionSummaryPath | ConvertFrom-Json
+            $rootMetadata = Get-Content -Raw -LiteralPath $rootJsonPath | ConvertFrom-Json
+            Write-LegacyMaterials @(Get-Property $transitionSummary "Materials" @()) $contentRoot $false
+        }
+        else {
+            $rootMetadata = $rootJsonText | ConvertFrom-Json
+        }
         $version = [string](Get-Property $rootMetadata "Version" "1.0.0")
         $embeddedAuthor = [string](Get-Property $rootMetadata "Author" "")
         $embeddedBlockGroups = Get-Property $rootMetadata "BlockGroups"

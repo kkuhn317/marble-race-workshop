@@ -15,6 +15,7 @@ const MAIN_MANIFEST_PATH = join(ROOT, "main-workshop-manifest.json");
 const RECOVERY_MANIFEST_PATH = join(ROOT, "steam-recovery-manifest.json");
 const CACHE_ROOT = join(ROOT, ".steam-recovery-cache");
 const STATE_PATH = join(CACHE_ROOT, "state.json");
+const LAST_ERROR_PATH = join(CACHE_ROOT, "last-error.txt");
 const PREPARED_ROOT = join(CACHE_ROOT, "prepared");
 const METADATA_ROOT = join(CACHE_ROOT, "metadata");
 const HELPER_PATH = join(ROOT, "prepare-recovered-steam-item.ps1");
@@ -454,4 +455,11 @@ Options:
 }
 
 const invokedPath = process.argv[1] ? resolve(process.argv[1]) : "";
-if (invokedPath === resolve(fileURLToPath(import.meta.url))) main().catch((error) => { console.error(`\nRecovery import failed: ${error.message}`); console.error("Prepared files and successful R2 uploads were checkpointed. Run the tool again to resume."); process.exitCode = 1; });
+if (invokedPath === resolve(fileURLToPath(import.meta.url))) main().catch(async (error) => {
+  const message = `Recovery import failed: ${error.stack || error.message || error}\n`;
+  try { await mkdir(CACHE_ROOT, { recursive: true }); await writeFile(LAST_ERROR_PATH, message, "utf8"); } catch {}
+  console.error(`\n${message.trim()}`);
+  console.error(`The error was also saved to ${LAST_ERROR_PATH}`);
+  console.error("Prepared files and successful R2 uploads were checkpointed. Run the tool again to resume.");
+  process.exitCode = 1;
+});
