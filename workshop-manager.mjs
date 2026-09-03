@@ -260,6 +260,7 @@ function launchTool(toolValue) {
     bulk: { path: resolve(ROOT, "bulk-edit-workshop-metadata.bat"), label: "bulk metadata editor" },
     duplicates: { path: resolve(ROOT, "scan-workshop-duplicates.bat"), label: "duplicate scanner" },
     mirror: { path: resolve(ROOT, "mirror-main-workshop.bat"), label: "official workshop mirror" },
+    steamImport: { path: resolve(ROOT, "import-recovered-steam-workshop.bat"), label: "recovered Steam importer" },
     review: { path: resolve(ROOT, "duplicate-review.html"), url: true, label: "duplicate review" },
   };
   const selected = launchers[tool];

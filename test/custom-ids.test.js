@@ -7,11 +7,13 @@ const path = require("node:path");
 
 test("custom workshop items use the reserved short ID range", () => {
   const items = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../items.json"), "utf8"));
-  const customItems = items.filter((item) => item.MirrorSource !== "official-main");
+  const customItems = items.filter((item) => !["official-main", "steam-recovery"].includes(item.MirrorSource));
   assert.deepEqual(customItems.map((item) => item.Id).sort((a, b) => a - b), [
     1, 10001, 10002, 10003, 10004, 10005, 10006, 10007,
   ]);
   assert.equal(new Set(items.map((item) => item.Id)).size, items.length);
+  const recoveredItems = items.filter((item) => item.MirrorSource === "steam-recovery");
+  assert.ok(recoveredItems.every((item) => item.Id >= 2000 && item.Id < 10000));
 });
 
 test("future custom publications begin after the reserved official range", () => {

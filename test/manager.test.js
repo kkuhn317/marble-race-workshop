@@ -45,12 +45,26 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(html, /data-tool="duplicates"/);
   assert.match(html, /id="bulk-form"/);
   assert.match(html, /id="steam-recovery-open"/);
+  assert.match(html, /data-tool="steamImport"/);
   assert.match(script, /\/api\/visibility/);
   assert.match(script, /\/api\/metadata/);
   assert.match(script, /\/api\/update-item/);
   assert.match(script, /Update file/);
   assert.match(script, /\/api\/deploy/);
   assert.match(script, /\/api\/steam-recovery/);
+});
+
+test("recovered Steam importer assigns stable short IDs and preserves dates", async () => {
+  const { assignRecoveredIds, buildRecoveredItem } = await import("../import-recovered-steam-workshop.mjs");
+  const candidates = [{ steamId: "100", archivePath: "C:\\Downloads\\old-level.zip", embeddedAuthor: "Builder", embeddedDescription: "", embeddedVersion: "1.0", embeddedTimestamp: 0 }];
+  const assigned = assignRecoveredIds([{ Id: 2000, SteamWorkshopId: "99" }], [], candidates);
+  assert.equal(assigned.get("100"), 2001);
+  const record = { Id: 2001, PreviewUri: "https://example/preview.png", PayloadUri: "https://example/payload.zip", PayloadLength: 123, PayloadSha256: "a", PreviewSha256: "b" };
+  const item = buildRecoveredItem(candidates[0], { title: "Old Level", creator: "7656119", author_name: "Steam Name", description: "Original", time_created: 1540000000, time_updated: 1540000010, tags: [{ tag: "race" }] }, { ResourceType: 0, Version: "1.0.15" }, record);
+  assert.equal(item.Id, 2001);
+  assert.equal(item.TimeStamp, 1540000000);
+  assert.equal(item.AuthorName, "Builder");
+  assert.equal(item.SteamWorkshopId, "100");
 });
 
 test("Steam recovery bookmarklet uses only the download endpoint", async () => {
