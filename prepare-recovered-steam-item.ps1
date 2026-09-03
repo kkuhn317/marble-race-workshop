@@ -159,6 +159,53 @@ function New-MaterialDocument([object]$Material, [string]$TexturePath) {
     }
 }
 
+function Write-LegacyMaterials([object[]]$Materials, [string]$ContentRoot, [bool]$GenerateBuiltInTextures) {
+    $materialsRoot = Join-Path $ContentRoot "materials"
+    [IO.Directory]::CreateDirectory($materialsRoot) | Out-Null
+    $materialIndex = 0
+    foreach ($material in @($Materials)) {
+        $materialIndex++
+        $materialName = [string](Get-Property $material "Name" "Material $materialIndex")
+        $safeName = [regex]::Replace($materialName, '[^A-Za-z0-9._-]+', '-').Trim('-')
+        if ([string]::IsNullOrWhiteSpace($safeName)) { $safeName = "material-$materialIndex" }
+        $textureKind = [string](Get-Property $material "Texture" "")
+        $texturePath = ""
+        if ($GenerateBuiltInTextures -and $textureKind -in @("Standart", "Inverted")) {
+            $texturePath = "$safeName-$materialIndex.png"
+            New-CheckerTexture (Join-Path $ContentRoot $texturePath) ([string](Get-Property $material "Color" "0xFFFFFF")) ($textureKind -eq "Inverted")
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace($textureKind) -and (Test-Path -LiteralPath (Join-Path $ContentRoot $textureKind) -PathType Leaf)) {
+            $texturePath = $textureKind.Replace("\", "/")
+        }
+        Write-Utf8Json (Join-Path $materialsRoot "$safeName-$materialIndex.json") (New-MaterialDocument $material $texturePath)
+    }
+}
+
+function New-PlaceholderPreview([string]$Path, [string]$Title, [string]$BackgroundValue) {
+    Add-Type -AssemblyName System.Drawing
+    $hex = (Normalize-Color $BackgroundValue "0x86B7FFFF").Substring(2)
+    $background = [Drawing.Color]::FromArgb(255, [Convert]::ToInt32($hex.Substring(0, 2), 16), [Convert]::ToInt32($hex.Substring(2, 2), 16), [Convert]::ToInt32($hex.Substring(4, 2), 16))
+    $bitmap = [Drawing.Bitmap]::new(512, 416, [Drawing.Imaging.PixelFormat]::Format24bppRgb)
+    $graphics = [Drawing.Graphics]::FromImage($bitmap)
+    $dark = [Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(28, 42, 100))
+    $light = [Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(232, 242, 255))
+    $black = [Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(5, 7, 12))
+    $white = [Drawing.SolidBrush]::new([Drawing.Color]::White)
+    $font = [Drawing.Font]::new("Segoe UI", 27, [Drawing.FontStyle]::Bold, [Drawing.GraphicsUnit]::Pixel)
+    $format = [Drawing.StringFormat]::new(); $format.Alignment = [Drawing.StringAlignment]::Center; $format.LineAlignment = [Drawing.StringAlignment]::Center
+    try {
+        $graphics.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::AntiAlias
+        $graphics.Clear($background)
+        for ($row = 0; $row -lt 4; $row++) { for ($column = 0; $column -lt 6; $column++) { $graphics.FillRectangle($(if (($row + $column) % 2 -eq 0) { $light } else { $dark }), $column * 86, 220 + $row * 50, 86, 50) } }
+        $graphics.FillEllipse($black, 196, 58, 120, 120)
+        $graphics.FillEllipse($white, 254, 93, 42, 42)
+        $graphics.FillRectangle($dark, 0, 184, 512, 62)
+        $graphics.DrawString($(if ([string]::IsNullOrWhiteSpace($Title)) { "Recovered Steam item" } else { $Title }), $font, $white, [Drawing.RectangleF]::new(14, 184, 484, 62), $format)
+        $bitmap.Save($Path, [Drawing.Imaging.ImageFormat]::Jpeg)
+    }
+    finally { $format.Dispose(); $font.Dispose(); $white.Dispose(); $black.Dispose(); $light.Dispose(); $dark.Dispose(); $graphics.Dispose(); $bitmap.Dispose() }
+}
+
 function Find-Preview([string]$ContentRoot, [object]$RootMetadata) {
     $thumbnail = [string](Get-Property $RootMetadata "ThumbnailPath" "")
     if (-not [string]::IsNullOrWhiteSpace($thumbnail)) {
@@ -202,7 +249,7 @@ try {
     Expand-SafeZip (Resolve-Path -LiteralPath $ArchivePath).Path $extractRoot
     $steam = Get-Content -Raw -LiteralPath $MetadataPath | ConvertFrom-Json
     $modern = Resolve-ModernRoot $extractRoot
-    $resourceType = -1; $kind = ""; $version = "1.0.0"; $embeddedAuthor = ""; $requiredJson = ""
+    $resourceType = -1; $kind = ""; $version = "1.0.0"; $embeddedAuthor = ""; $requiredJson = ""; $rootMetadata = $null
 
     if ($null -ne $modern) {
         Copy-ContentTree $modern.Root $contentRoot
@@ -211,6 +258,22 @@ try {
         $requiredJson = @("level.json", "block.json", "campaign.json")[$resourceType]
         $version = [string](Get-Property $rootMetadata "Version" "1.0.0")
         $embeddedAuthor = [string](Get-Property $rootMetadata "Author" "")
+        $embeddedBlockGroups = Get-Property $rootMetadata "BlockGroups"
+        if ($resourceType -eq 0 -and $null -ne $embeddedBlockGroups) {
+            Normalize-BlockAttributes $embeddedBlockGroups
+            Write-Utf8Json (Join-Path $contentRoot "block.json") $embeddedBlockGroups
+            Write-LegacyMaterials @(Get-Property $rootMetadata "Materials" @()) $contentRoot $false
+            $rootMetadata.PSObject.Properties.Remove("BlockGroups")
+            $rootMetadata.PSObject.Properties.Remove("Materials")
+            $rootMetadata | Add-Member -NotePropertyName "WorkshopId" -NotePropertyValue ([int64]$steam.publishedfileid) -Force
+            $rootMetadata | Add-Member -NotePropertyName "Timestamp" -NotePropertyValue ([int64]$steam.time_created) -Force
+            $rootMetadata | Add-Member -NotePropertyName "Author" -NotePropertyValue ([string]$steam.author_name) -Force
+            $rootMetadata | Add-Member -NotePropertyName "Description" -NotePropertyValue ([string]$steam.description) -Force
+            $rootMetadata | Add-Member -NotePropertyName "Tags" -NotePropertyValue @($steam.tags) -Force
+            $rootMetadata | Add-Member -NotePropertyName "Version" -NotePropertyValue $version -Force
+            $rootMetadata | Add-Member -NotePropertyName "Type" -NotePropertyValue "Level" -Force
+            Write-Utf8Json (Join-Path $contentRoot "level.json") $rootMetadata
+        }
         $preview = Find-Preview $contentRoot $rootMetadata
     }
     else {
@@ -232,21 +295,7 @@ try {
                 if ($bytes.Length -ge 8 -and $bytes[0] -eq 0x89 -and $bytes[1] -eq 0x50) { $thumbnailName = "thumbnail.png" }
                 [IO.File]::WriteAllBytes((Join-Path $contentRoot $thumbnailName), $bytes)
             }
-            $materialsRoot = Join-Path $contentRoot "materials"; [IO.Directory]::CreateDirectory($materialsRoot) | Out-Null
-            $materialIndex = 0
-            foreach ($material in @(Get-Property $payload "Materials" @())) {
-                $materialIndex++
-                $materialName = [string](Get-Property $material "Name" "Material $materialIndex")
-                $safeName = [regex]::Replace($materialName, '[^A-Za-z0-9._-]+', '-').Trim('-')
-                if ([string]::IsNullOrWhiteSpace($safeName)) { $safeName = "material-$materialIndex" }
-                $textureKind = [string](Get-Property $material "Texture" "")
-                $texturePath = ""
-                if ($textureKind -in @("Standart", "Inverted")) {
-                    $texturePath = "$safeName-$materialIndex.png"
-                    New-CheckerTexture (Join-Path $contentRoot $texturePath) ([string](Get-Property $material "Color" "0xFFFFFF")) ($textureKind -eq "Inverted")
-                }
-                Write-Utf8Json (Join-Path $materialsRoot "$safeName-$materialIndex.json") (New-MaterialDocument $material $texturePath)
-            }
+            Write-LegacyMaterials @(Get-Property $payload "Materials" @()) $contentRoot $true
             $level = [ordered]@{
                 RngSeed = [int64](Get-Property $payload "RngSeed" 0)
                 UiColor = Normalize-Color ([string](Get-Property $payload "MediumColor" "0xD7E7FF"))
@@ -262,6 +311,7 @@ try {
                 Type = "Level"
             }
             Write-Utf8Json (Join-Path $contentRoot "level.json") $level
+            $rootMetadata = [pscustomobject]$level
             $preview = Find-Preview $contentRoot $level
         }
         else {
@@ -273,7 +323,14 @@ try {
     }
 
     if ($null -eq $preview -and -not [string]::IsNullOrWhiteSpace($FallbackPreviewPath) -and (Test-Path -LiteralPath $FallbackPreviewPath -PathType Leaf)) { $preview = (Resolve-Path -LiteralPath $FallbackPreviewPath).Path }
-    if ($null -eq $preview) { throw "No usable preview image was found for Steam item $($steam.publishedfileid)." }
+    if ($null -eq $preview) {
+        $preview = Join-Path $contentRoot "thumbnail.jpg"
+        New-PlaceholderPreview $preview ([string]$steam.title) ([string](Get-Property $rootMetadata "BackgroundColor" "0x86B7FF"))
+        if ($null -ne $rootMetadata -and $resourceType -ne 1) {
+            $rootMetadata | Add-Member -NotePropertyName "ThumbnailPath" -NotePropertyValue "thumbnail.jpg" -Force
+            Write-Utf8Json (Join-Path $contentRoot $requiredJson) $rootMetadata
+        }
+    }
     [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($OutputPreviewPath)) | Out-Null
     [IO.File]::Copy($preview, $OutputPreviewPath, $true)
     New-FileOnlyZip $contentRoot $OutputZipPath $requiredJson

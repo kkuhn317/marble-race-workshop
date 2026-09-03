@@ -52,6 +52,8 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(script, /Update file/);
   assert.match(script, /\/api\/deploy/);
   assert.match(script, /\/api\/steam-recovery/);
+  const server = fs.readFileSync(path.resolve(__dirname, "../workshop-manager.mjs"), "utf8");
+  assert.match(server, /\["\/d", "\/k", selected\.path\]/);
 });
 
 test("recovered Steam importer assigns stable short IDs and preserves dates", async () => {

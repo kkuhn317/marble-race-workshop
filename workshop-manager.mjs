@@ -270,7 +270,7 @@ function launchTool(toolValue) {
   else if (selected.powershell) {
     spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", selected.path], { cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false }).unref();
   } else {
-    spawn("cmd.exe", ["/d", "/c", selected.path], { cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false }).unref();
+    spawn("cmd.exe", ["/d", "/k", selected.path], { cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false }).unref();
   }
   return { message: `Opened the ${selected.label}.` };
 }

@@ -64,6 +64,8 @@ importer converts legacy `payload.json` levels and blocks, normalizes modern
 levels and campaigns for Android, preserves Steam creation dates and metadata,
 uploads to R2 with per-item checkpoints, runs all tests, and then offers to
 commit and deploy the complete batch. Rerun it after an interruption to resume.
+Tools opened by the Manager keep their console window visible after completion
+or failure so you can read the final result; close that window when finished.
 
 ## Publish a ZIP or RAR automatically
 
