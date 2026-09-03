@@ -154,7 +154,7 @@ function New-FileOnlyZip {
     return [pscustomobject]@{
         IncludedFiles = $includedFiles.Count
         ExcludedBackupFiles = $excludedBackupFiles.Count
-        ExcludedBackupBytes = [int64](($excludedBackupFiles | Measure-Object -Property Length -Sum).Sum)
+        ExcludedBackupBytes = if ($excludedBackupFiles.Count -eq 0) { [int64]0 } else { [int64](($excludedBackupFiles | Measure-Object -Property Length -Sum).Sum) }
     }
 }
 

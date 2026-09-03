@@ -132,4 +132,5 @@ test("item updater keeps the selected ID and existing catalogue metadata", () =>
   assert.match(publishLauncher, /-STA/);
   assert.match(publisher, /Tags, comma-separated/);
   assert.doesNotMatch(publisher, /\$isExactUpdate -or/);
+  assert.match(publisher, /\$excludedBackupFiles\.Count -eq 0\) \{ \[int64\]0 \}/);
 });
