@@ -17,7 +17,8 @@ param(
     [switch]$Push,
     [switch]$ValidateOnly,
     [switch]$DeferCommit,
-    [string]$BatchManifestPath
+    [string]$BatchManifestPath,
+    [switch]$SkipTests
 )
 
 Set-StrictMode -Version Latest
@@ -74,11 +75,11 @@ function Resolve-ContentRoot {
             return [pscustomobject]@{ Root = $current; JsonPath = $block[0].FullName; ResourceType = 1; Kind = "Block" }
         }
 
-        $children = @(Get-ChildItem -LiteralPath $current -Force | Where-Object {
+        $children = @(Get-ChildItem -LiteralPath $current -Directory -Force | Where-Object {
             $_.Name -notin @("__MACOSX", ".DS_Store")
         })
-        if ($children.Count -ne 1 -or -not $children[0].PSIsContainer) {
-            throw "Could not find campaign.json, level.json, or block.json at the archive root (or inside one enclosing folder)."
+        if ($children.Count -ne 1) {
+            throw "Could not find campaign.json, level.json, or block.json at the archive root or inside its single enclosing folder path."
         }
         $current = $children[0].FullName
     }
@@ -181,7 +182,7 @@ function New-CampaignPreview {
     foreach ($levelJson in $levelJsonFiles) {
         $levelRoot = $levelJson.Directory.FullName
         $levelMetadata = $null
-        try { $levelMetadata = Get-Content -Raw -LiteralPath $levelJson.FullName | ConvertFrom-Json }
+        try { $levelMetadata = Get-Content -Raw -Encoding UTF8 -LiteralPath $levelJson.FullName | ConvertFrom-Json }
         catch { continue }
 
         $thumbnail = [string](Get-ObjectProperty $levelMetadata "ThumbnailPath" "")
@@ -475,7 +476,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "7-Zip could not extract the archive." }
 
     $detected = Resolve-ContentRoot $extractPath
-    $metadata = Get-Content -Raw -LiteralPath $detected.JsonPath | ConvertFrom-Json
+    $metadata = Get-Content -Raw -Encoding UTF8 -LiteralPath $detected.JsonPath | ConvertFrom-Json
     $archiveName = [IO.Path]::GetFileNameWithoutExtension($resolvedArchive)
     $embeddedName = [string](Get-ObjectProperty $metadata "Name" "")
     $embeddedAuthor = [string](Get-ObjectProperty $metadata "Author" "Unknown")
@@ -483,7 +484,7 @@ try {
     $embeddedVersion = [string](Get-ObjectProperty $metadata "Version" "0.0")
 
     $itemsPath = Join-Path $script:RepoRoot "items.json"
-    $parsedItems = Get-Content -Raw -LiteralPath $itemsPath | ConvertFrom-Json
+    $parsedItems = Get-Content -Raw -Encoding UTF8 -LiteralPath $itemsPath | ConvertFrom-Json
     $items = @($parsedItems | Where-Object {
         $null -ne $_ -and
         $null -ne $_.PSObject.Properties["Id"] -and
@@ -494,7 +495,7 @@ try {
     $savedOverride = $null
     $overridesPath = Join-Path $script:RepoRoot "metadata-overrides.json"
     $overridesModulePath = Join-Path $script:RepoRoot "cloudflare\metadata-overrides.mjs"
-    $overridesDocument = Get-Content -Raw -LiteralPath $overridesPath | ConvertFrom-Json
+    $overridesDocument = Get-Content -Raw -Encoding UTF8 -LiteralPath $overridesPath | ConvertFrom-Json
     if ($UpdateItemId -gt 0) {
         $idMatches = @($items | Where-Object { [int64]$_.Id -eq $UpdateItemId })
         if ($idMatches.Count -ne 1) { throw "Workshop item ID $UpdateItemId does not exist." }
@@ -693,14 +694,16 @@ try {
             Save-MetadataOverrides $overridesPath $overridesModulePath $overridesDocument
         }
 
-        Push-Location $script:RepoRoot
-        try {
-            Write-Host "Running server tests ..."
-            & node --test
-            if ($LASTEXITCODE -ne 0) { throw "Server tests failed. Nothing was committed or pushed." }
-        }
-        finally {
-            Pop-Location
+        if (-not $SkipTests) {
+            Push-Location $script:RepoRoot
+            try {
+                Write-Host "Running server tests ..."
+                & node --test
+                if ($LASTEXITCODE -ne 0) { throw "Server tests failed. Nothing was committed or pushed." }
+            }
+            finally {
+                Pop-Location
+            }
         }
 
         Publish-R2Object $R2Bucket $payloadKey $normalizedZip

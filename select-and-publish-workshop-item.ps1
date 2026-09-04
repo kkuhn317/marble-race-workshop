@@ -52,6 +52,69 @@ function Wait-ForBatchDeployment {
     throw "Git push succeeded, but item IDs $missingIds did not appear within seven minutes. Check Cloudflare Builds."
 }
 
+function Read-BatchManifest {
+    param([string]$ManifestPath)
+
+    if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) { return @() }
+    return @(Get-Content -LiteralPath $ManifestPath -Encoding UTF8 | Where-Object { $_ } | ForEach-Object {
+        $_ | ConvertFrom-Json
+    })
+}
+
+function Remove-AbandonedBatch {
+    param([string]$ManifestPath)
+
+    $batchItems = @(Read-BatchManifest $ManifestPath)
+    if ($batchItems.Count -eq 0) { return }
+
+    Write-Host ""
+    Write-Host "Cleaning up $($batchItems.Count) prepared item(s) from the interrupted batch ..." -ForegroundColor Yellow
+    $wrangler = Join-Path $PSScriptRoot "node_modules\.bin\wrangler.cmd"
+    if (-not (Test-Path -LiteralPath $wrangler -PathType Leaf)) {
+        throw "Cannot clean up the interrupted R2 uploads because Wrangler is not installed."
+    }
+
+    $hadCodexCi = Test-Path Env:CODEX_CI
+    $savedCodexCi = if ($hadCodexCi) { (Get-Item Env:CODEX_CI).Value } else { $null }
+    try {
+        Remove-Item Env:CODEX_CI -ErrorAction SilentlyContinue
+        foreach ($item in $batchItems) {
+            $payloadUri = [Uri][string]$item.PayloadUri
+            $payloadKey = $payloadUri.AbsolutePath.TrimStart("/")
+            if ($payloadUri.Host -ne "content.marble.kevin-kuhn.dev" -or -not $payloadKey.StartsWith("payloads/")) {
+                throw "Refusing to delete unexpected batch payload URI: $($item.PayloadUri)"
+            }
+            & $wrangler r2 object delete "marble-race-workshop-content/$payloadKey" --remote --force
+            if ($LASTEXITCODE -ne 0) { throw "Could not delete abandoned R2 object $payloadKey." }
+        }
+    }
+    finally {
+        if ($hadCodexCi) { $env:CODEX_CI = $savedCodexCi }
+        else { Remove-Item Env:CODEX_CI -ErrorAction SilentlyContinue }
+    }
+
+    Invoke-RepoGit @(
+        "restore", "--source=HEAD", "--",
+        "items.json", "cloudflare/catalog.mjs",
+        "metadata-overrides.json", "cloudflare/metadata-overrides.mjs",
+        "public/previews"
+    ) | Out-Null
+
+    $previewRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot "public\previews")).TrimEnd("\", "/") + [IO.Path]::DirectorySeparatorChar
+    foreach ($item in $batchItems) {
+        $relative = ([string]$item.PreviewRelative).Replace("/", [IO.Path]::DirectorySeparatorChar)
+        $target = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot $relative))
+        if (-not $target.StartsWith($previewRoot, [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Refusing to remove unexpected batch preview path: $relative"
+        }
+        $status = @(Invoke-RepoGit @("status", "--porcelain", "--", $relative))
+        if ($status.Count -eq 1 -and ([string]$status[0]).StartsWith("?? ") -and (Test-Path -LiteralPath $target -PathType Leaf)) {
+            Remove-Item -LiteralPath $target -Force
+        }
+    }
+    Write-Host "Interrupted batch cleanup finished."
+}
+
 $dialog = New-Object System.Windows.Forms.OpenFileDialog
 $dialog.Title = "Choose Marble Race workshop archives"
 $dialog.Filter = "Workshop archives (*.zip;*.rar)|*.zip;*.rar|ZIP files (*.zip)|*.zip|RAR files (*.rar)|*.rar"
@@ -91,25 +154,43 @@ try {
         }
 
         $batchManifest = Join-Path ([IO.Path]::GetTempPath()) ("marble-workshop-batch-" + [guid]::NewGuid().ToString("N") + ".jsonl")
+        $keepPreparedBatch = $false
         try {
             Write-Host "Batch mode: preparing $($archives.Count) workshop items."
             Write-Host "Cloudflare will be committed and deployed once, after every item is ready."
+            Write-Host "The full server test suite will run once after all items are prepared."
             Write-Host ""
             foreach ($archive in $archives) {
-                & "$PSScriptRoot\publish-workshop-item.ps1" -ArchivePath $archive -DeferCommit -BatchManifestPath $batchManifest
+                & "$PSScriptRoot\publish-workshop-item.ps1" -ArchivePath $archive -DeferCommit -BatchManifestPath $batchManifest -SkipTests
                 if ($LASTEXITCODE -ne 0) { throw "Publishing preparation failed for $archive." }
             }
 
-            $batchItems = @(Get-Content -LiteralPath $batchManifest | Where-Object { $_ } | ForEach-Object { $_ | ConvertFrom-Json })
+            $batchItems = @(Read-BatchManifest $batchManifest)
             if ($batchItems.Count -ne $archives.Count) {
                 throw "Only $($batchItems.Count) of $($archives.Count) items were prepared. Nothing was committed or pushed."
             }
 
+            Push-Location $PSScriptRoot
+            try {
+                Write-Host ""
+                Write-Host "Running server tests once for the completed batch ..."
+                & node --test
+                if ($LASTEXITCODE -ne 0) { throw "Server tests failed. Nothing was committed or pushed." }
+            }
+            finally {
+                Pop-Location
+            }
+
             $deployAnswer = Read-Host "Commit and deploy all $($batchItems.Count) items now? [Y/n]"
             if ($deployAnswer -match '^(?i)n(?:o)?$') {
+                $keepPreparedBatch = $true
                 Write-Host "Prepared successfully but not committed. The repository changes are ready for review."
             }
             else {
+                # Once Git finalization begins, preserve the prepared state if
+                # Git or Cloudflare needs manual recovery rather than deleting
+                # files that may already be committed or deployed.
+                $keepPreparedBatch = $true
                 $previewPaths = @($batchItems | ForEach-Object { [string]$_.PreviewRelative } | Sort-Object -Unique)
                 $pathsToCommit = @("items.json", "cloudflare/catalog.mjs", "metadata-overrides.json", "cloudflare/metadata-overrides.mjs") + $previewPaths
                 Invoke-RepoGit (@("add", "--") + $pathsToCommit) | Out-Null
@@ -126,6 +207,9 @@ try {
             }
         }
         finally {
+            if (-not $keepPreparedBatch) {
+                Remove-AbandonedBatch $batchManifest
+            }
             if (Test-Path -LiteralPath $batchManifest -PathType Leaf) {
                 Remove-Item -LiteralPath $batchManifest -Force
             }

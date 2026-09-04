@@ -140,8 +140,16 @@ test("item updater keeps the selected ID and existing catalogue metadata", () =>
   const publishSelector = fs.readFileSync(path.resolve(__dirname, "../select-and-publish-workshop-item.ps1"), "utf8");
   assert.match(publishSelector, /publisher-error\.txt/);
   assert.match(publisher, /\[switch\]\$DeferCommit/);
+  assert.match(publisher, /\[switch\]\$SkipTests/);
+  assert.match(publisher, /Get-Content -Raw -Encoding UTF8 -LiteralPath \$itemsPath/);
+  assert.match(publisher, /Get-ChildItem -LiteralPath \$current -Directory -Force/);
   assert.match(publisher, /Prepared for batch deployment/);
   assert.match(publishSelector, /Commit and deploy all .* items now/);
   assert.match(publishSelector, /Publish .* workshop items/);
   assert.match(publishSelector, /Wait-ForBatchDeployment/);
+  assert.match(publishSelector, /-DeferCommit -BatchManifestPath \$batchManifest -SkipTests/);
+  assert.match(publishSelector, /Running server tests once for the completed batch/);
+  assert.match(publishSelector, /function Remove-AbandonedBatch/);
+  assert.match(publishSelector, /Cleaning up .* interrupted batch/);
+  assert.match(publishSelector, /if \(-not \$keepPreparedBatch\)/);
 });
