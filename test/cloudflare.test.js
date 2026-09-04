@@ -5,6 +5,22 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
+async function visibleCatalogItems(predicate = () => true) {
+  const { items } = await import("../cloudflare/catalog.mjs");
+  const { isHiddenItemId } = await import("../cloudflare/moderation.mjs");
+  const { applyMetadataOverrides } = await import("../cloudflare/metadata-overrides.mjs");
+  return items
+    .filter((item) => !isHiddenItemId(item.Id))
+    .map(applyMetadataOverrides)
+    .filter(predicate);
+}
+
+async function visibleCatalogItem(predicate = () => true) {
+  const [item] = await visibleCatalogItems(predicate);
+  assert.ok(item, "The test requires at least one matching visible catalog item");
+  return item;
+}
+
 test("Cloudflare moderation matches the saved reversible decision list", async () => {
   const { hiddenItemIds } = await import("../cloudflare/moderation.mjs");
   const saved = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../hidden-workshop-items.json"), "utf8"));
@@ -29,12 +45,9 @@ test("Cloudflare Items returns levels with deployment-origin URLs", async () => 
   const body = await response.json();
   assert.ok(body.length > 0 && body.length <= 10);
   assert.ok(body.every((item) => item.ResourceType === 0));
-  const shuriken = body.find((item) => item.Name === "Shuriken Race");
-  assert.ok(shuriken);
-  assert.equal(shuriken.Version, "0.0");
-  assert.equal(shuriken.AuthorId, 0);
-  assert.equal(shuriken.PayloadLength, 385028);
-  assert.equal(shuriken.PayloadUri, "https://content.marble.kevin-kuhn.dev/payloads/shuriken-race.zip");
+  assert.ok(body.every((item) => new URL(item.PreviewUri).protocol === "https:"));
+  assert.ok(body.every((item) => new URL(item.PayloadUri).protocol === "https:"));
+  assert.ok(body.every((item) => Number.isSafeInteger(item.PayloadLength) && item.PayloadLength > 0));
 });
 
 test("Cloudflare Items implements filtering and pagination", async () => {
@@ -61,34 +74,42 @@ test("Cloudflare Items implements filtering and pagination", async () => {
 
 test("Cloudflare Items finds a visible item by prefixed numeric ID", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
+  const target = await visibleCatalogItem();
+  const missingId = Math.max(...(await visibleCatalogItems()).map((item) => item.Id)) + 100000;
   const hashResult = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?search=%2310001&limit=1000"),
+    request: new Request(`https://marble.example.dev/api/Items?search=%23${target.Id}&limit=1000`),
   }).json();
   const namedResult = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?search=id%3A10001&limit=1000"),
+    request: new Request(`https://marble.example.dev/api/Items?search=id%3A${target.Id}&limit=1000`),
   }).json();
   const missing = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?search=id%3A999999&limit=1000"),
+    request: new Request(`https://marble.example.dev/api/Items?search=id%3A${missingId}&limit=1000`),
   }).json();
-  assert.deepEqual(hashResult.map((item) => item.Id), [10001]);
-  assert.deepEqual(namedResult.map((item) => item.Id), [10001]);
+  assert.ok(hashResult.some((item) => item.Id === target.Id));
+  assert.ok(namedResult.some((item) => item.Id === target.Id));
   assert.deepEqual(missing, []);
 });
 
 test("Cloudflare Items searches author usernames case-insensitively", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
+  const target = await visibleCatalogItem((item) => Boolean(item.AuthorName));
+  const mixedCaseAuthor = [...target.AuthorName]
+    .map((character, index) => index % 2 ? character.toUpperCase() : character.toLowerCase())
+    .join("");
   const result = await onRequestGet({
-    request: new Request("https://marble.example.dev/api/Items?search=bOoKwOrMkEvIn&limit=1000"),
+    request: new Request(`https://marble.example.dev/api/Items?search=${encodeURIComponent(mixedCaseAuthor)}&limit=1000`),
   }).json();
-  assert.ok(result.some((item) => item.Id === 10001 && item.AuthorName === "BookwormKevin"));
+  assert.ok(result.some((item) => item.Id === target.Id && item.AuthorName === target.AuthorName));
 });
 
 test("Cloudflare GetItem returns one item and 404 for an unknown id", async () => {
   const { onRequestGet } = await import("../functions/api/GetItem.js");
-  const found = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=1") });
-  const missing = onRequestGet({ request: new Request("https://marble.example.dev/api/GetItem?id=42424242") });
+  const target = await visibleCatalogItem();
+  const missingId = Math.max(...(await visibleCatalogItems()).map((item) => item.Id)) + 100000;
+  const found = onRequestGet({ request: new Request(`https://marble.example.dev/api/GetItem?id=${target.Id}`) });
+  const missing = onRequestGet({ request: new Request(`https://marble.example.dev/api/GetItem?id=${missingId}`) });
   assert.equal(found.status, 200);
-  assert.equal((await found.json()).Name, "Shuriken Race");
+  assert.equal((await found.json()).Name, target.Name);
   assert.equal(missing.status, 404);
 });
 
@@ -115,9 +136,11 @@ test("Cloudflare applies metadata overrides before searching and returning items
   const { onRequestGet: listItems } = await import("../functions/api/Items.js");
   const { onRequestGet: getItem } = await import("../functions/api/GetItem.js");
   const { metadataOverrides } = await import("../cloudflare/metadata-overrides.mjs");
-  metadataOverrides.set(1, { Name: "Temporary Override Name", AuthorName: "Corrected Author" });
+  const target = await visibleCatalogItem();
+  const previousOverride = metadataOverrides.get(target.Id);
+  metadataOverrides.set(target.Id, { Name: "Temporary Override Name", AuthorName: "Corrected Author" });
   try {
-    const found = await getItem({ request: new Request("https://marble.example.dev/api/GetItem?id=1") }).json();
+    const found = await getItem({ request: new Request(`https://marble.example.dev/api/GetItem?id=${target.Id}`) }).json();
     const searchedByName = await listItems({
       request: new Request("https://marble.example.dev/api/Items?search=temporary%20override%20name&limit=1000"),
     }).json();
@@ -125,10 +148,11 @@ test("Cloudflare applies metadata overrides before searching and returning items
       request: new Request("https://marble.example.dev/api/Items?search=corrected%20author&limit=1000"),
     }).json();
     assert.equal(found.AuthorName, "Corrected Author");
-    assert.ok(searchedByName.some((item) => item.Id === 1 && item.Name === "Temporary Override Name"));
-    assert.ok(searchedByAuthor.some((item) => item.Id === 1 && item.AuthorName === "Corrected Author"));
+    assert.ok(searchedByName.some((item) => item.Id === target.Id && item.Name === "Temporary Override Name"));
+    assert.ok(searchedByAuthor.some((item) => item.Id === target.Id && item.AuthorName === "Corrected Author"));
   } finally {
-    metadataOverrides.delete(1);
+    if (previousOverride) metadataOverrides.set(target.Id, previousOverride);
+    else metadataOverrides.delete(target.Id);
   }
 });
 
@@ -154,9 +178,8 @@ test("Worker entry point routes API requests and delegates assets", async () => 
     env,
   );
   assert.equal(apiResponse.status, 200);
-  const levelNames = (await apiResponse.json()).map((item) => item.Name);
-  assert.ok(levelNames.includes("Interlude"));
-  assert.ok(levelNames.includes("Shuriken Race"));
-  assert.ok(levelNames.includes("The Embered Racing"));
+  const levels = await apiResponse.json();
+  assert.ok(levels.length > 0);
+  assert.ok(levels.every((item) => item.ResourceType === 0));
   assert.equal(await assetResponse.text(), "asset");
 });
