@@ -139,4 +139,9 @@ test("item updater keeps the selected ID and existing catalogue metadata", () =>
   assert.match(publisher, /\$defaultTags = @\(if \(\$archiveTags\.Count -gt 0\)/);
   const publishSelector = fs.readFileSync(path.resolve(__dirname, "../select-and-publish-workshop-item.ps1"), "utf8");
   assert.match(publishSelector, /publisher-error\.txt/);
+  assert.match(publisher, /\[switch\]\$DeferCommit/);
+  assert.match(publisher, /Prepared for batch deployment/);
+  assert.match(publishSelector, /Commit and deploy all .* items now/);
+  assert.match(publishSelector, /Publish .* workshop items/);
+  assert.match(publishSelector, /Wait-ForBatchDeployment/);
 });

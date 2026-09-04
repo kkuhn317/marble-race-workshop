@@ -15,11 +15,17 @@ param(
     [Int64]$UpdateItemId = 0,
     [switch]$NonInteractive,
     [switch]$Push,
-    [switch]$ValidateOnly
+    [switch]$ValidateOnly,
+    [switch]$DeferCommit,
+    [string]$BatchManifestPath
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+if ($DeferCommit -and [string]::IsNullOrWhiteSpace($BatchManifestPath)) {
+    throw "BatchManifestPath is required when DeferCommit is used."
+}
 
 $script:RepoRoot = $PSScriptRoot
 $staticAssetLimit = 25MB
@@ -711,6 +717,24 @@ try {
             Remove-Item -LiteralPath $previewTarget -Force
         }
         throw
+    }
+
+    if ($DeferCommit) {
+        $batchResult = [ordered]@{
+            Id = $itemId
+            TimeStamp = $timestamp
+            Name = $displayName
+            PayloadUri = $payloadUri
+            PreviewRelative = $previewRelative.Replace("\", "/")
+        }
+        $batchLine = ConvertTo-Json -InputObject $batchResult -Compress
+        [IO.File]::AppendAllText(
+            [IO.Path]::GetFullPath($BatchManifestPath),
+            $batchLine + [Environment]::NewLine,
+            [Text.UTF8Encoding]::new($false)
+        )
+        Write-Host "Prepared for batch deployment: $displayName (ID $itemId)"
+        return
     }
 
     $shouldPush = $Push.IsPresent
