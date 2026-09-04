@@ -19,7 +19,7 @@ const MANAGED_FILES = [
   "metadata-overrides.json",
   "cloudflare/metadata-overrides.mjs",
 ];
-const EDITABLE_FIELDS = ["Name", "AuthorName", "Description", "Version", "Tags"];
+const EDITABLE_FIELDS = ["Name", "AuthorName", "Description", "Version", "Tags", "TimeStamp"];
 const BULK_FIELDS = new Map([
   ["name", "Name"], ["author", "AuthorName"], ["description", "Description"], ["version", "Version"],
 ]);
@@ -57,6 +57,12 @@ export function applyItemEdit(baseItem, existingOverride, values) {
   for (const field of EDITABLE_FIELDS) {
     if (!(field in values)) continue;
     let value = values[field];
+    if (field === "TimeStamp") {
+      if (!Number.isSafeInteger(value) || value <= 0) throw new Error("Upload date must be a valid date and time.");
+      if (value === Number(baseItem.TimeStamp)) delete next[field];
+      else next[field] = value;
+      continue;
+    }
     if (field === "Tags") {
       if (!Array.isArray(value) || value.some((tag) => typeof tag !== "string")) throw new Error("Tags must be a list of text values.");
       value = value.map((tag) => tag.trim()).filter(Boolean);

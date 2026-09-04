@@ -16,11 +16,12 @@ test("manager generates deterministic moderation modules", async () => {
 
 test("manager metadata edits use overrides and remove redundant values", async () => {
   const { applyItemEdit } = await import("../workshop-manager.mjs");
-  const base = { Name: "Level", AuthorName: "Matt", Description: "Original", Version: "1.0", Tags: ["race"] };
-  const changed = applyItemEdit(base, {}, { AuthorName: "BookwormKevin", Description: "Original", Tags: ["race", "hard"] });
-  assert.deepEqual(changed, { AuthorName: "BookwormKevin", Tags: ["race", "hard"] });
-  const restored = applyItemEdit(base, changed, { AuthorName: "Matt", Tags: ["race"] });
+  const base = { Name: "Level", AuthorName: "Matt", Description: "Original", Version: "1.0", Tags: ["race"], TimeStamp: 1700000000 };
+  const changed = applyItemEdit(base, {}, { AuthorName: "BookwormKevin", Description: "Original", Tags: ["race", "hard"], TimeStamp: 1750000000 });
+  assert.deepEqual(changed, { AuthorName: "BookwormKevin", Tags: ["race", "hard"], TimeStamp: 1750000000 });
+  const restored = applyItemEdit(base, changed, { AuthorName: "Matt", Tags: ["race"], TimeStamp: 1700000000 });
   assert.deepEqual(restored, {});
+  assert.throws(() => applyItemEdit(base, {}, { TimeStamp: 0 }), /valid date and time/);
 });
 
 test("manager API is local and requires its session token", async (context) => {
@@ -50,6 +51,8 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(html, /data-tool="steamImport"/);
   assert.match(script, /\/api\/visibility/);
   assert.match(script, /\/api\/metadata/);
+  assert.match(html, /id="edit-timestamp"/);
+  assert.match(script, /TimeStamp: localInputToTimestamp/);
   assert.match(script, /\/api\/update-item/);
   assert.match(script, /Update file/);
   assert.match(script, /\/api\/deploy/);

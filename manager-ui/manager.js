@@ -8,7 +8,7 @@ const elements = {
   search: document.querySelector("#search"), visibility: document.querySelector("#visibility"), type: document.querySelector("#type"),
   total: document.querySelector("#stat-total"), visible: document.querySelector("#stat-visible"), hidden: document.querySelector("#stat-hidden"), edited: document.querySelector("#stat-edited"),
   editor: document.querySelector("#editor"), editorForm: document.querySelector("#editor-form"), editorId: document.querySelector("#editor-id"), editorTitle: document.querySelector("#editor-title"),
-  editName: document.querySelector("#edit-name"), editAuthor: document.querySelector("#edit-author"), editVersion: document.querySelector("#edit-version"), editTags: document.querySelector("#edit-tags"), editDescription: document.querySelector("#edit-description"),
+  editName: document.querySelector("#edit-name"), editAuthor: document.querySelector("#edit-author"), editVersion: document.querySelector("#edit-version"), editTimestamp: document.querySelector("#edit-timestamp"), editTags: document.querySelector("#edit-tags"), editDescription: document.querySelector("#edit-description"),
   bulkForm: document.querySelector("#bulk-form"), bulkField: document.querySelector("#bulk-field"), bulkFind: document.querySelector("#bulk-find"), bulkReplace: document.querySelector("#bulk-replace"), bulkResult: document.querySelector("#bulk-result"),
   reviewTool: document.querySelector("#review-tool"), toast: document.querySelector("#toast"),
   recovery: document.querySelector("#steam-recovery"), recoveryLink: document.querySelector("#steam-recovery-link"), recoveryNote: document.querySelector("#steam-recovery-note"),
@@ -153,6 +153,7 @@ function openEditor(id) {
   elements.editName.value = item.Name || "";
   elements.editAuthor.value = item.AuthorName || "";
   elements.editVersion.value = item.Version || "0.0";
+  elements.editTimestamp.value = timestampToLocalInput(item.TimeStamp);
   elements.editTags.value = Array.isArray(item.Tags) ? item.Tags.join(", ") : "";
   elements.editDescription.value = item.Description || "";
   elements.editor.showModal();
@@ -166,6 +167,7 @@ async function saveEditor(event) {
   const submit = elements.editorForm.querySelector("button[type=submit]"); submit.disabled = true;
   const values = {
     Name: elements.editName.value, AuthorName: elements.editAuthor.value, Version: elements.editVersion.value,
+    TimeStamp: localInputToTimestamp(elements.editTimestamp.value),
     Tags: elements.editTags.value.split(",").map((tag) => tag.trim()).filter(Boolean), Description: elements.editDescription.value,
   };
   try {
@@ -233,3 +235,13 @@ function showToast(message, isError = false) {
 }
 function emptyState(text) { return create("div", "empty", text); }
 function create(tag, className = "", text = "") { const node = document.createElement(tag); if (className) node.className = className; if (text) node.textContent = text; return node; }
+function timestampToLocalInput(timestamp) {
+  const date = new Date(Number(timestamp) * 1000);
+  if (Number.isNaN(date.getTime())) return "";
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 19);
+}
+function localInputToTimestamp(value) {
+  const milliseconds = new Date(value).getTime();
+  return Number.isFinite(milliseconds) ? Math.floor(milliseconds / 1000) : 0;
+}
