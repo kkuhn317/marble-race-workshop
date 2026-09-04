@@ -21696,6 +21696,60 @@ export const items = [
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10034,
+        "Name":  "Braycoe\u0027s Arenas",
+        "ResourceType":  2,
+        "TimeStamp":  1788494060,
+        "AuthorId":  0,
+        "AuthorName":  "Braycoe",
+        "PreviewUri":  "/previews/braycoe-s-arenas.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/braycoe-s-arenas-1788494060.zip",
+        "Description":  "Random arenas I made.",
+        "PayloadLength":  152572,
+        "Version":  "1.4.0",
+        "Tags":  [
+                     "campaign"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
+    },
+    {
+        "Id":  10035,
+        "Name":  "Braycoe\u0027s Pack",
+        "ResourceType":  2,
+        "TimeStamp":  1788494068,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT",
+        "PreviewUri":  "/previews/braycoe-s-pack.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/braycoe-s-pack-1788494068.zip",
+        "Description":  "Braycoe\u0027s Ultimate Race Pack!",
+        "PayloadLength":  7788804,
+        "Version":  "1.3.0",
+        "Tags":  [
+                     "campaign"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
+    },
+    {
+        "Id":  10036,
+        "Name":  "Colors 4 (V0.2)",
+        "ResourceType":  2,
+        "TimeStamp":  1788494085,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT",
+        "PreviewUri":  "/previews/colors-4-v0-2.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/colors-4-v0-2-1788494085.zip",
+        "Description":  "The First 3 Colors by ElasticSea, Marecube, and Kry. I thought I should start the fourth. :D",
+        "PayloadLength":  159604,
+        "Version":  "1.3.0",
+        "Tags":  [
+                     "campaign"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ];
 
