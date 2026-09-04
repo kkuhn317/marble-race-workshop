@@ -21606,5 +21606,95 @@
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10029,
+        "Name":  "Vaccums",
+        "ResourceType":  0,
+        "TimeStamp":  1788493897,
+        "AuthorId":  0,
+        "AuthorName":  "Unknown",
+        "PreviewUri":  "/previews/vaccums.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/vaccums-1788493897.zip",
+        "Description":  "",
+        "PayloadLength":  8099,
+        "Version":  "1.4.8",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
+    },
+    {
+        "Id":  10030,
+        "Name":  "Up Race but its a whole new world",
+        "ResourceType":  0,
+        "TimeStamp":  1788493948,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT, BookwormKevin",
+        "PreviewUri":  "/previews/up-race-but-its-a-whole-new-world.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/up-race-but-its-a-whole-new-world-1788493948.zip",
+        "Description":  "Its a whole new level with craziness and other stuff.",
+        "PayloadLength":  930700,
+        "Version":  "1.4.8",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
+    },
+    {
+        "Id":  10031,
+        "Name":  "The Nine Tests of Skill",
+        "ResourceType":  0,
+        "TimeStamp":  1788493955,
+        "AuthorId":  0,
+        "AuthorName":  "WW92030",
+        "PreviewUri":  "/previews/the-nine-tests-of-skill.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/the-nine-tests-of-skill-1788493955.zip",
+        "Description":  "The Nine Tests of Skill",
+        "PayloadLength":  149566,
+        "Version":  "1.4.8",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
+    },
+    {
+        "Id":  10032,
+        "Name":  "Warpdrive Circular Dimension (Kaizo2)",
+        "ResourceType":  0,
+        "TimeStamp":  1788493981,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT",
+        "PreviewUri":  "/previews/warpdrive-circular-dimension-kaizo2.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/warpdrive-circular-dimension-kaizo2-1788493981.zip",
+        "Description":  "After escaping the microscope slide, you were leaving the lab but noticed something shiny in a locked room. You secretly picked the lock and went in the dark room. You went to... a warpdrive!? You also activated security and in trying not to get in trouble, you activate it and teleport to another dimension full of circles!!! I put what I call a \"final blitz\" at the end: An extra hard section with no checkpoints! Play this level on lowest fps and quality for the framerate.",
+        "PayloadLength":  1792187,
+        "Version":  "1.4.8",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
+    },
+    {
+        "Id":  10033,
+        "Name":  "Amoeba Water (Kaizo1)",
+        "ResourceType":  0,
+        "TimeStamp":  1788493993,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT",
+        "PreviewUri":  "/previews/amoeba-water-kaizo1.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/amoeba-water-kaizo1-1788493993.zip",
+        "Description":  "My first kaizo. The National Marbleland Scientists has mistaken you for an amoeba and try experiments on you. You were shruken down by \"accidentally\" testing the Shrink Ray 2000. By Braycoe Gaming YT.",
+        "PayloadLength":  462449,
+        "Version":  "1.4.8",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ]
