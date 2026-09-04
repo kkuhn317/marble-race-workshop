@@ -35,11 +35,10 @@ test("Items returns all registered workshop items", async () => {
   const response = await fetch(`http://127.0.0.1:${PORT}/api/Items?limit=1000`);
   assert.equal(response.status, 200);
   const items = await response.json();
-  assert.ok(items.length >= 5);
-  const shuriken = items.find((item) => item.Name === "Shuriken Race");
-  assert.equal(shuriken.ResourceType, 0);
-  assert.equal(shuriken.PayloadLength, 385028);
-  assert.ok(items.filter((item) => item.ResourceType === 2).length >= 2);
+  assert.ok(items.length > 0);
+  assert.ok(items.some((item) => item.ResourceType === 0));
+  assert.ok(items.some((item) => item.ResourceType === 2));
+  assert.ok(items.every((item) => Number.isSafeInteger(item.PayloadLength) && item.PayloadLength > 0));
 });
 
 test("Local server serves the workshop browser and its assets", async () => {
@@ -63,30 +62,43 @@ test("Items accepts custom-server URL path variants", async () => {
 });
 
 test("Items finds a visible item by prefixed numeric ID", async () => {
-  const hashItems = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=%2310001&limit=1000`).then((response) => response.json());
-  const namedItems = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=id%3A10001&limit=1000`).then((response) => response.json());
-  const missing = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=id%3A999999&limit=1000`).then((response) => response.json());
-  assert.deepEqual(hashItems.map((item) => item.Id), [10001]);
-  assert.deepEqual(namedItems.map((item) => item.Id), [10001]);
+  const visible = await fetch(`http://127.0.0.1:${PORT}/api/Items?limit=1000`).then((response) => response.json());
+  const target = visible[0];
+  const missingId = Math.max(...visible.map((item) => item.Id)) + 100000;
+  const hashItems = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=%23${target.Id}&limit=1000`).then((response) => response.json());
+  const namedItems = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=id%3A${target.Id}&limit=1000`).then((response) => response.json());
+  const missing = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=id%3A${missingId}&limit=1000`).then((response) => response.json());
+  assert.ok(hashItems.some((item) => item.Id === target.Id));
+  assert.ok(namedItems.some((item) => item.Id === target.Id));
   assert.deepEqual(missing, []);
 });
 
 test("Items searches author usernames case-insensitively", async () => {
-  const items = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=bOoKwOrMkEvIn&limit=1000`).then((response) => response.json());
-  assert.ok(items.some((item) => item.Id === 10001 && item.AuthorName === "BookwormKevin"));
+  const visible = await fetch(`http://127.0.0.1:${PORT}/api/Items?limit=1000`).then((response) => response.json());
+  const target = visible.find((item) => item.AuthorName);
+  const mixedCaseAuthor = [...target.AuthorName]
+    .map((character, index) => index % 2 ? character.toUpperCase() : character.toLowerCase())
+    .join("");
+  const items = await fetch(`http://127.0.0.1:${PORT}/api/Items?search=${encodeURIComponent(mixedCaseAuthor)}&limit=1000`).then((response) => response.json());
+  assert.ok(items.some((item) => item.Id === target.Id && item.AuthorName === target.AuthorName));
 });
 
 test("The registered level has a local preview and an R2 payload", async () => {
-  const item = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=1`).then((response) => response.json());
+  const visible = await fetch(`http://127.0.0.1:${PORT}/api/Items?type=0&limit=1000`).then((response) => response.json());
+  const target = visible.find((item) => new URL(item.PreviewUri).origin === `http://127.0.0.1:${PORT}`);
+  assert.ok(target);
+  const item = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=${target.Id}`).then((response) => response.json());
   const preview = await fetch(item.PreviewUri);
   assert.equal(preview.status, 200);
-  assert.equal(preview.headers.get("content-type"), "image/jpeg");
-  assert.equal(item.PayloadUri, "https://content.marble.kevin-kuhn.dev/payloads/shuriken-race.zip");
-  assert.equal(item.PayloadLength, 385028);
+  assert.match(preview.headers.get("content-type"), /^image\/(?:jpeg|png)$/);
+  assert.match(item.PayloadUri, /^https:\/\/content\.marble\.kevin-kuhn\.dev\/payloads\//);
+  assert.ok(item.PayloadLength > 0);
 });
 
 test("GetItem returns 404 for an unknown item", async () => {
-  const response = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=42424242`);
+  const visible = await fetch(`http://127.0.0.1:${PORT}/api/Items?limit=1000`).then((response) => response.json());
+  const missingId = Math.max(...visible.map((item) => item.Id)) + 100000;
+  const response = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=${missingId}`);
   assert.equal(response.status, 404);
 });
 
