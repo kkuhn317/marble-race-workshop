@@ -54,6 +54,12 @@ export const metadataOverrides = new Map([
     }
   ],
   [
+    773,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
     749,
     {
       "Name": "Marble64 V0.0.3.4"
@@ -162,6 +168,18 @@ export const metadataOverrides = new Map([
     }
   ],
   [
+    1003,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
+    1004,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
     1133,
     {
       "AuthorName": "BookwormKevin"
@@ -201,6 +219,18 @@ export const metadataOverrides = new Map([
     1304,
     {
       "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1316,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
+    1317,
+    {
+      "AuthorName": "✪ a1um"
     }
   ],
   [

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { createInterface } from "node:readline/promises";
 import { cleanSteamDescription, replaceCatalogItems } from "./mirror-main-workshop.mjs";
+import { repairMojibakeText } from "./text-encoding.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const ITEMS_PATH = join(ROOT, "items.json");
@@ -70,14 +71,14 @@ export function buildRecoveredItem(candidate, steam, prepared, record) {
   const tags = Array.isArray(steam.tags) ? steam.tags.map((entry) => String(entry?.tag ?? entry).trim()).filter(Boolean) : [];
   return {
     Id: Number(record.Id),
-    Name: String(steam.title || candidate.embeddedName || `Steam item ${candidate.steamId}`).trim(),
+    Name: repairMojibakeText(steam.title || candidate.embeddedName || `Steam item ${candidate.steamId}`).trim(),
     ResourceType: Number(prepared.ResourceType),
     TimeStamp: Number(steam.time_created || candidate.embeddedTimestamp || 0),
     AuthorId: String(steam.creator || "0"),
-    AuthorName: String(candidate.embeddedAuthor || steam.author_name || "Unknown").trim() || "Unknown",
+    AuthorName: repairMojibakeText(candidate.embeddedAuthor || steam.author_name || "Unknown").trim() || "Unknown",
     PreviewUri: record.PreviewUri,
     PayloadUri: record.PayloadUri,
-    Description: cleanSteamDescription(steam.description) || candidate.embeddedDescription || `Archived from Steam Workshop item ${candidate.steamId}.`,
+    Description: cleanSteamDescription(steam.description) || repairMojibakeText(candidate.embeddedDescription) || `Archived from Steam Workshop item ${candidate.steamId}.`,
     PayloadLength: Number(record.PayloadLength),
     Version: String(prepared.Version || candidate.embeddedVersion || "1.0.0"),
     Tags: tags.length ? tags : [resourceTypeName(prepared.ResourceType)],
@@ -298,7 +299,7 @@ async function addAuthorNames(details) {
     if (names.has(creator)) { detail.author_name = names.get(creator); continue; }
     try {
       const response = await fetchWithRetry(`https://steamcommunity.com/profiles/${creator}?xml=1`, {}, `Steam profile ${creator}`);
-      const name = xmlValue(await response.text(), "steamID") || "Unknown";
+      const name = repairMojibakeText(xmlValue(await response.text(), "steamID")) || "Unknown";
       names.set(creator, name); detail.author_name = name;
     } catch { names.set(creator, "Unknown"); detail.author_name = "Unknown"; }
   }

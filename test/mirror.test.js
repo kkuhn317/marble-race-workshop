@@ -3,6 +3,13 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
+test("text repair reverses repeated UTF-8 and Windows-1252 mojibake safely", async () => {
+  const { repairMojibakeText } = await import("../text-encoding.mjs");
+  assert.equal(repairMojibakeText("âœª a1um"), "✪ a1um");
+  assert.equal(repairMojibakeText("dark dunkel sombre karanlık"), "dark dunkel sombre karanlık");
+  assert.equal(repairMojibakeText("粉色 Pink"), "粉色 Pink");
+});
+
 test("mirror cleans common Steam markup while preserving description text", async () => {
   const { cleanSteamDescription } = await import("../mirror-main-workshop.mjs");
   assert.equal(
@@ -82,6 +89,19 @@ test("mirror replaces numeric descriptions with Steam descriptions", async () =>
   assert.equal(item.SteamWorkshopId, "3435030530");
   assert.equal(item.AuthorId, "76561199387555910");
   assert.deepEqual(item.Tags, ["campaign"]);
+});
+
+test("mirror repairs corrupted source usernames before publishing", async () => {
+  const { buildMirroredItem } = await import("../mirror-main-workshop.mjs");
+  const item = buildMirroredItem({
+    Id: 1003, Name: "Level", ResourceType: 0, TimeStamp: 1,
+    AuthorId: "76561198161080924", AuthorName: "âœª a1um", Description: "",
+    PayloadLength: 10, PayloadUri: "https://source/payload", PreviewUri: "https://source/preview", Version: "1.0.0",
+  }, null, {
+    PayloadUri: "https://mirror/payload.zip", PreviewUri: "https://mirror/preview.jpg",
+    PayloadSha256: "a".repeat(64), PreviewSha256: "b".repeat(64),
+  });
+  assert.equal(item.AuthorName, "✪ a1um");
 });
 
 test("mirror preserves removed official items and rejects custom ID collisions", async () => {

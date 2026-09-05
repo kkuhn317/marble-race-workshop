@@ -15,6 +15,7 @@ import { spawnSync } from "node:child_process";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { createInterface } from "node:readline/promises";
+import { repairMojibakeText } from "./text-encoding.mjs";
 
 const REPO_ROOT = dirname(fileURLToPath(import.meta.url));
 const ITEMS_PATH = join(REPO_ROOT, "items.json");
@@ -80,7 +81,7 @@ export function parseArguments(argv) {
 
 export function cleanSteamDescription(value) {
   if (typeof value !== "string") return "";
-  return value
+  return repairMojibakeText(value)
     .replace(/\[img\][\s\S]*?\[\/img\]/gi, "")
     .replace(/\[url=[^\]]*\]([\s\S]*?)\[\/url\]/gi, "$1")
     .replace(/\[url\]([\s\S]*?)\[\/url\]/gi, "$1")
@@ -131,13 +132,13 @@ export function buildMirroredItem(source, steam, record) {
 
   return {
     Id: Number(source.Id),
-    Name: String(source.Name || steam?.title || "").trim(),
+    Name: repairMojibakeText(source.Name || steam?.title || "").trim(),
     ResourceType: Number(source.ResourceType),
     TimeStamp: Number(source.TimeStamp),
     // Steam IDs exceed JavaScript's safe integer range. Keep the exact digits
     // internally; the API serializer emits them as an unquoted JSON integer.
     AuthorId: String(steam?.creator || source.AuthorId || "0"),
-    AuthorName: String(source.AuthorName || "Unknown"),
+    AuthorName: repairMojibakeText(source.AuthorName || "Unknown").trim() || "Unknown",
     PreviewUri: record.PreviewUri,
     PayloadUri: record.PayloadUri,
     Description: description,
@@ -169,7 +170,13 @@ export function mergeCatalog(existingItems, mirroredItems) {
 
   const missingMirrors = existingItems
     .filter((item) => item.MirrorSource === MIRROR_SOURCE && !incomingIds.has(Number(item.Id)))
-    .map((item) => ({ ...item, MirrorStatus: "missing-from-source" }));
+    .map((item) => ({
+      ...item,
+      Name: repairMojibakeText(item.Name),
+      AuthorName: repairMojibakeText(item.AuthorName).trim() || "Unknown",
+      Description: repairMojibakeText(item.Description),
+      MirrorStatus: "missing-from-source",
+    }));
   const officialItems = [...mirroredItems, ...missingMirrors]
     .sort((left, right) => Number(left.Id) - Number(right.Id));
   return [...customItems, ...officialItems];

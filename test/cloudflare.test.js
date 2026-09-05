@@ -52,6 +52,12 @@ test("Cloudflare repairs every known corrupted workshop title", async () => {
   }
 });
 
+test("Cloudflare repairs every known corrupted workshop username", async () => {
+  const items = await visibleCatalogItems((item) => [773, 1003, 1004, 1316, 1317].includes(item.Id));
+  assert.equal(items.length, 5);
+  assert.ok(items.every((item) => item.AuthorName === "✪ a1um"));
+});
+
 test("Cloudflare Items returns levels with deployment-origin URLs", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
   const response = onRequestGet({
