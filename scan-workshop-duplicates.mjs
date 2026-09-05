@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import { applyMetadataOverrides } from "./cloudflare/metadata-overrides.mjs";
 
 const REPO_ROOT = dirname(fileURLToPath(import.meta.url));
 const ITEMS_PATH = join(REPO_ROOT, "items.json");
@@ -24,6 +25,10 @@ const DEFAULT_MIRROR_SOURCES = new Set(["official-main", "steam-recovery"]);
 
 export function isDefaultScanItem(item) {
   return DEFAULT_MIRROR_SOURCES.has(String(item?.MirrorSource || ""));
+}
+
+export function prepareScanItems(items) {
+  return items.map(applyMetadataOverrides);
 }
 
 export function parseArguments(argv) {
@@ -306,7 +311,7 @@ async function main() {
     return;
   }
 
-  let items = JSON.parse(await readFile(ITEMS_PATH, "utf8"));
+  let items = prepareScanItems(JSON.parse(await readFile(ITEMS_PATH, "utf8")));
   if (!options.includeCustom) items = items.filter(isDefaultScanItem);
   if (options.itemIds.length > 0) {
     const selected = new Set(options.itemIds);

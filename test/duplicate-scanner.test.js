@@ -11,6 +11,12 @@ test("default duplicate scan includes official and recovered Steam items only", 
   assert.equal(isDefaultScanItem({ Id: 10002, MirrorSource: "custom" }), false);
 });
 
+test("duplicate scans use repaired catalog metadata", async () => {
+  const { prepareScanItems } = await import("../scan-workshop-duplicates.mjs");
+  const [item] = prepareScanItems([{ Id: 2034, Name: "corrupted source title" }]);
+  assert.equal(item.Name, "粉色 Pink");
+});
+
 test("duplicate scanner ignores ownership metadata and GUIDs", async () => {
   const { canonicalize } = await import("../scan-workshop-duplicates.mjs");
   const first = { Id: "one", Author: "Alice", WorkshopId: 1, BlockGroups: { Item: { GUID: "aaaaaaaa", ID: "Block" } } };

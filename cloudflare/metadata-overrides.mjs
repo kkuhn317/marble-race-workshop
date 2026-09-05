@@ -198,6 +198,12 @@ export const metadataOverrides = new Map([
     }
   ],
   [
+    2034,
+    {
+      "Name": "粉色 Pink"
+    }
+  ],
+  [
     2113,
     {
       "AuthorName": "mamapenguin1983"
