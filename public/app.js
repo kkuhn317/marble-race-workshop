@@ -86,7 +86,7 @@ function sortItems(items, sort) {
   const text = (value) => String(value).toLocaleLowerCase();
   const sorters = {
     new: (a, b) => b.TimeStamp - a.TimeStamp || b.Id - a.Id,
-    votes: (a, b) => b.Rating - a.Rating || b.Downloads - a.Downloads || b.TimeStamp - a.TimeStamp || a.Id - b.Id,
+    votes: (a, b) => b.Rating - a.Rating || a.Id - b.Id,
     old: (a, b) => a.TimeStamp - b.TimeStamp || a.Id - b.Id,
     name: (a, b) => text(a.Name).localeCompare(text(b.Name)) || a.Id - b.Id,
     author: (a, b) => text(a.AuthorName).localeCompare(text(b.AuthorName)) || text(a.Name).localeCompare(text(b.Name)),

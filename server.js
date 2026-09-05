@@ -200,7 +200,8 @@ function queryItems(items, params) {
   } else if (sort === "old") {
     filtered.sort((a, b) => Number(a.TimeStamp) - Number(b.TimeStamp));
   } else if (sort === "top") {
-    filtered.sort((a, b) => Number(b.Rating || 0) - Number(a.Rating || 0));
+    filtered.sort((a, b) => Number(b.Rating || 0) - Number(a.Rating || 0)
+      || Number(a.Id) - Number(b.Id));
   } else {
     filtered.sort((a, b) => Number(b.Downloads || 0) - Number(a.Downloads || 0));
   }
@@ -232,6 +233,11 @@ function publicItem(item, request) {
     Description: String(item.Description || ""),
     PayloadLength: payloadLength,
     Version: String(item.Version || ""),
+    Rating: Number(item.Rating) || 0,
+    Downloads: Number(item.Downloads) || 0,
+    SteamWorkshopId: /^\d+$/.test(String(item.SteamWorkshopId || ""))
+      ? String(item.SteamWorkshopId)
+      : "",
   };
 }
 

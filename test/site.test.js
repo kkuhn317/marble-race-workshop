@@ -25,7 +25,7 @@ test("workshop browser exposes IDs, creators, filtering, and item links", () => 
   assert.match(script, /item\.AuthorName/);
   assert.match(script, /item\.ResourceType/);
   assert.match(script, /Rating: Number\(item\.Rating\)/);
-  assert.match(script, /votes: \(a, b\) => b\.Rating - a\.Rating/);
+  assert.match(script, /votes: \(a, b\) => b\.Rating - a\.Rating \|\| a\.Id - b\.Id/);
   assert.match(script, /Vote score/);
   assert.match(script, /steamcommunity\.com\/sharedfiles\/filedetails/);
   assert.match(script, /View on Steam Workshop/);

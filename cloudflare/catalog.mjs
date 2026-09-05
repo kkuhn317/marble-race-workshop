@@ -21778,6 +21778,11 @@ export function publicItem(item, requestUrl) {
     Description: item.Description,
     PayloadLength: item.PayloadLength,
     Version: item.Version,
+    Rating: Number(item.Rating) || 0,
+    Downloads: Number(item.Downloads) || 0,
+    SteamWorkshopId: /^\d+$/.test(String(item.SteamWorkshopId || ""))
+      ? String(item.SteamWorkshopId)
+      : "",
   };
 }
 

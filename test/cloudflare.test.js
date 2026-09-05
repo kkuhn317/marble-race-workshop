@@ -94,6 +94,22 @@ test("Cloudflare Items implements filtering and pagination", async () => {
   assert.equal(page[0].Id, allItems[4].Id);
 });
 
+test("Cloudflare Items exposes scores and Steam metadata in vote order", async () => {
+  const { onRequestGet } = await import("../functions/api/Items.js");
+  const expected = (await visibleCatalogItems())
+    .sort((a, b) => Number(b.Rating || 0) - Number(a.Rating || 0) || Number(a.Id) - Number(b.Id))
+    .slice(0, 20);
+  const result = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?sort=top&limit=20"),
+  }).json();
+
+  assert.ok(expected.some((item) => Number(item.Rating) > 0), "The catalog should contain a rated item");
+  assert.deepEqual(result.map((item) => item.Id), expected.map((item) => item.Id));
+  assert.deepEqual(result.map((item) => item.Rating), expected.map((item) => Number(item.Rating) || 0));
+  assert.ok(result.every((item) => Number.isSafeInteger(item.Downloads)));
+  assert.ok(result.every((item) => typeof item.SteamWorkshopId === "string"));
+});
+
 test("Cloudflare Items finds a visible item by prefixed numeric ID", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
   const target = await visibleCatalogItem();
