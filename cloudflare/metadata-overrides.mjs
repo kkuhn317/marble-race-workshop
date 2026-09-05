@@ -206,7 +206,7 @@ export const metadataOverrides = new Map([
   [
     1284,
     {
-      "AuthorName": "BookwormKevin"
+      "AuthorName": "BookwormKevin, CTMFF, HDCK2"
     }
   ],
   [
