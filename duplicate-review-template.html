@@ -10,8 +10,9 @@
     header { position:sticky; top:0; z-index:2; padding:20px clamp(16px,4vw,48px); background:#10141ceF; backdrop-filter:blur(12px); border-bottom:1px solid #334155 }
     h1 { margin:0 0 6px; font-size:clamp(22px,3vw,34px) } .sub { color:#aab7cc }
     .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px }
-    input,select,button { border:1px solid #46546b; background:#192232; color:#f8fafc; border-radius:9px; padding:9px 11px }
-    button { cursor:pointer } button:hover { background:#26354d }
+    input,select,button,.button-link { border:1px solid #46546b; background:#192232; color:#f8fafc; border-radius:9px; padding:9px 11px }
+    button,.button-link { cursor:pointer } button:hover,.button-link:hover { background:#26354d }
+    .button-link { text-decoration:none }
     main { max-width:1200px; margin:auto; padding:24px }
     .summary { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:18px }
     .pill { background:#1e293b; border:1px solid #334155; border-radius:999px; padding:7px 12px }
@@ -32,6 +33,10 @@
     .choice-button.keep-choice.selected { background:#166534; border-color:#4ade80 }
     .choice-button.hide-choice.selected { background:#991b1b; border-color:#f87171 }
     .review-progress { border-top:1px solid #334155; padding-top:12px; color:#aab7cc; font-size:13px }
+    .apply-status { display:none; flex-basis:100%; padding:10px 12px; border-radius:9px; background:#1e293b; border:1px solid #475569 }
+    .apply-status.visible { display:block } .apply-status.success { color:#bbf7d0; border-color:#15803d; background:#14532d55 }
+    .apply-status.error { color:#fecaca; border-color:#b91c1c; background:#7f1d1d55 }
+    .authorization-warning { margin-top:12px; padding:12px; border:1px solid #f59e0b; border-radius:9px; color:#fde68a; background:#78350f55 }
     .campaign-check { margin:13px 0; padding:12px; border:1px solid #46546b; border-radius:10px; background:#111827 }
     .campaign-row { margin-top:9px; padding-top:9px; border-top:1px solid #293548 }
     .complete { color:#86efac; font-weight:700 } .partial { color:#fde68a; font-weight:700 }
@@ -46,8 +51,9 @@
   <div class="toolbar">
     <input id="search" placeholder="Search name, author, or ID">
     <select id="filter"><option value="different-authors">Unresolved different authors</option><option value="unreviewed">All unresolved</option><option value="all">All matches</option><option value="high">Unresolved high confidence</option><option value="reviewed">Resolved/reviewed</option></select>
-    <button id="export">Export decisions</button><button id="importButton">Import decisions</button><button id="apply">Apply choices to manager</button><input hidden type="file" id="importFile" accept="application/json"><span id="applyStatus" class="sub"></span>
+    <a id="backToManager" class="button-link" hidden>Back to Workshop Manager</a><button id="export">Export decisions</button><button id="importButton">Import decisions</button><button id="apply">Apply choices to manager</button><input hidden type="file" id="importFile" accept="application/json"><span id="applyStatus" class="apply-status"></span>
   </div>
+  <div id="authorizationWarning" class="authorization-warning" hidden></div>
 </header>
 <main><div class="summary" id="summary"></div><div id="matches"></div></main>
 <script>
@@ -129,16 +135,29 @@ document.querySelector('#importFile').onchange = async event => { const data=JSO
 const managerToken = new URL(location.href).searchParams.get('token') || '';
 const applyButton = document.querySelector('#apply');
 const applyStatus = document.querySelector('#applyStatus');
-if (location.protocol === 'file:' || !managerToken) { applyButton.disabled = true; applyButton.title = 'Open this report from Workshop Manager to apply choices automatically.'; }
+const authorizationWarning = document.querySelector('#authorizationWarning');
+const backToManager = document.querySelector('#backToManager');
+function showApplyStatus(message,kind) { applyStatus.textContent=message; applyStatus.className='apply-status visible ' + (kind||''); }
+if (location.protocol === 'file:' || !managerToken) {
+  applyButton.disabled = true;
+  applyButton.textContent = 'Manager authorization required';
+  applyButton.title = 'This report was opened directly instead of through Workshop Manager.';
+  authorizationWarning.hidden = false;
+  authorizationWarning.innerHTML = '<strong>This page cannot change the workshop.</strong> Your choices are still saved here. Click <b>Export decisions</b>, open Workshop Manager → Review duplicates, import that file, then apply the choices.';
+} else {
+  backToManager.href = '/?token=' + encodeURIComponent(managerToken);
+  backToManager.hidden = false;
+}
 applyButton.onclick = async () => {
-  if (!managerToken) return;
-  applyButton.disabled = true; applyStatus.textContent = 'Applying…';
+  if (!managerToken) { showApplyStatus('Open this report through Workshop Manager before applying choices.','error'); return; }
+  applyButton.disabled = true; applyButton.textContent = 'Applying…'; showApplyStatus('Sending your KEEP and HIDE choices to Workshop Manager…','');
   try {
     const response = await fetch('/api/duplicate-hidden', {method:'POST',headers:{'content-type':'application/json','x-manager-token':managerToken},body:JSON.stringify({hiddenItemIds:hiddenIds(),itemChoices:itemChoices})});
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Manager rejected the hidden items.');
-    applyStatus.textContent = result.message + ' Return to the manager and click Publish changes.';
-  } catch (error) { applyStatus.textContent = error.message || String(error); }
+    applyButton.textContent = 'Applied ✓';
+    showApplyStatus(result.message + ' Return to the manager, refresh once, and click Publish changes.','success');
+  } catch (error) { applyButton.textContent = 'Apply failed'; showApplyStatus(error.message || String(error),'error'); }
   finally { applyButton.disabled = false; }
 };
 render();

@@ -98,6 +98,11 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(duplicateTemplate, />KEEP<\/button>/);
   assert.match(duplicateTemplate, />HIDE<\/button>/);
   assert.match(duplicateTemplate, /match\.Items\.every/);
+  assert.match(duplicateTemplate, /Manager authorization required/);
+  assert.match(duplicateTemplate, /Applied ✓/);
+  assert.match(duplicateTemplate, /Back to Workshop Manager/);
+  assert.match(server, /MARBLE_REVIEW_URL/);
+  assert.match(script, /window\.location\.assign\(payload\.url\)/);
 });
 
 test("recovered Steam importer assigns stable short IDs and preserves dates", async () => {

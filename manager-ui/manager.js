@@ -212,6 +212,10 @@ async function launchTool(button) {
   button.disabled = true;
   try {
     const payload = await api("/api/launch", { method: "POST", body: JSON.stringify({ tool: button.dataset.tool }) });
+    if (payload.url) {
+      window.location.assign(payload.url);
+      return;
+    }
     showToast(payload.message);
   } catch (error) { showToast(error.message, true); }
   finally { window.setTimeout(() => { button.disabled = false; }, 500); }

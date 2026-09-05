@@ -115,7 +115,7 @@ export function buildSteamRecoveryBookmarklet(mirroredIds) {
   return `javascript:${encodeURIComponent(script)}`;
 }
 
-export async function createWorkshopManager({ port = 31940, host = "127.0.0.1", openBrowser = true } = {}) {
+export async function createWorkshopManager({ port = 31940, host = "127.0.0.1", openBrowser = true, initialPage = "manager" } = {}) {
   const token = randomBytes(24).toString("hex");
   let operationInProgress = false;
 
@@ -200,8 +200,10 @@ export async function createWorkshopManager({ port = 31940, host = "127.0.0.1", 
   const address = server.address();
   const actualPort = typeof address === "object" && address ? address.port : port;
   const url = `http://${host}:${actualPort}/?token=${token}`;
-  if (openBrowser) openUrl(url);
-  return { server, token, url };
+  const reviewUrl = `http://${host}:${actualPort}/duplicate-review?token=${token}`;
+  const openedUrl = initialPage === "review" ? reviewUrl : url;
+  if (openBrowser) openUrl(openedUrl);
+  return { server, token, url, reviewUrl, openedUrl };
 }
 
 async function readCatalog() {
@@ -346,7 +348,7 @@ function launchTool(toolValue, { managerOrigin = "", token = "" } = {}) {
     publish: { path: resolve(ROOT, "select-and-publish-workshop-item.bat"), label: "publisher" },
     edit: { path: resolve(ROOT, "edit-workshop-item.bat"), label: "item editor" },
     bulk: { path: resolve(ROOT, "bulk-edit-workshop-metadata.bat"), label: "bulk metadata editor" },
-    duplicates: { path: resolve(ROOT, "scan-workshop-duplicates.bat"), label: "duplicate scanner" },
+    duplicates: { path: resolve(ROOT, "scan-workshop-duplicates.bat"), label: "duplicate scanner", passReviewSession: true },
     mirror: { path: resolve(ROOT, "mirror-main-workshop.bat"), label: "official workshop mirror" },
     steamImport: { path: resolve(ROOT, "import-recovered-steam-workshop.bat"), label: "recovered Steam importer" },
     review: { path: DUPLICATE_REPORT_PATH, managerPage: true, label: "duplicate review" },
@@ -358,12 +360,18 @@ function launchTool(toolValue, { managerOrigin = "", token = "" } = {}) {
     if (!managerOrigin || !token) throw new Error("The duplicate review requires an active manager session.");
     const reviewUrl = new URL("/duplicate-review", managerOrigin);
     reviewUrl.searchParams.set("token", token);
-    openUrl(reviewUrl.toString());
+    return { message: `Opened the ${selected.label}.`, url: reviewUrl.toString() };
   }
   else if (selected.powershell) {
     spawn("powershell.exe", ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", selected.path], { cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false }).unref();
   } else {
-    spawn("cmd.exe", ["/d", "/k", "call", selected.path], { cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false }).unref();
+    const environment = { ...process.env };
+    if (selected.passReviewSession) {
+      const reviewUrl = new URL("/duplicate-review", managerOrigin);
+      reviewUrl.searchParams.set("token", token);
+      environment.MARBLE_REVIEW_URL = reviewUrl.toString();
+    }
+    spawn("cmd.exe", ["/d", "/k", "call", selected.path], { cwd: ROOT, detached: true, stdio: "ignore", windowsHide: false, env: environment }).unref();
   }
   return { message: `Opened the ${selected.label}.` };
 }
@@ -488,10 +496,14 @@ function sameText(left, right) {
 
 const invokedPath = process.argv[1] ? resolve(process.argv[1]) : "";
 if (invokedPath === resolve(fileURLToPath(import.meta.url))) {
-  createWorkshopManager().then(({ url }) => {
+  const cliArguments = process.argv.slice(2);
+  const portIndex = cliArguments.indexOf("--port");
+  const cliPort = portIndex >= 0 ? Number(cliArguments[portIndex + 1]) : 31940;
+  if (!Number.isInteger(cliPort) || cliPort < 0 || cliPort > 65535) throw new Error("--port requires a number from 0 through 65535.");
+  createWorkshopManager({ port: cliPort, initialPage: cliArguments.includes("--review") ? "review" : "manager" }).then(({ openedUrl }) => {
     console.log("Marble Race Workshop Manager is running.");
     console.log("If the browser did not open, copy this complete address:");
-    console.log(url);
+    console.log(openedUrl);
     console.log("Keep this window open while using the manager. Press Ctrl+C to stop it.");
   }).catch((error) => {
     console.error(`Workshop Manager could not start: ${error.message}`);
