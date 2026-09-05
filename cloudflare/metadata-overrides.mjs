@@ -78,6 +78,12 @@ export const metadataOverrides = new Map([
     }
   ],
   [
+    789,
+    {
+      "Name": "dark dunkel sombre karanlık"
+    }
+  ],
+  [
     791,
     {
       "AuthorName": "BookwormKevin"
@@ -171,6 +177,12 @@ export const metadataOverrides = new Map([
     1266,
     {
       "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1272,
+    {
+      "Name": "551121ｸﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐ"
     }
   ],
   [

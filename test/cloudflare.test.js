@@ -36,6 +36,22 @@ test("Cloudflare metadata overrides match the persistent override file", async (
   );
 });
 
+test("Cloudflare repairs every known corrupted workshop title", async () => {
+  const { applyMetadataOverrides } = await import("../cloudflare/metadata-overrides.mjs");
+  const { items } = await import("../cloudflare/catalog.mjs");
+  const expectedTitles = new Map([
+    [789, "dark dunkel sombre karanlık"],
+    [1272, "551121ｸﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐ"],
+    [2034, "粉色 Pink"],
+  ]);
+
+  for (const [id, expectedTitle] of expectedTitles) {
+    const rawItem = items.find((item) => item.Id === id);
+    assert.ok(rawItem, `Expected workshop item ${id} to exist`);
+    assert.equal(applyMetadataOverrides(rawItem).Name, expectedTitle);
+  }
+});
+
 test("Cloudflare Items returns levels with deployment-origin URLs", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
   const response = onRequestGet({
