@@ -62,7 +62,9 @@ function normalizeItem(item) {
     TimeStamp: Number(item.TimeStamp) || 0, AuthorName: String(item.AuthorName || "Unknown creator"),
     PreviewUri: String(item.PreviewUri || ""), PayloadUri: String(item.PayloadUri || ""),
     Description: String(item.Description || ""), PayloadLength: Number(item.PayloadLength) || 0,
-    Version: String(item.Version || "Unknown"),
+    Version: String(item.Version || "Unknown"), Rating: Number(item.Rating) || 0,
+    Downloads: Number(item.Downloads) || 0,
+    SteamWorkshopId: /^\d+$/.test(String(item.SteamWorkshopId || "")) ? String(item.SteamWorkshopId) : "",
   };
 }
 
@@ -84,6 +86,7 @@ function sortItems(items, sort) {
   const text = (value) => String(value).toLocaleLowerCase();
   const sorters = {
     new: (a, b) => b.TimeStamp - a.TimeStamp || b.Id - a.Id,
+    votes: (a, b) => b.Rating - a.Rating || b.Downloads - a.Downloads || b.TimeStamp - a.TimeStamp || a.Id - b.Id,
     old: (a, b) => a.TimeStamp - b.TimeStamp || a.Id - b.Id,
     name: (a, b) => text(a.Name).localeCompare(text(b.Name)) || a.Id - b.Id,
     author: (a, b) => text(a.AuthorName).localeCompare(text(b.AuthorName)) || text(a.Name).localeCompare(text(b.Name)),
@@ -129,7 +132,9 @@ function createItemCard(item) {
   byline.append("by ", create("strong", "", item.AuthorName));
   body.append(byline);
   const bottom = create("div", "card-bottom");
-  bottom.append(create("span", "card-date", formatDate(item.TimeStamp)));
+  const cardFacts = create("div", "card-facts");
+  cardFacts.append(create("span", "vote-score", `★ ${item.Rating.toLocaleString()}`), create("span", "card-date", formatDate(item.TimeStamp)));
+  bottom.append(cardFacts);
   const copy = create("button", "copy-id", "Copy ID");
   copy.type = "button";
   copy.addEventListener("click", () => copyText(String(item.Id), copy, "Copied!"));
@@ -148,7 +153,7 @@ function openDialog(item, updateUrl) {
   const title = create("h2", "", item.Name); title.id = "dialog-name";
   body.append(labels, title, create("p", "dialog-author", `Created by ${item.AuthorName}`), create("p", "dialog-description", item.Description || "No description was provided."));
   const details = create("div", "details-grid");
-  details.append(detail("Item ID", String(item.Id)), detail("Published", formatDate(item.TimeStamp)), detail("Game version", item.Version), detail("Type", typeNameFor(item)), detail("Download size", formatBytes(item.PayloadLength)), detail("Creator", item.AuthorName));
+  details.append(detail("Item ID", String(item.Id)), detail("Vote score", item.Rating.toLocaleString()), detail("Published", formatDate(item.TimeStamp)), detail("Game version", item.Version), detail("Type", typeNameFor(item)), detail("Downloads", item.Downloads.toLocaleString()), detail("Download size", formatBytes(item.PayloadLength)), detail("Creator", item.AuthorName));
   body.append(details);
   const actions = create("div", "dialog-actions");
   if (item.PayloadUri) {
@@ -159,7 +164,13 @@ function openDialog(item, updateUrl) {
   copyId.type = "button"; copyId.addEventListener("click", () => copyText(String(item.Id), copyId, "ID copied!"));
   const api = create("a", "secondary-action", "View API record");
   api.href = `/api/GetItem?id=${encodeURIComponent(item.Id)}`; api.target = "_blank"; api.rel = "noopener";
-  actions.append(copyId, api); body.append(actions); elements.dialogContent.append(image, body);
+  actions.append(copyId, api);
+  if (item.SteamWorkshopId) {
+    const steam = create("a", "steam-action", "View on Steam Workshop");
+    steam.href = `https://steamcommunity.com/sharedfiles/filedetails/?id=${encodeURIComponent(item.SteamWorkshopId)}`;
+    steam.target = "_blank"; steam.rel = "noopener noreferrer"; actions.append(steam);
+  }
+  body.append(actions); elements.dialogContent.append(image, body);
   if (!elements.dialog.open) elements.dialog.showModal();
   if (updateUrl) { const url = new URL(window.location.href); url.searchParams.set("item", String(item.Id)); history.pushState(null, "", url); }
 }
@@ -188,7 +199,7 @@ function restoreControlsFromUrl() {
   const params = new URL(window.location.href).searchParams;
   elements.search.value = params.get("q") || "";
   elements.type.value = ["all", "0", "1", "2"].includes(params.get("type")) ? params.get("type") : "all";
-  elements.sort.value = ["new", "old", "name", "author", "id-asc", "id-desc"].includes(params.get("sort")) ? params.get("sort") : "new";
+  elements.sort.value = ["new", "votes", "old", "name", "author", "id-asc", "id-desc"].includes(params.get("sort")) ? params.get("sort") : "new";
 }
 function setOrDelete(params, key, value, defaultValue) { if (value && value !== defaultValue) params.set(key, value); else params.delete(key); }
 function setStatus(mode, message = "") {

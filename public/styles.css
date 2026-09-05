@@ -133,6 +133,8 @@ main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
 .byline { margin: 0 0 .75rem; color: var(--muted); font-size: .79rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .byline strong { color: #445080; font-weight: 650; }
 .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: .7rem; padding-top: .7rem; border-top: 1px solid #e1e8f5; }
+.card-facts { display:flex; align-items:center; gap:.55rem; min-width:0; }
+.vote-score { padding:.2rem .42rem; color:#624000; background:#fff0b8; border:1px solid #f0cf62; border-radius:6px; font-size:.7rem; font-weight:800; white-space:nowrap; }
 .card-date { color: #7783a6; font-size: .71rem; }
 .copy-id { padding: .32rem .55rem; color: var(--blue); background: #edf2ff; border: 1px solid #cbd5ef; border-radius: 7px; font-size: .69rem; cursor: pointer; }
 .copy-id:hover { color: white; background: var(--blue); }
@@ -166,6 +168,8 @@ footer a { color: var(--blue); font-weight: 700; }
 .dialog-actions a, .dialog-actions button { padding: .65rem .9rem; border-radius: 8px; font-weight: 750; font-size: .79rem; text-decoration: none; cursor: pointer; }
 .primary-action { color: white; background: var(--blue); border: 1px solid var(--blue); }
 .secondary-action { color: var(--blue); background: white; border: 1px solid #bdcbea; }
+.steam-action { color:white; background:#1b2838; border:1px solid #1b2838; }
+.steam-action:hover { background:#2a475e; }
 .noscript { position: fixed; z-index: 100; right: 1rem; bottom: 1rem; left: 1rem; padding: 1rem; color: #382500; background: var(--yellow); border-radius: 10px; text-align: center; }
 .visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 
