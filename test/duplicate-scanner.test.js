@@ -3,6 +3,14 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
+test("default duplicate scan includes official and recovered Steam items only", async () => {
+  const { isDefaultScanItem } = await import("../scan-workshop-duplicates.mjs");
+  assert.equal(isDefaultScanItem({ Id: 500, MirrorSource: "official-main" }), true);
+  assert.equal(isDefaultScanItem({ Id: 2000, MirrorSource: "steam-recovery" }), true);
+  assert.equal(isDefaultScanItem({ Id: 10001 }), false);
+  assert.equal(isDefaultScanItem({ Id: 10002, MirrorSource: "custom" }), false);
+});
+
 test("duplicate scanner ignores ownership metadata and GUIDs", async () => {
   const { canonicalize } = await import("../scan-workshop-duplicates.mjs");
   const first = { Id: "one", Author: "Alice", WorkshopId: 1, BlockGroups: { Item: { GUID: "aaaaaaaa", ID: "Block" } } };

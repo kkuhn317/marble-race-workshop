@@ -20,6 +20,11 @@ const NEAR_THRESHOLD = 0.9;
 const GEOMETRY_NEAR_THRESHOLD = 0.85;
 const FINGERPRINT_VERSION = 2;
 const MINHASH_SEEDS = Array.from({ length: 20 }, (_, index) => 0x9e3779b1 ^ Math.imul(index + 1, 0x85ebca6b));
+const DEFAULT_MIRROR_SOURCES = new Set(["official-main", "steam-recovery"]);
+
+export function isDefaultScanItem(item) {
+  return DEFAULT_MIRROR_SOURCES.has(String(item?.MirrorSource || ""));
+}
 
 export function parseArguments(argv) {
   const options = { includeCustom: false, reportOnly: false, limit: null, itemIds: [] };
@@ -297,12 +302,12 @@ export function isReusableFingerprint(record, item) {
 async function main() {
   const options = parseArguments(process.argv.slice(2));
   if (options.help) {
-    console.log(`Workshop duplicate scanner\n\nDouble-click scan-workshop-duplicates.bat for a full official-workshop scan.\n\nOptions:\n  --include-custom  Also compare your custom uploads\n  --report-only     Rebuild the review page from cached fingerprints\n  --item-id ID      Scan selected item ID (repeatable)\n  --limit N         Scan only the first N selected items\n  --help            Show this help`);
+    console.log(`Workshop duplicate scanner\n\nDouble-click scan-workshop-duplicates.bat to scan the official mirror and recovered Steam archive.\n\nOptions:\n  --include-custom  Also compare your custom uploads\n  --report-only     Rebuild the review page from cached fingerprints\n  --item-id ID      Scan selected item ID (repeatable)\n  --limit N         Scan only the first N selected items\n  --help            Show this help`);
     return;
   }
 
   let items = JSON.parse(await readFile(ITEMS_PATH, "utf8"));
-  if (!options.includeCustom) items = items.filter((item) => item.MirrorSource === "official-main");
+  if (!options.includeCustom) items = items.filter(isDefaultScanItem);
   if (options.itemIds.length > 0) {
     const selected = new Set(options.itemIds);
     items = items.filter((item) => selected.has(Number(item.Id)));
@@ -352,7 +357,7 @@ async function main() {
   const report = {
     SchemaVersion: 1,
     GeneratedAt: new Date().toISOString(),
-    Scope: options.includeCustom ? "Official and custom workshop items" : "Official workshop items",
+    Scope: options.includeCustom ? "Official, recovered Steam, and custom workshop items" : "Official mirror and recovered Steam items",
     Stats: {
       SelectedItems: items.length,
       ScannedItems: scannedItems.length,
