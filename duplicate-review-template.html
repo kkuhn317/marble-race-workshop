@@ -40,7 +40,7 @@
   <div class="toolbar">
     <input id="search" placeholder="Search name, author, or ID">
     <select id="filter"><option value="different-authors">Unresolved different authors</option><option value="unreviewed">All unresolved</option><option value="all">All matches</option><option value="high">Unresolved high confidence</option><option value="reviewed">Resolved/reviewed</option></select>
-    <button id="export">Export decisions</button><button id="importButton">Import decisions</button><input hidden type="file" id="importFile" accept="application/json">
+    <button id="export">Export decisions</button><button id="importButton">Import decisions</button><button id="apply">Apply hidden items to manager</button><input hidden type="file" id="importFile" accept="application/json"><span id="applyStatus" class="sub"></span>
   </div>
 </header>
 <main><div class="summary" id="summary"></div><div id="matches"></div></main>
@@ -49,7 +49,8 @@ const report = /*__DUPLICATE_REPORT_DATA__*/;
 const storageKey = 'marble-race-duplicate-decisions-v1';
 const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
 let decisions = stored.Decisions || stored;
-let hiddenItemIds = new Set((stored.HiddenItemIds || Object.values(decisions).flatMap(value => value?.hideIds || [])).map(Number));
+const existingHiddenItemIds = new Set((report.ExistingHiddenItemIds || []).map(Number));
+let hiddenItemIds = new Set([...existingHiddenItemIds, ...(stored.HiddenItemIds || Object.values(decisions).flatMap(value => value?.hideIds || [])).map(Number)]);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const date = seconds => new Date(seconds * 1000).toLocaleDateString();
 const typeName = value => ['Level','Block','Campaign'][value] || 'Item';
@@ -115,7 +116,22 @@ function itemHtml(item,match) {
 document.querySelector('#search').oninput = render; document.querySelector('#filter').onchange = render;
 document.querySelector('#export').onclick = () => { const blob = new Blob([JSON.stringify({SchemaVersion:2,ExportedAt:new Date().toISOString(),HiddenItemIds:[...hiddenItemIds].sort((a,b)=>a-b),Decisions:decisions},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='marble-duplicate-decisions.json'; a.click(); URL.revokeObjectURL(a.href); };
 document.querySelector('#importButton').onclick = () => document.querySelector('#importFile').click();
-document.querySelector('#importFile').onchange = async event => { const data=JSON.parse(await event.target.files[0].text()); decisions=data.Decisions||{}; hiddenItemIds=new Set((data.HiddenItemIds||Object.values(decisions).flatMap(value=>value?.hideIds||[])).map(Number)); save(); };
+document.querySelector('#importFile').onchange = async event => { const data=JSON.parse(await event.target.files[0].text()); decisions=data.Decisions||{}; hiddenItemIds=new Set([...existingHiddenItemIds,...(data.HiddenItemIds||Object.values(decisions).flatMap(value=>value?.hideIds||[])).map(Number)]); save(); };
+const managerToken = new URL(location.href).searchParams.get('token') || '';
+const applyButton = document.querySelector('#apply');
+const applyStatus = document.querySelector('#applyStatus');
+if (location.protocol === 'file:' || !managerToken) { applyButton.disabled = true; applyButton.title = 'Open this report from Workshop Manager to apply choices automatically.'; }
+applyButton.onclick = async () => {
+  if (!managerToken) return;
+  applyButton.disabled = true; applyStatus.textContent = 'Applying…';
+  try {
+    const response = await fetch('/api/duplicate-hidden', {method:'POST',headers:{'content-type':'application/json','x-manager-token':managerToken},body:JSON.stringify({hiddenItemIds:[...hiddenItemIds]})});
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Manager rejected the hidden items.');
+    applyStatus.textContent = result.message + ' Return to the manager and click Publish changes.';
+  } catch (error) { applyStatus.textContent = error.message || String(error); }
+  finally { applyButton.disabled = false; }
+};
 render();
 </script>
 </body>

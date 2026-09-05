@@ -17,6 +17,12 @@ test("duplicate scans use repaired catalog metadata", async () => {
   assert.equal(item.Name, "粉色 Pink");
 });
 
+test("duplicate reports normalize the workshop's existing hidden IDs", async () => {
+  const { normalizeHiddenItemIds } = await import("../scan-workshop-duplicates.mjs");
+  assert.deepEqual(normalizeHiddenItemIds([12, "4", 12, "bad", -1]), [4, 12]);
+  assert.deepEqual(normalizeHiddenItemIds(null), []);
+});
+
 test("duplicate scanner ignores ownership metadata and GUIDs", async () => {
   const { canonicalize } = await import("../scan-workshop-duplicates.mjs");
   const first = { Id: "one", Author: "Alice", WorkshopId: 1, BlockGroups: { Item: { GUID: "aaaaaaaa", ID: "Block" } } };

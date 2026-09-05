@@ -24,6 +24,13 @@ test("manager metadata edits use overrides and remove redundant values", async (
   assert.throws(() => applyItemEdit(base, {}, { TimeStamp: 0 }), /valid date and time/);
 });
 
+test("manager merges duplicate-review hidden choices without unhiding existing items", async () => {
+  const { mergeReviewedHiddenItemIds } = await import("../workshop-manager.mjs");
+  assert.deepEqual(mergeReviewedHiddenItemIds([9, 2], [7, 2], [2, 7, 9]), [2, 7, 9]);
+  assert.throws(() => mergeReviewedHiddenItemIds([2], [999], [2, 7]), /does not exist/);
+  assert.throws(() => mergeReviewedHiddenItemIds([], ["bad"], []), /invalid workshop item ID/);
+});
+
 test("manager API is local and requires its session token", async (context) => {
   const { createWorkshopManager } = await import("../workshop-manager.mjs");
   const manager = await createWorkshopManager({ port: 0, openBrowser: false });
@@ -68,8 +75,13 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(script, /\/api\/deploy/);
   assert.match(script, /\/api\/steam-recovery/);
   const server = fs.readFileSync(path.resolve(__dirname, "../workshop-manager.mjs"), "utf8");
+  const duplicateTemplate = fs.readFileSync(path.resolve(__dirname, "../duplicate-review-template.html"), "utf8");
   assert.match(server, /\["\/d", "\/k", "call", selected\.path\]/);
   assert.match(server, /select-and-publish-workshop-item\.bat/);
+  assert.match(server, /\/api\/duplicate-hidden/);
+  assert.match(server, /\/duplicate-review/);
+  assert.match(duplicateTemplate, /report\.ExistingHiddenItemIds/);
+  assert.match(duplicateTemplate, /id="apply"/);
 });
 
 test("recovered Steam importer assigns stable short IDs and preserves dates", async () => {

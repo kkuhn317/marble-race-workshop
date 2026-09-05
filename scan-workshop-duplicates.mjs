@@ -11,6 +11,7 @@ import { applyMetadataOverrides } from "./cloudflare/metadata-overrides.mjs";
 
 const REPO_ROOT = dirname(fileURLToPath(import.meta.url));
 const ITEMS_PATH = join(REPO_ROOT, "items.json");
+const HIDDEN_PATH = join(REPO_ROOT, "hidden-workshop-items.json");
 const TEMPLATE_PATH = join(REPO_ROOT, "duplicate-review-template.html");
 const REPORT_PATH = join(REPO_ROOT, "duplicate-review.html");
 const CACHE_ROOT = join(REPO_ROOT, ".duplicate-scan-cache");
@@ -29,6 +30,13 @@ export function isDefaultScanItem(item) {
 
 export function prepareScanItems(items) {
   return items.map(applyMetadataOverrides);
+}
+
+export function normalizeHiddenItemIds(values) {
+  return [...new Set((Array.isArray(values) ? values : [])
+    .map(Number)
+    .filter((id) => Number.isSafeInteger(id) && id >= 0))]
+    .sort((left, right) => left - right);
 }
 
 export function parseArguments(argv) {
@@ -359,10 +367,12 @@ async function main() {
 
   const scannedItems = items.filter((item) => records.some((record) => record.ItemId === Number(item.Id)));
   const matches = buildMatches(scannedItems, records);
+  const hiddenDocument = await readJson(HIDDEN_PATH, { HiddenItemIds: [] });
   const report = {
     SchemaVersion: 1,
     GeneratedAt: new Date().toISOString(),
     Scope: options.includeCustom ? "Official, recovered Steam, and custom workshop items" : "Official mirror and recovered Steam items",
+    ExistingHiddenItemIds: normalizeHiddenItemIds(hiddenDocument.HiddenItemIds),
     Stats: {
       SelectedItems: items.length,
       ScannedItems: scannedItems.length,
