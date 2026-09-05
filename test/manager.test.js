@@ -37,6 +37,16 @@ test("manager API is local and requires its session token", async (context) => {
   assert.ok(body.items.length > 500);
   assert.ok(body.items.some((item) => item.Hidden));
   assert.equal(authorized.headers.get("access-control-allow-origin"), null);
+
+  const customItem = body.items.find((item) => item.Id >= 10000 && /^\/previews\/.+\.(?:png|jpe?g)$/i.test(item.PreviewUri));
+  assert.ok(customItem, "The test requires a custom item with a local preview");
+  const preview = await fetch(new URL(customItem.PreviewUri, base));
+  assert.equal(preview.status, 200);
+  assert.match(preview.headers.get("content-type"), /^image\/(?:png|jpeg)$/);
+  assert.ok((await preview.arrayBuffer()).byteLength > 0);
+
+  const missingPreview = await fetch(new URL("/previews/not-a-real-preview.png", base));
+  assert.equal(missingPreview.status, 404);
 });
 
 test("manager UI exposes visibility, metadata, deployment, and tools", () => {

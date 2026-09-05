@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = resolve(ROOT, "manager-ui");
+const PREVIEW_ROOT = resolve(ROOT, "public", "previews");
 const ITEMS_PATH = resolve(ROOT, "items.json");
 const HIDDEN_PATH = resolve(ROOT, "hidden-workshop-items.json");
 const MODERATION_MODULE_PATH = resolve(ROOT, "cloudflare", "moderation.mjs");
@@ -93,6 +94,11 @@ export async function createWorkshopManager({ port = 31940, host = "127.0.0.1", 
       const url = new URL(request.url || "/", `http://${host}:${port}`);
       if (request.method === "GET" && UI_FILES.has(url.pathname)) {
         await serveUiFile(url.pathname, response);
+        return;
+      }
+      const previewMatch = /^\/previews\/([a-z0-9._-]+\.(?:png|jpe?g))$/i.exec(url.pathname);
+      if (request.method === "GET" && previewMatch) {
+        await servePreviewFile(previewMatch[1], response);
         return;
       }
       if (!url.pathname.startsWith("/api/")) return sendJson(response, 404, { error: "Not found" });
@@ -325,6 +331,15 @@ function openUrl(url) {
 async function serveUiFile(pathname, response) {
   const [filename, contentType] = UI_FILES.get(pathname);
   const body = await readFile(resolve(UI_ROOT, filename));
+  response.writeHead(200, securityHeaders({ "content-type": contentType, "content-length": body.length, "cache-control": "no-store" }));
+  response.end(body);
+}
+
+async function servePreviewFile(filename, response) {
+  const filePath = resolve(PREVIEW_ROOT, filename);
+  if (!existsSync(filePath)) return sendJson(response, 404, { error: "Preview not found" });
+  const body = await readFile(filePath);
+  const contentType = extname(filename).toLowerCase() === ".png" ? "image/png" : "image/jpeg";
   response.writeHead(200, securityHeaders({ "content-type": contentType, "content-length": body.length, "cache-control": "no-store" }));
   response.end(body);
 }
