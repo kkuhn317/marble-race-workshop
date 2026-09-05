@@ -87,6 +87,7 @@ function sortItems(items, sort) {
   const sorters = {
     new: (a, b) => b.TimeStamp - a.TimeStamp || b.Id - a.Id,
     votes: (a, b) => b.Rating - a.Rating || a.Id - b.Id,
+    downloads: (a, b) => b.Downloads - a.Downloads || a.Id - b.Id,
     old: (a, b) => a.TimeStamp - b.TimeStamp || a.Id - b.Id,
     name: (a, b) => text(a.Name).localeCompare(text(b.Name)) || a.Id - b.Id,
     author: (a, b) => text(a.AuthorName).localeCompare(text(b.AuthorName)) || text(a.Name).localeCompare(text(b.Name)),
@@ -199,7 +200,7 @@ function restoreControlsFromUrl() {
   const params = new URL(window.location.href).searchParams;
   elements.search.value = params.get("q") || "";
   elements.type.value = ["all", "0", "1", "2"].includes(params.get("type")) ? params.get("type") : "all";
-  elements.sort.value = ["new", "votes", "old", "name", "author", "id-asc", "id-desc"].includes(params.get("sort")) ? params.get("sort") : "new";
+  elements.sort.value = ["new", "votes", "downloads", "old", "name", "author", "id-asc", "id-desc"].includes(params.get("sort")) ? params.get("sort") : "new";
 }
 function setOrDelete(params, key, value, defaultValue) { if (value && value !== defaultValue) params.set(key, value); else params.delete(key); }
 function setStatus(mode, message = "") {

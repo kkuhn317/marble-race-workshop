@@ -14,6 +14,7 @@ test("workshop homepage includes the searchable catalog interface", () => {
   assert.match(html, /id="type-filter"/);
   assert.match(html, /id="sort-filter"/);
   assert.match(html, /value="votes">Vote score/);
+  assert.match(html, /value="downloads">Downloads/);
   assert.match(html, /id="item-dialog"/);
   assert.match(html, /\/styles\.css/);
   assert.match(html, /\/app\.js/);
@@ -26,6 +27,7 @@ test("workshop browser exposes IDs, creators, filtering, and item links", () => 
   assert.match(script, /item\.ResourceType/);
   assert.match(script, /Rating: Number\(item\.Rating\)/);
   assert.match(script, /votes: \(a, b\) => b\.Rating - a\.Rating \|\| a\.Id - b\.Id/);
+  assert.match(script, /downloads: \(a, b\) => b\.Downloads - a\.Downloads \|\| a\.Id - b\.Id/);
   assert.match(script, /Vote score/);
   assert.match(script, /steamcommunity\.com\/sharedfiles\/filedetails/);
   assert.match(script, /View on Steam Workshop/);
