@@ -93,6 +93,22 @@ export function mergeReviewedHiddenItemIds(existingValues, requestedValues, cata
   return [...existing].sort((left, right) => left - right);
 }
 
+export function reconcileReviewedItemChoices(existingValues, itemChoices, catalogValues) {
+  if (!itemChoices || typeof itemChoices !== "object" || Array.isArray(itemChoices)) {
+    throw new Error("The duplicate review did not provide item choices.");
+  }
+  const hidden = new Set((Array.isArray(existingValues) ? existingValues : []).map(Number).filter(Number.isSafeInteger));
+  const catalog = new Set((Array.isArray(catalogValues) ? catalogValues : []).map(Number).filter(Number.isSafeInteger));
+  for (const [idValue, choice] of Object.entries(itemChoices)) {
+    const id = Number(idValue);
+    if (!Number.isSafeInteger(id) || id < 0 || !catalog.has(id)) throw new Error(`Workshop item #${idValue} does not exist.`);
+    if (choice === "hide") hidden.add(id);
+    else if (choice === "keep") hidden.delete(id);
+    else throw new Error(`Workshop item #${id} has an invalid review choice.`);
+  }
+  return [...hidden].sort((left, right) => left - right);
+}
+
 export function buildSteamRecoveryBookmarklet(mirroredIds) {
   const ids = [...new Set(mirroredIds.map(String).filter((id) => /^\d+$/.test(id)))].sort((left, right) => Number(left) - Number(right));
   const script = `(async()=>{const APP="851640",known=new Set(${JSON.stringify(ids)});if(location.hostname!=="steamcommunity.com"){alert("Open a Steam Community workshop page first, then click this bookmark again.");return}if(window.__marbleRecoveryRunning){alert("The Marble Race recovery downloader is already running on this page.");return}window.__marbleRecoveryRunning=true;let cancelled=false,paused=false;const wait=ms=>new Promise(r=>setTimeout(r,ms));const box=document.createElement("div");box.style="position:fixed;z-index:2147483647;right:16px;top:16px;width:min(390px,calc(100vw - 32px));padding:16px;color:#fff;background:#172259;border:3px solid #63bdf4;border-radius:12px;box-shadow:0 12px 40px #0008;font:14px/1.4 system-ui,sans-serif";const title=document.createElement("strong"),status=document.createElement("div"),controls=document.createElement("div"),pause=document.createElement("button"),cancel=document.createElement("button");title.textContent="Marble Race recovery";status.style="margin:10px 0;white-space:pre-wrap";controls.style="display:flex;gap:8px";for(const b of [pause,cancel])b.style="padding:7px 10px;border:0;border-radius:7px;font-weight:700;cursor:pointer";pause.textContent="Pause";cancel.textContent="Cancel";pause.onclick=()=>{paused=!paused;pause.textContent=paused?"Resume":"Pause"};cancel.onclick=()=>{cancelled=true;status.textContent="Stopping after the current request..."};controls.append(pause,cancel);box.append(title,status,controls);document.body.append(box);try{status.textContent="Scanning the Marble Race Steam Workshop...";const found=new Set;let stale=0;for(let page=1;page<=100&&!cancelled&&stale<2;page++){const url="/workshop/browse/?appid="+APP+"&browsesort=mostrecent&section=readytouseitems&actualsort=mostrecent&p="+page+"&numperpage=30";const html=await(await fetch(url,{credentials:"include"})).text();const before=found.size;for(const match of html.matchAll(/sharedfiles\\/filedetails\\/\\?id=(\\d+)/g))found.add(match[1]);stale=found.size===before?stale+1:0;status.textContent="Scanning Steam... "+found.size+" items found"}const missing=[...found].filter(id=>!known.has(id));if(cancelled)return;status.textContent=missing.length+" Steam item(s) are absent from your mirror.\\nStarting downloads; allow multiple downloads if the browser asks.";const results=[];for(let i=0;i<missing.length&&!cancelled;i++){while(paused&&!cancelled)await wait(300);const id=missing[i];status.textContent="Downloading "+(i+1)+" of "+missing.length+"\\nSteam item "+id;try{const response=await fetch("/sharedfiles/downloadfile/?id="+id+"&revision=1&manifestid=0",{method:"POST",credentials:"include"});const data=await response.json();if(Number(data.success)!==1||!data.url)throw new Error(data.message||"Steam refused the download");const link=document.createElement("a");link.href=data.url;link.download=data.filename||("steam-workshop-"+id+".zip");link.style.display="none";document.body.append(link);link.click();link.remove();results.push({id,filename:data.filename||"",ok:true})}catch(error){results.push({id,ok:false,error:String(error.message||error)})}await wait(1250)}const failed=results.filter(x=>!x.ok);status.textContent=cancelled?"Stopped. "+results.length+" item(s) attempted.":"Finished: "+(results.length-failed.length)+" downloaded, "+failed.length+" failed.";const report=document.createElement("a");report.textContent="Save recovery report";report.style="display:block;margin-top:9px;color:#ffd15a;text-decoration:underline;cursor:pointer";report.href=URL.createObjectURL(new Blob([JSON.stringify({createdAt:new Date().toISOString(),found:[...found],missing,results},null,2)],{type:"application/json"}));report.download="marble-race-steam-recovery-report.json";box.append(report)}catch(error){status.textContent="Recovery stopped: "+String(error.message||error)}finally{window.__marbleRecoveryRunning=false}})()`;
@@ -148,7 +164,9 @@ export async function createWorkshopManager({ port = 31940, host = "127.0.0.1", 
       }
       if (request.method === "POST" && url.pathname === "/api/duplicate-hidden") {
         const body = await readJsonBody(request);
-        const result = await applyReviewedHiddenItems(body.hiddenItemIds);
+        const result = body.itemChoices
+          ? await applyReviewedItemChoices(body.itemChoices)
+          : await applyReviewedHiddenItems(body.hiddenItemIds);
         return sendJson(response, 200, { ...result, dirty: getDirtyState() });
       }
       if (request.method === "POST" && url.pathname === "/api/deploy") {
@@ -241,6 +259,24 @@ async function applyReviewedHiddenItems(requestedIds) {
     added,
     totalHidden: merged.length,
     message: added ? `Applied ${added} newly hidden item${added === 1 ? "" : "s"} locally.` : "All checked items were already hidden locally.",
+  };
+}
+
+async function applyReviewedItemChoices(itemChoices) {
+  const [items, document] = await Promise.all([readJson(ITEMS_PATH), readJson(HIDDEN_PATH)]);
+  const previous = (document.HiddenItemIds || []).map(Number);
+  const reconciled = reconcileReviewedItemChoices(previous, itemChoices, items.map((item) => item.Id));
+  const added = reconciled.filter((id) => !previous.includes(id)).length;
+  const removed = previous.filter((id) => !reconciled.includes(id)).length;
+  await Promise.all([
+    writeAtomic(HIDDEN_PATH, `${JSON.stringify({ SchemaVersion: 1, HiddenItemIds: reconciled }, null, 2)}\n`),
+    writeAtomic(MODERATION_MODULE_PATH, buildModerationModule(reconciled)),
+  ]);
+  return {
+    added,
+    removed,
+    totalHidden: reconciled.length,
+    message: `Applied review choices locally: ${added} hidden, ${removed} unhidden.`,
   };
 }
 

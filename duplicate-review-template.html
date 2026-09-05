@@ -20,12 +20,18 @@
     .confidence { font-weight:700; color:#86efac } .medium { color:#fde68a }
     .items { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; margin:14px 0 }
     .item { background:#0f172a; border:1px solid #293548; border-radius:11px; padding:12px; display:grid; grid-template-columns:78px 1fr; gap:12px }
-    .item.hidden { opacity:.45; border-color:#7f1d1d } .hidden-label { color:#fca5a5; font-size:12px; font-weight:800 }
+    .item.keep { border-color:#15803d; box-shadow:inset 0 0 0 1px #15803d55 }
+    .item.hidden { border-color:#b91c1c; box-shadow:inset 0 0 0 1px #b91c1c55 }
+    .choice-label { font-size:12px; font-weight:800 }
+    .keep .choice-label { color:#86efac } .hidden .choice-label { color:#fca5a5 }
     .item img { width:78px; height:78px; border-radius:8px; object-fit:cover; background:#263142 }
     .name { font-weight:700 } .meta,.evidence { color:#aab7cc; font-size:13px; line-height:1.45 }
     .oldest { color:#7dd3fc; font-size:12px; font-weight:700 }
-    .decision { display:flex; gap:14px; align-items:center; flex-wrap:wrap; border-top:1px solid #334155; padding-top:12px }
-    .hide-choice { display:flex; gap:7px; flex-wrap:wrap } label { cursor:pointer }
+    .item-actions { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:2px }
+    .choice-button { font-weight:800; padding:8px }
+    .choice-button.keep-choice.selected { background:#166534; border-color:#4ade80 }
+    .choice-button.hide-choice.selected { background:#991b1b; border-color:#f87171 }
+    .review-progress { border-top:1px solid #334155; padding-top:12px; color:#aab7cc; font-size:13px }
     .campaign-check { margin:13px 0; padding:12px; border:1px solid #46546b; border-radius:10px; background:#111827 }
     .campaign-row { margin-top:9px; padding-top:9px; border-top:1px solid #293548 }
     .complete { color:#86efac; font-weight:700 } .partial { color:#fde68a; font-weight:700 }
@@ -40,7 +46,7 @@
   <div class="toolbar">
     <input id="search" placeholder="Search name, author, or ID">
     <select id="filter"><option value="different-authors">Unresolved different authors</option><option value="unreviewed">All unresolved</option><option value="all">All matches</option><option value="high">Unresolved high confidence</option><option value="reviewed">Resolved/reviewed</option></select>
-    <button id="export">Export decisions</button><button id="importButton">Import decisions</button><button id="apply">Apply hidden items to manager</button><input hidden type="file" id="importFile" accept="application/json"><span id="applyStatus" class="sub"></span>
+    <button id="export">Export decisions</button><button id="importButton">Import decisions</button><button id="apply">Apply choices to manager</button><input hidden type="file" id="importFile" accept="application/json"><span id="applyStatus" class="sub"></span>
   </div>
 </header>
 <main><div class="summary" id="summary"></div><div id="matches"></div></main>
@@ -48,55 +54,57 @@
 const report = /*__DUPLICATE_REPORT_DATA__*/;
 const storageKey = 'marble-race-duplicate-decisions-v1';
 const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
-let decisions = stored.Decisions || stored;
 const existingHiddenItemIds = new Set((report.ExistingHiddenItemIds || []).map(Number));
-let hiddenItemIds = new Set([...existingHiddenItemIds, ...(stored.HiddenItemIds || Object.values(decisions).flatMap(value => value?.hideIds || [])).map(Number)]);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const date = seconds => new Date(seconds * 1000).toLocaleDateString();
 const typeName = value => ['Level','Block','Campaign'][value] || 'Item';
-function isResolvedByHidden(match) { return match.Items.some(item => hiddenItemIds.has(item.Id)); }
-function persist() { localStorage.setItem(storageKey, JSON.stringify({SchemaVersion:2,Decisions:decisions,HiddenItemIds:[...hiddenItemIds].sort((a,b)=>a-b)})); }
+function migrateChoices(data) {
+  const choices = {};
+  for (const [id,value] of Object.entries(data.ItemChoices || {})) if (value === 'keep' || value === 'hide') choices[Number(id)] = value;
+  const legacyDecisions = data.Decisions || (data.SchemaVersion ? {} : data);
+  for (const [key,decision] of Object.entries(legacyDecisions || {})) {
+    for (const id of decision?.hideIds || []) choices[Number(id)] = 'hide';
+    if (decision?.status === 'keep-all') {
+      const match = report.Matches.find(candidate => candidate.Key === key);
+      for (const item of match?.Items || []) if (!choices[item.Id]) choices[item.Id] = 'keep';
+    }
+  }
+  for (const id of data.HiddenItemIds || []) choices[Number(id)] = 'hide';
+  return choices;
+}
+let itemChoices = migrateChoices(stored);
+for (const id of existingHiddenItemIds) itemChoices[id] = 'hide';
+function hiddenIds() { return Object.entries(itemChoices).filter(([,choice]) => choice === 'hide').map(([id]) => Number(id)).sort((a,b)=>a-b); }
+function isResolved(match) { return match.Items.every(item => itemChoices[item.Id] === 'keep' || itemChoices[item.Id] === 'hide'); }
+function persist() { localStorage.setItem(storageKey, JSON.stringify({SchemaVersion:3,ItemChoices:itemChoices,HiddenItemIds:hiddenIds()})); }
 function save() { persist(); render(); }
 function render() {
   const query = document.querySelector('#search').value.toLowerCase();
   const filter = document.querySelector('#filter').value;
   const visible = report.Matches.filter(match => {
-    const decision = decisions[match.Key];
-    const reviewed = decision?.status === 'keep-all';
-    const resolved = isResolvedByHidden(match);
-    if (filter === 'unreviewed' && (reviewed || resolved)) return false;
-    if (filter === 'reviewed' && !reviewed && !resolved) return false;
+    const resolved = isResolved(match);
+    if (filter === 'unreviewed' && resolved) return false;
+    if (filter === 'reviewed' && !resolved) return false;
     if (filter === 'high' && (match.Confidence < 94 || resolved)) return false;
     if (filter === 'different-authors' && (!match.DifferentAuthors || resolved)) return false;
     return !query || match.Items.some(item => (item.Name + ' ' + item.AuthorName + ' ' + item.Id).toLowerCase().includes(query));
   });
   document.querySelector('#subtitle').textContent = report.Scope + ' • generated ' + new Date(report.GeneratedAt).toLocaleString();
-  const resolvedCount = report.Matches.filter(isResolvedByHidden).length;
-  document.querySelector('#summary').innerHTML = [report.Stats.ScannedItems + ' items scanned', report.Stats.PotentialDuplicateGroups + ' groups', report.Stats.CrossAuthorGroups + ' different-author groups', hiddenItemIds.size + ' globally hidden items', resolvedCount + ' groups resolved by hiding', Object.keys(decisions).length + ' decisions saved'].map(x => '<span class="pill">' + esc(x) + '</span>').join('');
+  const resolvedCount = report.Matches.filter(isResolved).length;
+  const decidedCount = Object.values(itemChoices).filter(choice => choice === 'keep' || choice === 'hide').length;
+  document.querySelector('#summary').innerHTML = [report.Stats.ScannedItems + ' items scanned', report.Stats.PotentialDuplicateGroups + ' groups', report.Stats.CrossAuthorGroups + ' different-author groups', hiddenIds().length + ' items marked HIDE', resolvedCount + ' fully decided groups', decidedCount + ' item choices saved'].map(x => '<span class="pill">' + esc(x) + '</span>').join('');
   document.querySelector('#matches').innerHTML = visible.length ? visible.map(matchHtml).join('') : '<div class="empty">No matches in this view.</div>';
-  document.querySelectorAll('[data-status]').forEach(select => select.onchange = event => {
-    const key = event.target.dataset.status; const current = decisions[key] || {};
-    decisions[key] = { ...current, status:event.target.value }; save();
-  });
-  document.querySelectorAll('[data-hide]').forEach(box => box.onchange = event => {
-    const [key,idText] = event.target.dataset.hide.split('|'); const id = Number(idText);
-    const current = decisions[key] || { status:'needs-review' };
-    if (event.target.checked) {
-      hiddenItemIds.add(id);
-      decisions[key] = { ...current, status:'hide-selected' };
-    } else {
-      hiddenItemIds.delete(id);
-      const stillHiddenHere = report.Matches.find(match => match.Key === key)?.Items.some(item => hiddenItemIds.has(item.Id));
-      decisions[key] = { ...current, status:stillHiddenHere ? 'hide-selected' : 'needs-review' };
-    }
+  document.querySelectorAll('[data-choice]').forEach(button => button.onclick = event => {
+    const [idText,choice] = event.currentTarget.dataset.choice.split('|'); const id = Number(idText);
+    if (itemChoices[id] === choice) delete itemChoices[id]; else itemChoices[id] = choice;
     save();
   });
 }
 function matchHtml(match) {
-  const decision = decisions[match.Key] || { status:'needs-review' };
-  const reviewed = decision.status === 'keep-all' || isResolvedByHidden(match);
+  const reviewed = isResolved(match);
+  const decided = match.Items.filter(item => itemChoices[item.Id] === 'keep' || itemChoices[item.Id] === 'hide').length;
   const evidence = match.Components.length ? match.Components.map(c => '#' + c.ItemId + ': ' + c.Path + ' (' + c.TokenCount + ' objects)').join(' • ') : 'Whole archive match';
-  return '<section class="match ' + (reviewed?'reviewed':'') + '"><div class="match-head"><div><div class="confidence ' + (match.Confidence<94?'medium':'') + '">' + match.Confidence + '% confidence' + (match.DifferentAuthors?' • DIFFERENT AUTHORS':'') + '</div><strong>' + esc(match.Reason) + '</strong></div><div>#' + esc(match.Key) + '</div></div><div class="items">' + match.Items.map(item => itemHtml(item,match)).join('') + '</div><div class="evidence">Matched evidence: ' + esc(evidence) + '</div>' + campaignHtml(match) + '<div class="decision"><label>Decision <select data-status="' + esc(match.Key) + '"><option value="needs-review" ' + (decision.status==='needs-review'?'selected':'') + '>Needs review</option><option value="keep-all" ' + (decision.status==='keep-all'?'selected':'') + '>Keep all</option><option value="hide-selected" ' + (decision.status==='hide-selected'?'selected':'') + '>Hide selected</option></select></label><div class="hide-choice">Globally hidden items: ' + match.Items.map(item => '<label><input type="checkbox" data-hide="' + esc(match.Key) + '|' + item.Id + '" ' + (hiddenItemIds.has(item.Id)?'checked':'') + '> #' + item.Id + '</label>').join('') + '</div></div></section>';
+  return '<section class="match ' + (reviewed?'reviewed':'') + '"><div class="match-head"><div><div class="confidence ' + (match.Confidence<94?'medium':'') + '">' + match.Confidence + '% confidence' + (match.DifferentAuthors?' • DIFFERENT AUTHORS':'') + '</div><strong>' + esc(match.Reason) + '</strong></div><div>#' + esc(match.Key) + '</div></div><div class="items">' + match.Items.map(item => itemHtml(item,match)).join('') + '</div><div class="evidence">Matched evidence: ' + esc(evidence) + '</div>' + campaignHtml(match) + '<div class="review-progress">' + (reviewed ? 'Complete' : decided + ' of ' + match.Items.length + ' items decided') + '</div></section>';
 }
 function campaignHtml(match) {
   if (!match.CampaignComparisons || !match.CampaignComparisons.length) return '';
@@ -110,13 +118,14 @@ function comparisonHtml(c) {
 }
 function itemHtml(item,match) {
   const steam = item.SteamWorkshopId ? '<a target="_blank" href="https://steamcommunity.com/sharedfiles/filedetails/?id=' + encodeURIComponent(item.SteamWorkshopId) + '">Steam page</a>' : '';
-  const hidden = hiddenItemIds.has(item.Id);
-  return '<article class="item ' + (hidden?'hidden':'') + '"><img loading="lazy" src="' + esc(item.PreviewUri) + '"><div><div class="name">' + esc(item.Name) + '</div><div class="meta">#' + item.Id + ' • ' + typeName(item.ResourceType) + '<br>by ' + esc(item.AuthorName) + '<br>' + date(item.TimeStamp) + ' ' + (item.Id===match.OldestItemId?'<span class="oldest">OLDEST UPLOAD</span>':'') + (hidden?'<br><span class="hidden-label">MARKED TO HIDE EVERYWHERE</span>':'') + '<br>' + steam + '</div></div></article>';
+  const choice = itemChoices[item.Id] || '';
+  const label = choice ? '<br><span class="choice-label">MARKED ' + choice.toUpperCase() + ' EVERYWHERE</span>' : '';
+  return '<article class="item ' + (choice==='hide'?'hidden':choice) + '"><img loading="lazy" src="' + esc(item.PreviewUri) + '"><div><div class="name">' + esc(item.Name) + '</div><div class="meta">#' + item.Id + ' • ' + typeName(item.ResourceType) + '<br>by ' + esc(item.AuthorName) + '<br>' + date(item.TimeStamp) + ' ' + (item.Id===match.OldestItemId?'<span class="oldest">OLDEST UPLOAD</span>':'') + label + '<br>' + steam + '</div></div><div class="item-actions"><button class="choice-button keep-choice ' + (choice==='keep'?'selected':'') + '" data-choice="' + item.Id + '|keep">KEEP</button><button class="choice-button hide-choice ' + (choice==='hide'?'selected':'') + '" data-choice="' + item.Id + '|hide">HIDE</button></div></article>';
 }
 document.querySelector('#search').oninput = render; document.querySelector('#filter').onchange = render;
-document.querySelector('#export').onclick = () => { const blob = new Blob([JSON.stringify({SchemaVersion:2,ExportedAt:new Date().toISOString(),HiddenItemIds:[...hiddenItemIds].sort((a,b)=>a-b),Decisions:decisions},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='marble-duplicate-decisions.json'; a.click(); URL.revokeObjectURL(a.href); };
+document.querySelector('#export').onclick = () => { const blob = new Blob([JSON.stringify({SchemaVersion:3,ExportedAt:new Date().toISOString(),ItemChoices:itemChoices,HiddenItemIds:hiddenIds()},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='marble-duplicate-decisions.json'; a.click(); URL.revokeObjectURL(a.href); };
 document.querySelector('#importButton').onclick = () => document.querySelector('#importFile').click();
-document.querySelector('#importFile').onchange = async event => { const data=JSON.parse(await event.target.files[0].text()); decisions=data.Decisions||{}; hiddenItemIds=new Set([...existingHiddenItemIds,...(data.HiddenItemIds||Object.values(decisions).flatMap(value=>value?.hideIds||[])).map(Number)]); save(); };
+document.querySelector('#importFile').onchange = async event => { const data=JSON.parse(await event.target.files[0].text()); itemChoices=migrateChoices(data); for (const id of existingHiddenItemIds) if (!itemChoices[id]) itemChoices[id]='hide'; event.target.value=''; save(); };
 const managerToken = new URL(location.href).searchParams.get('token') || '';
 const applyButton = document.querySelector('#apply');
 const applyStatus = document.querySelector('#applyStatus');
@@ -125,7 +134,7 @@ applyButton.onclick = async () => {
   if (!managerToken) return;
   applyButton.disabled = true; applyStatus.textContent = 'Applying…';
   try {
-    const response = await fetch('/api/duplicate-hidden', {method:'POST',headers:{'content-type':'application/json','x-manager-token':managerToken},body:JSON.stringify({hiddenItemIds:[...hiddenItemIds]})});
+    const response = await fetch('/api/duplicate-hidden', {method:'POST',headers:{'content-type':'application/json','x-manager-token':managerToken},body:JSON.stringify({hiddenItemIds:hiddenIds(),itemChoices:itemChoices})});
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Manager rejected the hidden items.');
     applyStatus.textContent = result.message + ' Return to the manager and click Publish changes.';

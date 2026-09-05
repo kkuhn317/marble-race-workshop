@@ -31,6 +31,18 @@ test("manager merges duplicate-review hidden choices without unhiding existing i
   assert.throws(() => mergeReviewedHiddenItemIds([], ["bad"], []), /invalid workshop item ID/);
 });
 
+test("manager applies global KEEP and HIDE choices to existing visibility", async () => {
+  const { reconcileReviewedItemChoices } = await import("../workshop-manager.mjs");
+  assert.deepEqual(
+    reconcileReviewedItemChoices([10, 20], { 10: "keep", 20: "hide", 30: "hide" }, [10, 20, 30]),
+    [20, 30],
+  );
+  assert.throws(
+    () => reconcileReviewedItemChoices([], { 10: "maybe" }, [10]),
+    /invalid review choice/,
+  );
+});
+
 test("manager API is local and requires its session token", async (context) => {
   const { createWorkshopManager } = await import("../workshop-manager.mjs");
   const manager = await createWorkshopManager({ port: 0, openBrowser: false });
@@ -82,6 +94,10 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(server, /\/duplicate-review/);
   assert.match(duplicateTemplate, /report\.ExistingHiddenItemIds/);
   assert.match(duplicateTemplate, /id="apply"/);
+  assert.match(duplicateTemplate, /data-choice=/);
+  assert.match(duplicateTemplate, />KEEP<\/button>/);
+  assert.match(duplicateTemplate, />HIDE<\/button>/);
+  assert.match(duplicateTemplate, /match\.Items\.every/);
 });
 
 test("recovered Steam importer assigns stable short IDs and preserves dates", async () => {
