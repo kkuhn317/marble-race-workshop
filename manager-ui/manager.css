@@ -23,7 +23,7 @@ main { width:min(1200px,calc(100% - 2rem)); margin:auto; padding-bottom:3rem; }
 .stats div { display:flex; align-items:baseline; justify-content:space-between; padding:.8rem 1rem; background:rgba(255,255,255,.85); border:1px solid var(--line); border-radius:11px; }
 .stats strong { color:var(--blue); font-size:1.35rem; }
 .stats span { color:var(--muted); font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; }
-.filters { position:sticky; z-index:20; top:.6rem; display:grid; grid-template-columns:1fr auto auto; gap:.65rem; padding:.65rem; background:rgba(255,255,255,.92); border:1px solid var(--line); border-top:4px solid var(--blue); border-radius:13px; box-shadow:var(--shadow); backdrop-filter:blur(12px); }
+.filters { position:sticky; z-index:20; top:.6rem; display:grid; grid-template-columns:1fr auto auto auto; gap:.65rem; padding:.65rem; background:rgba(255,255,255,.92); border:1px solid var(--line); border-top:4px solid var(--blue); border-radius:13px; box-shadow:var(--shadow); backdrop-filter:blur(12px); }
 input,select,textarea { width:100%; color:var(--ink); background:#f5f8ff; border:1px solid #bfcee7; border-radius:8px; outline:none; }
 input,select { height:2.8rem; padding:0 .75rem; }
 textarea { padding:.7rem; resize:vertical; }

@@ -87,9 +87,15 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(html, /data-tool="publish"/);
   assert.match(html, /data-tool="duplicates"/);
   assert.match(html, /id="bulk-form"/);
+  assert.match(html, /id="sort"/);
+  assert.match(html, /value="featured">Featured first/);
+  assert.match(html, /value="votes">Vote score/);
+  assert.match(html, /value="downloads">Downloads/);
   assert.match(html, /id="steam-recovery-open"/);
   assert.match(html, /data-tool="steamImport"/);
   assert.match(script, /\/api\/visibility/);
+  assert.match(script, /function sortItems/);
+  assert.match(script, /Number\(b\.Rating \|\| 0\) - Number\(a\.Rating \|\| 0\)/);
   assert.match(script, /\/api\/featured/);
   assert.match(script, /Unfeature/);
   assert.match(script, /\/api\/metadata/);

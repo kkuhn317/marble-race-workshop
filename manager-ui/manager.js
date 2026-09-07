@@ -5,7 +5,7 @@ const typeNames = { 0: "Level", 1: "Asset", 2: "Campaign" };
 const elements = {
   publish: document.querySelector("#publish"), publishLabel: document.querySelector("#publish-label"),
   list: document.querySelector("#item-list"), resultCount: document.querySelector("#result-count"),
-  search: document.querySelector("#search"), visibility: document.querySelector("#visibility"), type: document.querySelector("#type"),
+  search: document.querySelector("#search"), visibility: document.querySelector("#visibility"), type: document.querySelector("#type"), sort: document.querySelector("#sort"),
   total: document.querySelector("#stat-total"), visible: document.querySelector("#stat-visible"), hidden: document.querySelector("#stat-hidden"), edited: document.querySelector("#stat-edited"),
   editor: document.querySelector("#editor"), editorForm: document.querySelector("#editor-form"), editorId: document.querySelector("#editor-id"), editorTitle: document.querySelector("#editor-title"),
   editName: document.querySelector("#edit-name"), editAuthor: document.querySelector("#edit-author"), editVersion: document.querySelector("#edit-version"), editTimestamp: document.querySelector("#edit-timestamp"), editTags: document.querySelector("#edit-tags"), editDescription: document.querySelector("#edit-description"),
@@ -51,6 +51,7 @@ function bindEvents() {
   elements.search.addEventListener("input", renderItems);
   elements.visibility.addEventListener("change", renderItems);
   elements.type.addEventListener("change", renderItems);
+  elements.sort.addEventListener("change", renderItems);
   elements.publish.addEventListener("click", publishChanges);
   document.querySelector("#editor-close").addEventListener("click", closeEditor);
   document.querySelector("#editor-cancel").addEventListener("click", closeEditor);
@@ -92,6 +93,7 @@ function renderItems() {
     const matchesVisibility = visibility === "all" || (visibility === "hidden" ? item.Hidden : !item.Hidden);
     return matchesSearch && matchesVisibility && (type === "all" || String(item.ResourceType) === type);
   });
+  sortItems(filtered, elements.sort.value);
   elements.list.replaceChildren();
   if (!filtered.length) elements.list.append(emptyState("No matching workshop items."));
   else {
@@ -100,6 +102,22 @@ function renderItems() {
     elements.list.append(fragment);
   }
   elements.resultCount.textContent = `${filtered.length.toLocaleString()} item${filtered.length === 1 ? "" : "s"}`;
+}
+
+function sortItems(values, sort) {
+  const text = (value) => String(value || "").toLocaleLowerCase();
+  const sorters = {
+    "id-asc": (a, b) => a.Id - b.Id,
+    "id-desc": (a, b) => b.Id - a.Id,
+    featured: (a, b) => Number(b.Featured) - Number(a.Featured) || a.Id - b.Id,
+    new: (a, b) => Number(b.TimeStamp || 0) - Number(a.TimeStamp || 0) || b.Id - a.Id,
+    old: (a, b) => Number(a.TimeStamp || 0) - Number(b.TimeStamp || 0) || a.Id - b.Id,
+    votes: (a, b) => Number(b.Rating || 0) - Number(a.Rating || 0) || a.Id - b.Id,
+    downloads: (a, b) => Number(b.Downloads || 0) - Number(a.Downloads || 0) || a.Id - b.Id,
+    name: (a, b) => text(a.Name).localeCompare(text(b.Name)) || a.Id - b.Id,
+    author: (a, b) => text(a.AuthorName).localeCompare(text(b.AuthorName)) || text(a.Name).localeCompare(text(b.Name)) || a.Id - b.Id,
+  };
+  values.sort(sorters[sort] || sorters["id-asc"]);
 }
 
 function createRow(item) {
