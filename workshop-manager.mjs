@@ -71,7 +71,7 @@ export function buildFeaturedModule(itemId) {
     + "export function applyFeaturedItem(item, selectedId = featuredItemId) {\n"
     + "  const featured = Number.isSafeInteger(selectedId) && Number(item.Id) === selectedId;\n"
     + "  return featured\n"
-    + "    ? { ...item, Featured: true, PreviewUri: featuredPreviewUri || `/featured/item-${selectedId}.png` }\n"
+    + "    ? { ...item, Featured: true, PreviewUri: selectedId === featuredItemId && featuredPreviewUri ? featuredPreviewUri : `/featured/item-${selectedId}.png` }\n"
     + "    : { ...item, Featured: false };\n"
     + "}\n\n"
     + "export function compareFeaturedItems(left, right) {\n"

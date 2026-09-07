@@ -19,7 +19,7 @@ test("manager generates featured configuration and a separate badged preview", a
   const moduleText = buildFeaturedModule(42);
   assert.match(moduleText, /featuredItemId = 42/);
   assert.match(moduleText, /featured\/item-42\.png/);
-  assert.match(moduleText, /PreviewUri: featuredPreviewUri \|\|/);
+  assert.match(moduleText, /selectedId === featuredItemId && featuredPreviewUri/);
   const source = Buffer.from('<svg width="320" height="180" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="180" fill="#336699"/></svg>');
   const result = await renderFeaturedPreview(source);
   assert.deepEqual([...result.subarray(1, 4)], [80, 78, 71]);
