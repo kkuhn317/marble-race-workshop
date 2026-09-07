@@ -14,6 +14,17 @@ test("manager generates deterministic moderation modules", async () => {
   assert.match(moduleText, /hiddenItemIds\.has\(Number\(id\)\)/);
 });
 
+test("manager generates featured configuration and a separate badged preview", async () => {
+  const { buildFeaturedModule, renderFeaturedPreview } = await import("../workshop-manager.mjs");
+  const moduleText = buildFeaturedModule(42);
+  assert.match(moduleText, /featuredItemId = 42/);
+  assert.match(moduleText, /featured\/item-42\.png/);
+  assert.match(moduleText, /PreviewUri: featuredPreviewUri \|\|/);
+  const source = Buffer.from('<svg width="320" height="180" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="180" fill="#336699"/></svg>');
+  const result = await renderFeaturedPreview(source);
+  assert.deepEqual([...result.subarray(1, 4)], [80, 78, 71]);
+});
+
 test("manager metadata edits use overrides and remove redundant values", async () => {
   const { applyItemEdit } = await import("../workshop-manager.mjs");
   const base = { Name: "Level", AuthorName: "Matt", Description: "Original", Version: "1.0", Tags: ["race"], TimeStamp: 1700000000 };
@@ -79,6 +90,8 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(html, /id="steam-recovery-open"/);
   assert.match(html, /data-tool="steamImport"/);
   assert.match(script, /\/api\/visibility/);
+  assert.match(script, /\/api\/featured/);
+  assert.match(script, /Unfeature/);
   assert.match(script, /\/api\/metadata/);
   assert.match(html, /id="edit-timestamp"/);
   assert.match(script, /TimeStamp: localInputToTimestamp/);
@@ -91,6 +104,7 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(server, /\["\/d", "\/k", "call", selected\.path\]/);
   assert.match(server, /select-and-publish-workshop-item\.bat/);
   assert.match(server, /\/api\/duplicate-hidden/);
+  assert.match(server, /featured-workshop-item\.json/);
   assert.match(server, /\/duplicate-review/);
   assert.match(duplicateTemplate, /report\.ExistingHiddenItemIds/);
   assert.match(duplicateTemplate, /id="apply"/);

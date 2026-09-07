@@ -21783,6 +21783,7 @@ export function publicItem(item, requestUrl) {
     SteamWorkshopId: /^\d+$/.test(String(item.SteamWorkshopId || ""))
       ? String(item.SteamWorkshopId)
       : "",
+    Featured: Boolean(item.Featured),
   };
 }
 

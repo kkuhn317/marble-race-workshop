@@ -113,13 +113,18 @@ function createRow(item) {
   const meta = create("div", "item-meta");
   meta.append(create("span", "pill type", typeName), create("span", "pill", `ID ${item.Id}`));
   if (item.HasOverride) meta.append(create("span", "pill", "Edited"));
+  if (item.Featured) meta.append(create("span", "pill featured-state", "Featured"));
   if (item.Hidden) meta.append(create("span", "pill state", "Hidden"));
   const actions = create("div", "row-actions");
   const edit = create("button", "", "Edit"); edit.type = "button"; edit.addEventListener("click", () => openEditor(item.Id));
   const update = create("button", "secondary", "Update file"); update.type = "button"; update.addEventListener("click", () => updateItemFile(item, update));
   const visibility = create("button", "visibility-button", item.Hidden ? "Unhide" : "Hide");
   visibility.type = "button"; visibility.addEventListener("click", () => changeVisibility(item, visibility));
-  actions.append(edit, update, visibility); row.append(image, main, meta, actions);
+  const featured = create("button", "feature-button", item.Featured ? "Unfeature" : "Feature");
+  featured.type = "button"; featured.disabled = item.Hidden && !item.Featured;
+  featured.title = item.Hidden && !item.Featured ? "Unhide this item before featuring it" : "";
+  featured.addEventListener("click", () => changeFeatured(item, featured));
+  actions.append(edit, update, featured, visibility); row.append(image, main, meta, actions);
   return row;
 }
 
@@ -139,6 +144,20 @@ async function changeVisibility(item, button) {
     item.Hidden = payload.hidden;
     updateDirty(payload.dirty);
     recalculateStats();
+    renderItems();
+    showToast(`${payload.message} Press Publish changes when ready.`);
+  } catch (error) { showToast(error.message, true); button.disabled = false; }
+}
+
+async function changeFeatured(item, button) {
+  const existing = items.find((candidate) => candidate.Featured && candidate.Id !== item.Id);
+  if (!item.Featured && existing
+    && !window.confirm(`Replace “${existing.Name}” with “${item.Name}” as the featured item of the week?`)) return;
+  button.disabled = true;
+  try {
+    const payload = await api("/api/featured", { method: "POST", body: JSON.stringify({ id: item.Id, featured: !item.Featured }) });
+    items.forEach((candidate) => { candidate.Featured = payload.featuredItemId === candidate.Id; });
+    updateDirty(payload.dirty);
     renderItems();
     showToast(`${payload.message} Press Publish changes when ready.`);
   } catch (error) { showToast(error.message, true); button.disabled = false; }

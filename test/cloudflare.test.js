@@ -108,6 +108,17 @@ test("Cloudflare Items exposes scores and Steam metadata in vote order", async (
   assert.deepEqual(result.map((item) => item.Rating), expected.map((item) => Number(item.Rating) || 0));
   assert.ok(result.every((item) => Number.isSafeInteger(item.Downloads)));
   assert.ok(result.every((item) => typeof item.SteamWorkshopId === "string"));
+  assert.ok(result.every((item) => typeof item.Featured === "boolean"));
+});
+
+test("featured items precede vote score without modifying their payload", async () => {
+  const { applyFeaturedItem, compareFeaturedItems } = await import("../cloudflare/featured.mjs");
+  const ordinary = applyFeaturedItem({ Id: 1, Rating: 100, PreviewUri: "/original-one.png", PayloadUri: "/one.zip" }, 2);
+  const featured = applyFeaturedItem({ Id: 2, Rating: 1, PreviewUri: "/original-two.png", PayloadUri: "/two.zip" }, 2);
+  const sorted = [ordinary, featured].sort((a, b) => compareFeaturedItems(a, b) || b.Rating - a.Rating);
+  assert.equal(sorted[0].Id, 2);
+  assert.equal(featured.PreviewUri, "/featured/item-2.png");
+  assert.equal(featured.PayloadUri, "/two.zip");
 });
 
 test("Cloudflare Items finds a visible item by prefixed numeric ID", async () => {

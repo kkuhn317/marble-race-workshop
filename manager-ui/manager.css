@@ -47,9 +47,12 @@ input:focus,select:focus,textarea:focus { border-color:var(--blue); box-shadow:0
 .campaign .pill.type { color:#543600; background:#fff0b9; }
 .asset .pill.type { color:#591438; background:#fde1ee; }
 .hidden .pill.state { color:white; background:var(--danger); }
+.pill.featured-state { color:#3c2a00; background:var(--yellow); }
 .row-actions { display:flex; gap:.4rem; }
 .row-actions button,.tool-card button,.bulk-actions button,.dialog-actions button { padding:.55rem .72rem; color:var(--blue); background:#eef2ff; border:1px solid #c4d0ea; border-radius:8px; font-size:.75rem; font-weight:750; }
 .row-actions .visibility-button { min-width:5rem; color:white; background:var(--blue); border-color:var(--blue); }
+.row-actions .feature-button { color:#3c2a00; background:var(--yellow); border-color:#e5ad19; }
+.row-actions .feature-button:disabled { color:#8b94ae; background:#e7eaf2; border-color:#d2d8e7; cursor:not-allowed; }
 .hidden .row-actions .visibility-button { color:var(--danger); background:white; border-color:#e3a6ba; }
 .empty { padding:4rem 1rem; color:var(--muted); background:rgba(255,255,255,.7); border:1px dashed #a9bbdf; border-radius:12px; text-align:center; }
 .tool-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.85rem; }

@@ -5,6 +5,7 @@ import { readFile, rename, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const UI_ROOT = resolve(ROOT, "manager-ui");
@@ -15,11 +16,16 @@ const HIDDEN_PATH = resolve(ROOT, "hidden-workshop-items.json");
 const MODERATION_MODULE_PATH = resolve(ROOT, "cloudflare", "moderation.mjs");
 const OVERRIDES_PATH = resolve(ROOT, "metadata-overrides.json");
 const OVERRIDES_MODULE_PATH = resolve(ROOT, "cloudflare", "metadata-overrides.mjs");
+const FEATURED_PATH = resolve(ROOT, "featured-workshop-item.json");
+const FEATURED_MODULE_PATH = resolve(ROOT, "cloudflare", "featured.mjs");
 const MANAGED_FILES = [
   "hidden-workshop-items.json",
   "cloudflare/moderation.mjs",
   "metadata-overrides.json",
   "cloudflare/metadata-overrides.mjs",
+  "featured-workshop-item.json",
+  "cloudflare/featured.mjs",
+  "public/featured",
 ];
 const EDITABLE_FIELDS = ["Name", "AuthorName", "Description", "Version", "Tags", "TimeStamp"];
 const BULK_FIELDS = new Map([
@@ -51,6 +57,25 @@ export function buildOverridesModule(overrides) {
     + "export function applyMetadataOverrides(item) {\n"
     + "  const override = metadataOverrides.get(Number(item.Id));\n"
     + "  return override ? { ...item, ...override } : item;\n"
+    + "}\n";
+}
+
+export function buildFeaturedModule(itemId) {
+  const normalized = Number.isSafeInteger(itemId) ? itemId : null;
+  const previewUri = normalized === null ? "" : `/featured/item-${normalized}.png`;
+  return `export const featuredItemId = ${normalized === null ? "null" : normalized};\n`
+    + `export const featuredPreviewUri = ${JSON.stringify(previewUri)};\n\n`
+    + "export function isFeaturedItemId(id) {\n"
+    + "  return Number.isSafeInteger(featuredItemId) && Number(id) === featuredItemId;\n"
+    + "}\n\n"
+    + "export function applyFeaturedItem(item, selectedId = featuredItemId) {\n"
+    + "  const featured = Number.isSafeInteger(selectedId) && Number(item.Id) === selectedId;\n"
+    + "  return featured\n"
+    + "    ? { ...item, Featured: true, PreviewUri: featuredPreviewUri || `/featured/item-${selectedId}.png` }\n"
+    + "    : { ...item, Featured: false };\n"
+    + "}\n\n"
+    + "export function compareFeaturedItems(left, right) {\n"
+    + "  return Number(Boolean(right.Featured)) - Number(Boolean(left.Featured));\n"
     + "}\n";
 }
 
@@ -152,6 +177,11 @@ export async function createWorkshopManager({ port = 31940, host = "127.0.0.1", 
         const result = await setVisibility(body.id, body.hidden);
         return sendJson(response, 200, { ...result, dirty: getDirtyState() });
       }
+      if (request.method === "POST" && url.pathname === "/api/featured") {
+        const body = await readJsonBody(request);
+        const result = await setFeatured(body.id, body.featured);
+        return sendJson(response, 200, { ...result, dirty: getDirtyState() });
+      }
       if (request.method === "POST" && url.pathname === "/api/metadata") {
         const body = await readJsonBody(request);
         const result = await setMetadata(body.id, body.values);
@@ -207,16 +237,18 @@ export async function createWorkshopManager({ port = 31940, host = "127.0.0.1", 
 }
 
 async function readCatalog() {
-  const [items, hiddenDocument, overrideDocument] = await Promise.all([
-    readJson(ITEMS_PATH), readJson(HIDDEN_PATH), readJson(OVERRIDES_PATH),
+  const [items, hiddenDocument, overrideDocument, featuredDocument] = await Promise.all([
+    readJson(ITEMS_PATH), readJson(HIDDEN_PATH), readJson(OVERRIDES_PATH), readJson(FEATURED_PATH),
   ]);
   const hiddenIds = new Set((hiddenDocument.HiddenItemIds || []).map(Number));
   const overrides = overrideDocument.Items || {};
+  const featuredId = Number.isSafeInteger(featuredDocument.ItemId) ? featuredDocument.ItemId : null;
   const catalog = items.map((base) => ({
     ...base,
     ...(overrides[String(base.Id)] || {}),
     Hidden: hiddenIds.has(Number(base.Id)),
     HasOverride: Boolean(overrides[String(base.Id)]),
+    Featured: Number(base.Id) === featuredId,
   }));
   return {
     items: catalog,
@@ -228,7 +260,76 @@ async function readCatalog() {
     },
     dirty: getDirtyState(),
     duplicateReportAvailable: existsSync(resolve(ROOT, "duplicate-review.html")),
+    featuredItemId: featuredId,
   };
+}
+
+async function setFeatured(idValue, featuredValue) {
+  const id = parseItemId(idValue);
+  if (typeof featuredValue !== "boolean") throw new Error("Featured must be true or false.");
+  const [items, hiddenDocument, overrideDocument, featuredDocument] = await Promise.all([
+    readJson(ITEMS_PATH), readJson(HIDDEN_PATH), readJson(OVERRIDES_PATH), readJson(FEATURED_PATH),
+  ]);
+  const base = items.find((candidate) => Number(candidate.Id) === id);
+  if (!base) throw new Error(`Workshop item #${id} does not exist.`);
+  const currentId = Number.isSafeInteger(featuredDocument.ItemId) ? featuredDocument.ItemId : null;
+  let nextId = currentId;
+  if (featuredValue) {
+    const hiddenIds = new Set((hiddenDocument.HiddenItemIds || []).map(Number));
+    if (hiddenIds.has(id)) throw new Error("Unhide this item before featuring it.");
+    const effectiveItem = { ...base, ...((overrideDocument.Items || {})[String(id)] || {}) };
+    await generateFeaturedPreview(effectiveItem, id);
+    nextId = id;
+  } else if (currentId === id) {
+    nextId = null;
+  }
+  await Promise.all([
+    writeAtomic(FEATURED_PATH, `${JSON.stringify({ SchemaVersion: 1, ItemId: nextId }, null, 2)}\n`),
+    writeAtomic(FEATURED_MODULE_PATH, buildFeaturedModule(nextId)),
+  ]);
+  return {
+    id,
+    featured: nextId === id,
+    featuredItemId: nextId,
+    message: nextId === id ? `Featured #${id} locally.` : `Removed #${id} from the featured spot locally.`,
+  };
+}
+
+async function generateFeaturedPreview(item, id) {
+  const source = await readPreviewSource(item.PreviewUri);
+  const output = await renderFeaturedPreview(source);
+  await writeAtomic(resolve(ROOT, "public", "featured", `item-${id}.png`), output);
+}
+
+export async function renderFeaturedPreview(source) {
+  const image = sharp(source).rotate();
+  const metadata = await image.metadata();
+  const width = Number(metadata.width);
+  const height = Number(metadata.height);
+  if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1) {
+    throw new Error("The selected item's preview image has invalid dimensions.");
+  }
+  const bannerHeight = Math.max(42, Math.min(120, Math.round(height * 0.2)));
+  const fontSize = Math.max(22, Math.min(68, Math.round(bannerHeight * 0.54)));
+  const overlay = Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="${width}" height="${bannerHeight}" fill="#ffd23f" fill-opacity="0.96"/><rect x="0" y="${bannerHeight - 5}" width="${width}" height="5" fill="#111529"/><text x="${Math.round(width / 2)}" y="${Math.round(bannerHeight * 0.68)}" text-anchor="middle" font-family="Arial,Segoe UI,sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="2" fill="#111529">FEATURED</text></svg>`);
+  return image.composite([{ input: overlay, top: 0, left: 0 }]).png().toBuffer();
+}
+
+async function readPreviewSource(uriValue) {
+  const uri = String(uriValue || "");
+  if (!uri) throw new Error("This item does not have a preview image to badge.");
+  if (/^https:\/\//i.test(uri)) {
+    const response = await fetch(uri);
+    if (!response.ok) throw new Error(`Could not download the preview image (${response.status}).`);
+    const source = Buffer.from(await response.arrayBuffer());
+    if (source.length > 25 * 1024 * 1024) throw new Error("The preview image is too large to badge safely.");
+    return source;
+  }
+  if (!uri.startsWith("/")) throw new Error("This item has an unsupported preview image location.");
+  const publicRoot = resolve(ROOT, "public");
+  const sourcePath = resolve(publicRoot, `.${uri}`);
+  if (sourcePath !== publicRoot && !sourcePath.startsWith(`${publicRoot}\\`)) throw new Error("The preview image path is unsafe.");
+  return readFile(sourcePath);
 }
 
 async function setVisibility(idValue, hiddenValue) {
@@ -237,6 +338,8 @@ async function setVisibility(idValue, hiddenValue) {
   const item = items.find((candidate) => Number(candidate.Id) === id);
   if (!item) throw new Error(`Workshop item #${id} does not exist.`);
   if (typeof hiddenValue !== "boolean") throw new Error("Hidden must be true or false.");
+  const featuredDocument = await readJson(FEATURED_PATH);
+  if (hiddenValue && featuredDocument.ItemId === id) throw new Error("Unfeature this item before hiding it.");
   const document = await readJson(HIDDEN_PATH);
   const ids = new Set((document.HiddenItemIds || []).map(Number));
   if (hiddenValue) ids.add(id); else ids.delete(id);

@@ -69,6 +69,13 @@ a { color: inherit; }
 
 main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
 .catalog-shell { padding: 0 0 4rem; }
+.featured-spotlight { display:grid; grid-template-columns:minmax(8rem,15rem) minmax(0,1fr) auto; align-items:center; gap:1.1rem; margin:0 0 1.1rem; padding:.75rem; color:#211a05; background:linear-gradient(115deg,#fff4b5,#ffd04a); border:2px solid #d99d08; border-radius:14px; box-shadow:var(--shadow); }
+.featured-spotlight[hidden] { display:none; }
+.featured-spotlight img { width:100%; height:7rem; object-fit:cover; background:#d8e4f5; border-radius:9px; }
+.featured-kicker { display:block; margin-bottom:.18rem; font-size:.72rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+.featured-copy h2 { margin:0; font-size:1.35rem; line-height:1.15; }
+.featured-copy p { margin:.35rem 0 0; color:#685315; font-size:.8rem; }
+.featured-open { padding:.65rem .9rem; color:white; background:var(--blue-dark); border:0; border-radius:9px; font-weight:800; cursor:pointer; }
 .result-count { margin: 0 0 .85rem; color: var(--muted); font-size: .85rem; text-align: right; }
 .toolbar {
   position: sticky;
@@ -116,6 +123,7 @@ main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
 }
 .item-card.campaign { border-top-color: var(--yellow); }
 .item-card.asset { border-top-color: var(--pink); }
+.item-card.featured { border-color:#d99d08; border-top-color:var(--yellow); box-shadow:0 8px 22px rgba(174,120,0,.22); }
 .item-card:hover { transform: translateY(-3px); box-shadow: 0 13px 25px rgba(35, 53, 120, .16); }
 .preview-button { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; overflow: hidden; background: #d7e5f8; border: 0; cursor: pointer; }
 .preview-button::after { content: "View details"; position: absolute; right: .65rem; bottom: .55rem; padding: .3rem .55rem; color: white; background: rgba(23,36,111,.86); border-radius: 7px; font-size: .67rem; opacity: 0; transition: opacity .18s; }
@@ -128,6 +136,7 @@ main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
 .type-pill.campaign { color: #4c3000; background: #ffd15c; }
 .type-pill.asset { color: #50102e; background: #f38abb; }
 .id-pill { right: .65rem; color: white; background: var(--blue); text-transform: none; }
+.featured-pill { position:absolute; z-index:3; top:.65rem; left:50%; transform:translateX(-50%); padding:.3rem .55rem; color:#201700; background:var(--yellow); border:1px solid #d79a00; border-radius:999px; font-size:.64rem; font-weight:900; text-transform:uppercase; box-shadow:0 2px 8px rgba(23,36,111,.12); }
 .card-body { padding: .9rem 1rem 1rem; }
 .card-body h3 { margin: 0 0 .25rem; overflow: hidden; color: var(--blue-dark); font-size: 1.03rem; line-height: 1.25; letter-spacing: -.02em; text-overflow: ellipsis; white-space: nowrap; }
 .byline { margin: 0 0 .75rem; color: var(--muted); font-size: .79rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -156,6 +165,7 @@ footer a { color: var(--blue); font-weight: 700; }
 .dialog-body { padding: clamp(1.2rem, 5vw, 2rem); }
 .dialog-labels { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .8rem; }
 .dialog-labels span { padding: .26rem .5rem; color: var(--blue); background: #edf1ff; border: 1px solid #cbd5ef; border-radius: 7px; font-size: .68rem; font-weight: 750; }
+.dialog-labels .featured-dialog-label { color:#3c2a00; background:var(--yellow); border-color:#d99d08; }
 .dialog-body h2 { margin: 0 0 .25rem; color: var(--blue-dark); font-size: clamp(1.6rem, 5vw, 2.35rem); line-height: 1.08; letter-spacing: -.04em; }
 .dialog-author { color: var(--muted); }
 .dialog-description { margin: 1.25rem 0; color: #46517c; white-space: pre-wrap; }
@@ -179,6 +189,9 @@ footer a { color: var(--blue); font-weight: 700; }
   .search-box { grid-column: 1 / -1; }
 }
 @media (max-width: 560px) {
+  .featured-spotlight { grid-template-columns:6rem minmax(0,1fr); }
+  .featured-spotlight img { height:5rem; }
+  .featured-open { grid-column:1/-1; }
   .site-header { align-items: flex-start; padding: 1.7rem 0 1.1rem; }
   .brand { align-items: flex-start; gap: .7rem; }
   .brand-marble { width: 3.15rem; }

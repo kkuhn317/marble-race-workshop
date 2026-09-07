@@ -11,6 +11,7 @@ const ROOT = __dirname;
 const ITEMS_FILE = path.join(ROOT, "items.json");
 const HIDDEN_ITEMS_FILE = path.join(ROOT, "hidden-workshop-items.json");
 const METADATA_OVERRIDES_FILE = path.join(ROOT, "metadata-overrides.json");
+const FEATURED_ITEM_FILE = path.join(ROOT, "featured-workshop-item.json");
 const PUBLIC_DIR = path.join(ROOT, "public");
 
 const MIME_TYPES = {
@@ -121,9 +122,22 @@ function loadItems() {
 function loadVisibleItems() {
   const hiddenItemIds = loadHiddenItemIds();
   const overrides = loadMetadataOverrides();
+  const featuredItemId = loadFeaturedItemId();
   return loadItems()
     .filter((item) => !hiddenItemIds.has(Number(item.Id)))
-    .map((item) => ({ ...item, ...(overrides[String(item.Id)] || {}) }));
+    .map((item) => ({ ...item, ...(overrides[String(item.Id)] || {}) }))
+    .map((item) => Number(item.Id) === featuredItemId
+      ? { ...item, Featured: true, PreviewUri: `/featured/item-${featuredItemId}.png` }
+      : { ...item, Featured: false });
+}
+
+function loadFeaturedItemId() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(FEATURED_ITEM_FILE, "utf8"));
+    return Number.isSafeInteger(parsed.ItemId) ? parsed.ItemId : null;
+  } catch (error) {
+    throw new Error(`Could not read featured-workshop-item.json: ${error.message}`);
+  }
 }
 
 function loadHiddenItemIds() {
@@ -200,7 +214,8 @@ function queryItems(items, params) {
   } else if (sort === "old") {
     filtered.sort((a, b) => Number(a.TimeStamp) - Number(b.TimeStamp));
   } else if (sort === "top") {
-    filtered.sort((a, b) => Number(b.Rating || 0) - Number(a.Rating || 0)
+    filtered.sort((a, b) => Number(Boolean(b.Featured)) - Number(Boolean(a.Featured))
+      || Number(b.Rating || 0) - Number(a.Rating || 0)
       || Number(a.Id) - Number(b.Id));
   } else {
     filtered.sort((a, b) => Number(b.Downloads || 0) - Number(a.Downloads || 0));
@@ -238,6 +253,7 @@ function publicItem(item, request) {
     SteamWorkshopId: /^\d+$/.test(String(item.SteamWorkshopId || ""))
       ? String(item.SteamWorkshopId)
       : "",
+    Featured: Boolean(item.Featured),
   };
 }
 

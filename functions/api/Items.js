@@ -1,6 +1,7 @@
 import { items, json, publicItem } from "../../cloudflare/catalog.mjs";
 import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
 import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs";
+import { applyFeaturedItem, compareFeaturedItems } from "../../cloudflare/featured.mjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -21,6 +22,7 @@ export function onRequestGet(context) {
 
   const result = items
     .map(applyMetadataOverrides)
+    .map(applyFeaturedItem)
     .filter((item) => {
       const searchable = [item.Name, item.AuthorName, item.Description, ...(item.Tags || [])]
         .filter(Boolean)
@@ -34,7 +36,7 @@ export function onRequestGet(context) {
     })
     .sort((a, b) => {
       if (sort === "new") return b.TimeStamp - a.TimeStamp;
-      if (sort === "top") return (b.Rating || 0) - (a.Rating || 0) || a.Id - b.Id;
+      if (sort === "top") return compareFeaturedItems(a, b) || (b.Rating || 0) - (a.Rating || 0) || a.Id - b.Id;
       return a.Id - b.Id;
     })
     .slice(skip, skip + limit)

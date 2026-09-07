@@ -10,6 +10,7 @@ const publicDir = path.resolve(__dirname, "../public");
 test("workshop homepage includes the searchable catalog interface", () => {
   const html = fs.readFileSync(path.join(publicDir, "index.html"), "utf8");
   assert.match(html, /id="item-grid"/);
+  assert.match(html, /id="featured-spotlight"/);
   assert.match(html, /id="search"/);
   assert.match(html, /id="type-filter"/);
   assert.match(html, /id="sort-filter"/);
@@ -26,9 +27,11 @@ test("workshop browser exposes IDs, creators, filtering, and item links", () => 
   assert.match(script, /item\.AuthorName/);
   assert.match(script, /item\.ResourceType/);
   assert.match(script, /Rating: Number\(item\.Rating\)/);
-  assert.match(script, /votes: \(a, b\) => b\.Rating - a\.Rating \|\| a\.Id - b\.Id/);
+  assert.match(script, /votes: \(a, b\) => Number\(b\.Featured\) - Number\(a\.Featured\) \|\| b\.Rating - a\.Rating \|\| a\.Id - b\.Id/);
   assert.match(script, /downloads: \(a, b\) => b\.Downloads - a\.Downloads \|\| a\.Id - b\.Id/);
   assert.match(script, /Vote score/);
+  assert.match(script, /Featured item of the week/);
+  assert.match(script, /Number\(b\.Featured\) - Number\(a\.Featured\)/);
   assert.match(script, /steamcommunity\.com\/sharedfiles\/filedetails/);
   assert.match(script, /View on Steam Workshop/);
   assert.match(script, /api\/GetItem\?id=/);

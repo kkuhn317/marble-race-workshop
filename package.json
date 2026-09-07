@@ -4,6 +4,7 @@
   "private": true,
   "description": "A small compatible server for Marble Race custom levels.",
   "devDependencies": {
+    "sharp": "^0.35.2",
     "wrangler": "^4.35.0"
   },
   "scripts": {

@@ -6,7 +6,7 @@ const elements = {
   form: document.querySelector("#filter-form"), search: document.querySelector("#search"),
   type: document.querySelector("#type-filter"), sort: document.querySelector("#sort-filter"),
   total: document.querySelector("#total-count"), resultCount: document.querySelector("#result-count"),
-  status: document.querySelector("#status"), grid: document.querySelector("#item-grid"),
+  status: document.querySelector("#status"), grid: document.querySelector("#item-grid"), featured: document.querySelector("#featured-spotlight"),
   loadMore: document.querySelector("#load-more"), dialog: document.querySelector("#item-dialog"),
   dialogContent: document.querySelector("#dialog-content"), dialogClose: document.querySelector("#dialog-close"),
 };
@@ -65,6 +65,7 @@ function normalizeItem(item) {
     Version: String(item.Version || "Unknown"), Rating: Number(item.Rating) || 0,
     Downloads: Number(item.Downloads) || 0,
     SteamWorkshopId: /^\d+$/.test(String(item.SteamWorkshopId || "")) ? String(item.SteamWorkshopId) : "",
+    Featured: Boolean(item.Featured),
   };
 }
 
@@ -86,7 +87,7 @@ function sortItems(items, sort) {
   const text = (value) => String(value).toLocaleLowerCase();
   const sorters = {
     new: (a, b) => b.TimeStamp - a.TimeStamp || b.Id - a.Id,
-    votes: (a, b) => b.Rating - a.Rating || a.Id - b.Id,
+    votes: (a, b) => Number(b.Featured) - Number(a.Featured) || b.Rating - a.Rating || a.Id - b.Id,
     downloads: (a, b) => b.Downloads - a.Downloads || a.Id - b.Id,
     old: (a, b) => a.TimeStamp - b.TimeStamp || a.Id - b.Id,
     name: (a, b) => text(a.Name).localeCompare(text(b.Name)) || a.Id - b.Id,
@@ -97,6 +98,7 @@ function sortItems(items, sort) {
 }
 
 function renderItems() {
+  renderFeaturedSpotlight();
   elements.grid.replaceChildren();
   const shownItems = filteredItems.slice(0, visibleCount);
   if (!shownItems.length) {
@@ -115,9 +117,26 @@ function renderItems() {
   if (!elements.loadMore.hidden) elements.loadMore.textContent = `Show more (${(filteredItems.length - shownItems.length).toLocaleString()} remaining)`;
 }
 
+function renderFeaturedSpotlight() {
+  const item = allItems.find((candidate) => candidate.Featured);
+  elements.featured.replaceChildren();
+  elements.featured.hidden = !item;
+  if (!item) return;
+  const image = document.createElement("img");
+  image.src = item.PreviewUri; image.alt = "";
+  image.addEventListener("error", () => image.remove(), { once: true });
+  const copy = create("div", "featured-copy");
+  copy.append(create("span", "featured-kicker", "Featured item of the week"));
+  const heading = create("h2", "", item.Name); heading.id = "featured-heading";
+  copy.append(heading, create("p", "", `by ${item.AuthorName} · ${typeNameFor(item)} · ID ${item.Id}`));
+  const open = create("button", "featured-open", "View item");
+  open.type = "button"; open.addEventListener("click", () => openDialog(item, true));
+  elements.featured.append(image, copy, open);
+}
+
 function createItemCard(item) {
   const typeName = typeNameFor(item);
-  const article = create("article", `item-card ${typeName.toLocaleLowerCase()}`);
+  const article = create("article", `item-card ${typeName.toLocaleLowerCase()}${item.Featured ? " featured" : ""}`);
   const previewButton = create("button", "preview-button");
   previewButton.type = "button";
   previewButton.setAttribute("aria-label", `View ${item.Name}, workshop ID ${item.Id}`);
@@ -126,7 +145,9 @@ function createItemCard(item) {
   image.src = item.PreviewUri; image.alt = ""; image.loading = "lazy"; image.decoding = "async";
   image.addEventListener("error", () => image.replaceWith(create("span", "preview-fallback", item.Name.slice(0, 1).toLocaleUpperCase())), { once: true });
   previewButton.append(image);
-  article.append(create("span", `type-pill ${typeName.toLocaleLowerCase()}`, typeName), create("span", "id-pill", `ID ${item.Id}`), previewButton);
+  article.append(create("span", `type-pill ${typeName.toLocaleLowerCase()}`, typeName), create("span", "id-pill", `ID ${item.Id}`));
+  if (item.Featured) article.append(create("span", "featured-pill", "Featured"));
+  article.append(previewButton);
   const body = create("div", "card-body");
   body.append(create("h3", "", item.Name));
   const byline = create("p", "byline");
@@ -151,6 +172,7 @@ function openDialog(item, updateUrl) {
   const body = create("div", "dialog-body");
   const labels = create("div", "dialog-labels");
   labels.append(create("span", "", typeNameFor(item)), create("span", "", `Workshop ID ${item.Id}`));
+  if (item.Featured) labels.append(create("span", "featured-dialog-label", "Featured item of the week"));
   const title = create("h2", "", item.Name); title.id = "dialog-name";
   body.append(labels, title, create("p", "dialog-author", `Created by ${item.AuthorName}`), create("p", "dialog-description", item.Description || "No description was provided."));
   const details = create("div", "details-grid");
