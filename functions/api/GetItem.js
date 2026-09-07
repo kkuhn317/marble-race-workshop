@@ -13,7 +13,7 @@ export function onRequestGet(context) {
   const id = Number(idText);
   const item = isHiddenItemId(id)
     ? undefined
-    : items.map(applyMetadataOverrides).map(applyFeaturedItem).find((candidate) => candidate.Id === id);
+    : items.map(applyMetadataOverrides).map((candidate) => applyFeaturedItem(candidate)).find((candidate) => candidate.Id === id);
   return item
     ? json(publicItem(item, context.request.url))
     : json({ error: "Item not found" }, 404);

@@ -96,8 +96,10 @@ test("Cloudflare Items implements filtering and pagination", async () => {
 
 test("Cloudflare Items exposes scores and Steam metadata in vote order", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
+  const { applyFeaturedItem, compareFeaturedItems } = await import("../cloudflare/featured.mjs");
   const expected = (await visibleCatalogItems())
-    .sort((a, b) => Number(b.Rating || 0) - Number(a.Rating || 0) || Number(a.Id) - Number(b.Id))
+    .map((item) => applyFeaturedItem(item))
+    .sort((a, b) => compareFeaturedItems(a, b) || Number(b.Rating || 0) - Number(a.Rating || 0) || Number(a.Id) - Number(b.Id))
     .slice(0, 20);
   const result = await onRequestGet({
     request: new Request("https://marble.example.dev/api/Items?sort=top&limit=20"),
@@ -119,6 +121,19 @@ test("featured items precede vote score without modifying their payload", async 
   assert.equal(sorted[0].Id, 2);
   assert.equal(featured.PreviewUri, "/featured/item-2.png");
   assert.equal(featured.PayloadUri, "/two.zip");
+});
+
+test("Items applies the configured feature instead of the Array.map index", async () => {
+  const { onRequestGet } = await import("../functions/api/Items.js");
+  const { featuredItemId } = await import("../cloudflare/featured.mjs");
+  const response = onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?sort=top&limit=1"),
+  });
+  const [item] = await response.json();
+
+  assert.equal(item.Id, featuredItemId);
+  assert.equal(item.Featured, true);
+  assert.match(item.PreviewUri, new RegExp(`/featured/item-${featuredItemId}\\.png$`));
 });
 
 test("Cloudflare Items finds a visible item by prefixed numeric ID", async () => {
