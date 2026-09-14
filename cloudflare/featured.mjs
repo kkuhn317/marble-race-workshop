@@ -1,5 +1,5 @@
-export const featuredItemId = 10002;
-export const featuredPreviewUri = "/featured/item-10002.png";
+export const featuredItemId = 726;
+export const featuredPreviewUri = "/featured/item-726.png";
 
 export function isFeaturedItemId(id) {
   return Number.isSafeInteger(featuredItemId) && Number(id) === featuredItemId;
