@@ -42,7 +42,7 @@ test("workshop browser exposes IDs, creators, filtering, and item links", () => 
 
 test("workshop thumbnails preserve the entire image", () => {
   const styles = fs.readFileSync(path.join(publicDir, "styles.css"), "utf8");
-  assert.match(styles, /\.preview-button[^}]*aspect-ratio: 4 \/ 3/);
+  assert.match(styles, /\.preview-button[^}]*aspect-ratio: 5 \/ 4/);
   assert.match(styles, /\.preview-button img[^}]*object-fit: contain/);
   assert.match(styles, /\.dialog-preview[^}]*object-fit: contain/);
   assert.match(styles, /\.featured-spotlight img[^}]*object-fit:contain/);
