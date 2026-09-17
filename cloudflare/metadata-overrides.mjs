@@ -304,12 +304,6 @@ export const metadataOverrides = new Map([
         {
             "TimeStamp":  1597204800
         }
-    ],
-    [
-        10034,
-        {
-            "TimeStamp":  1597204800
-        }
     ]
 ]);
 
