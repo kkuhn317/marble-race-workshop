@@ -38,6 +38,8 @@ test("workshop browser exposes IDs, creators, filtering, and item links", () => 
   assert.match(script, /api\/Download\?id=/);
   assert.match(script, /download\.download = `\$\{item\.Name\}\.zip`/);
   assert.match(script, /navigator\.clipboard/);
+  assert.doesNotMatch(script, /detail\("Type", typeNameFor\(item\)\)/);
+  assert.doesNotMatch(script, /detail\("Creator", item\.AuthorName\)/);
 });
 
 test("workshop thumbnails preserve the entire image", () => {

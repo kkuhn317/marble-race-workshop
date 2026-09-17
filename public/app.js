@@ -176,7 +176,7 @@ function openDialog(item, updateUrl) {
   const title = create("h2", "", item.Name); title.id = "dialog-name";
   body.append(labels, title, create("p", "dialog-author", `Created by ${item.AuthorName}`), create("p", "dialog-description", item.Description || "No description was provided."));
   const details = create("div", "details-grid");
-  details.append(detail("Item ID", String(item.Id)), detail("Vote score", item.Rating.toLocaleString()), detail("Published", formatDate(item.TimeStamp)), detail("Game version", item.Version), detail("Type", typeNameFor(item)), detail("Downloads", item.Downloads.toLocaleString()), detail("Download size", formatBytes(item.PayloadLength)), detail("Creator", item.AuthorName));
+  details.append(detail("Item ID", String(item.Id)), detail("Vote score", item.Rating.toLocaleString()), detail("Published", formatDate(item.TimeStamp)), detail("Game version", item.Version), detail("Downloads", item.Downloads.toLocaleString()), detail("Download size", formatBytes(item.PayloadLength)));
   body.append(details);
   const actions = create("div", "dialog-actions");
   if (item.PayloadUri) {
