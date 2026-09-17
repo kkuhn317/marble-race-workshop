@@ -4,6 +4,14 @@
   "compatibility_date": "2026-08-24",
   "workers_dev": true,
   "preview_urls": true,
+  "d1_databases": [
+    {
+      "binding": "DOWNLOADS_DB",
+      "database_name": "marble-race-workshop-downloads",
+      "database_id": "70f91ecd-8153-40e6-b74f-eed93b567026",
+      "migrations_dir": "migrations"
+    }
+  ],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",

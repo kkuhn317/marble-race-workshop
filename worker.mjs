@@ -9,14 +9,14 @@ import {
 import { onRequestGet as downloadItem } from "./functions/api/Download.js";
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = normalizeApiPath(url.pathname);
 
     if (path === "/api/Items") {
       if (request.method === "OPTIONS") return optionsItems();
       if (request.method === "GET" || request.method === "HEAD") {
-        const response = listItems({ request });
+        const response = await listItems({ request, env });
         return request.method === "HEAD" ? headResponse(response) : response;
       }
       return methodNotAllowed();
@@ -25,7 +25,7 @@ export default {
     if (path === "/api/GetItem") {
       if (request.method === "OPTIONS") return optionsGetItem();
       if (request.method === "GET" || request.method === "HEAD") {
-        const response = getItem({ request });
+        const response = await getItem({ request, env });
         return request.method === "HEAD" ? headResponse(response) : response;
       }
       return methodNotAllowed();
@@ -33,7 +33,11 @@ export default {
 
     if (path === "/api/Download") {
       if (request.method === "GET" || request.method === "HEAD") {
-        const response = await downloadItem({ request });
+        const response = await downloadItem({
+          request,
+          env,
+          waitUntil: ctx ? (promise) => ctx.waitUntil(promise) : undefined,
+        });
         return request.method === "HEAD" ? headResponse(response) : response;
       }
       return methodNotAllowed();

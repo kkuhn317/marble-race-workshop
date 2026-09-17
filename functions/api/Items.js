@@ -2,6 +2,7 @@ import { items, json, publicItem } from "../../cloudflare/catalog.mjs";
 import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
 import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs";
 import { applyFeaturedItem, compareFeaturedItems } from "../../cloudflare/featured.mjs";
+import { applyDownloadCounts, downloadPayloadUri } from "../../cloudflare/download-counts.mjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -39,12 +40,13 @@ export function onRequestGet(context) {
       if (sort === "top") return compareFeaturedItems(a, b) || (b.Rating || 0) - (a.Rating || 0) || a.Id - b.Id;
       return a.Id - b.Id;
     })
-    .slice(skip, skip + limit)
-    .map((item) => publicItem(item, context.request.url));
+    .slice(skip, skip + limit);
 
   // itemVersion is intentionally accepted but not used. An item's Version
   // tells the client whether it is compatible; it is not a server-side filter.
-  return json(result);
+  if (!context.env?.DOWNLOADS_DB) return json(publicItems(result, context.request.url));
+  return applyDownloadCounts(context.env.DOWNLOADS_DB, result)
+    .then((countedItems) => json(publicItems(countedItems, context.request.url)));
 }
 
 export function onRequestOptions() {
@@ -75,4 +77,11 @@ function parseSearchedId(search) {
   if (!match) return null;
   const id = Number(match[1]);
   return Number.isSafeInteger(id) ? id : null;
+}
+
+function publicItems(sourceItems, requestUrl) {
+  return sourceItems.map((item) => ({
+    ...publicItem(item, requestUrl),
+    PayloadUri: downloadPayloadUri(item.Id, requestUrl),
+  }));
 }

@@ -89,7 +89,7 @@ test("Cloudflare Items implements filtering and pagination", async () => {
   assert.deepEqual(excludedBySearch, []);
   assert.ok(campaigns.length > 0);
   assert.ok(campaigns.every((item) => item.ResourceType === 2));
-  assert.ok(campaigns.every((item) => /^https:\/\/content\.marble\.kevin-kuhn\.dev\//.test(item.PayloadUri)));
+  assert.ok(campaigns.every((item) => /^https:\/\/marble\.example\.dev\/api\/Download\?id=\d+$/.test(item.PayloadUri)));
   assert.equal(page.length, 1);
   assert.equal(page[0].Id, allItems[4].Id);
 });
@@ -177,6 +177,42 @@ test("Cloudflare GetItem returns one item and 404 for an unknown id", async () =
   assert.equal(missing.status, 404);
 });
 
+test("Cloudflare APIs replace seeded downloads with live D1 counts", async () => {
+  const { onRequestGet: listItems } = await import("../functions/api/Items.js");
+  const { onRequestGet: getItem } = await import("../functions/api/GetItem.js");
+  const target = await visibleCatalogItem();
+  const liveCount = Number(target.Downloads || 0) + 37;
+  const database = {
+    prepare(sql) {
+      if (sql.includes(" WHERE item_id IN (")) {
+        return { all: async () => ({ results: [{ item_id: target.Id, downloads: liveCount }] }) };
+      }
+      return {
+        bind(id) {
+          assert.equal(id, target.Id);
+          return { first: async () => ({ downloads: liveCount }) };
+        },
+      };
+    },
+  };
+
+  const listResponse = await listItems({
+    request: new Request(`https://marble.example.dev/api/Items?search=id:${target.Id}&limit=1`),
+    env: { DOWNLOADS_DB: database },
+  });
+  const [listed] = await listResponse.json();
+  const itemResponse = await getItem({
+    request: new Request(`https://marble.example.dev/api/GetItem?id=${target.Id}`),
+    env: { DOWNLOADS_DB: database },
+  });
+  const fetched = await itemResponse.json();
+
+  assert.equal(listed.Downloads, liveCount);
+  assert.equal(fetched.Downloads, liveCount);
+  assert.equal(listed.PayloadUri, `https://marble.example.dev/api/Download?id=${target.Id}`);
+  assert.equal(fetched.PayloadUri, `https://marble.example.dev/api/Download?id=${target.Id}`);
+});
+
 test("Cloudflare Download streams a payload with the workshop item name", async () => {
   const { onRequestGet, buildDownloadFilename } = await import("../functions/api/Download.js");
   const target = await visibleCatalogItem((item) => Boolean(item.PayloadUri));
@@ -198,6 +234,50 @@ test("Cloudflare Download streams a payload with the workshop item name", async 
   assert.match(response.headers.get("content-disposition"), /^attachment; filename=/);
   assert.ok(response.headers.get("content-disposition").includes(encodeURIComponent(filename)));
   assert.equal(await response.text(), "zip bytes");
+});
+
+test("Cloudflare Download counts only successful initial GET requests", async () => {
+  const { onRequestGet } = await import("../functions/api/Download.js");
+  const { shouldCountDownload } = await import("../cloudflare/download-counts.mjs");
+  const target = await visibleCatalogItem((item) => Boolean(item.PayloadUri));
+  const writes = [];
+  const pending = [];
+  const database = {
+    prepare(sql) {
+      assert.match(sql, /INSERT INTO download_counts/);
+      return {
+        bind(...values) {
+          return { run: async () => { writes.push(values); } };
+        },
+      };
+    },
+  };
+  const response = await onRequestGet({
+    request: new Request(`https://marble.example.dev/api/Download?id=${target.Id}`, {
+      headers: { range: "bytes=0-" },
+    }),
+    env: { DOWNLOADS_DB: database },
+    waitUntil: (promise) => pending.push(promise),
+    fetch: async () => new Response("zip bytes", { status: 206 }),
+  });
+  await Promise.all(pending);
+
+  assert.equal(response.status, 206);
+  assert.deepEqual(writes, [[target.Id, Number(target.Downloads || 0)]]);
+  assert.equal(shouldCountDownload(new Request("https://example.test/file.zip")), true);
+  assert.equal(shouldCountDownload(new Request("https://example.test/file.zip", { method: "HEAD" })), false);
+  assert.equal(shouldCountDownload(new Request("https://example.test/file.zip", { headers: { range: "bytes=10-" } })), false);
+});
+
+test("D1 migration seeds every item from its current download count", () => {
+  const catalog = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../items.json"), "utf8"));
+  const migration = fs.readFileSync(path.resolve(__dirname, "../migrations/0001_seed_download_counts.sql"), "utf8");
+  const seeded = new Map(
+    [...migration.matchAll(/\((\d+), (\d+), unixepoch\(\)\)/g)]
+      .map((match) => [Number(match[1]), Number(match[2])]),
+  );
+  assert.equal(seeded.size, catalog.length);
+  for (const item of catalog) assert.equal(seeded.get(item.Id), Number(item.Downloads || 0), `Item ${item.Id}`);
 });
 
 test("Cloudflare Download sanitizes unsafe filenames and rejects missing items", async () => {

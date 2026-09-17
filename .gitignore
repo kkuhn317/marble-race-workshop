@@ -8,3 +8,5 @@ duplicate-review.html
 Shuriken Race.zip
 npm-debug.log*
 .workshop-manager-logs/
+.wrangler/
+worker-configuration.d.ts

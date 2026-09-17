@@ -1,6 +1,7 @@
 import { items } from "../../cloudflare/catalog.mjs";
 import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
 import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs";
+import { incrementDownloadCount, shouldCountDownload } from "../../cloudflare/download-counts.mjs";
 
 const FORWARDED_REQUEST_HEADERS = ["range", "if-range", "if-none-match", "if-modified-since"];
 
@@ -15,7 +16,18 @@ export async function onRequestGet(context) {
     : items.map(applyMetadataOverrides).find((candidate) => candidate.Id === id);
   if (!item || !item.PayloadUri) return errorResponse("Item not found", 404);
 
-  return proxyItemDownload(item, context.request, context.fetch || fetch);
+  const response = await proxyItemDownload(item, context.request, context.fetch || fetch);
+  if (response.ok && shouldCountDownload(context.request) && context.env?.DOWNLOADS_DB) {
+    const update = incrementDownloadCount(context.env.DOWNLOADS_DB, item)
+      .catch((error) => console.warn(JSON.stringify({
+        event: "download_count_increment_failed",
+        itemId: Number(item.Id),
+        message: error instanceof Error ? error.message : String(error),
+      })));
+    if (context.waitUntil) context.waitUntil(update);
+    else await update;
+  }
+  return response;
 }
 
 export async function proxyItemDownload(item, request, fetchPayload = fetch) {
