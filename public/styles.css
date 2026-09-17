@@ -71,7 +71,7 @@ main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
 .catalog-shell { padding: 0 0 4rem; }
 .featured-spotlight { display:grid; grid-template-columns:minmax(8rem,15rem) minmax(0,1fr) auto; align-items:center; gap:1.1rem; margin:0 0 1.1rem; padding:.75rem; color:#211a05; background:linear-gradient(115deg,#fff4b5,#ffd04a); border:2px solid #d99d08; border-radius:14px; box-shadow:var(--shadow); }
 .featured-spotlight[hidden] { display:none; }
-.featured-spotlight img { width:100%; height:7rem; object-fit:cover; background:#d8e4f5; border-radius:9px; }
+.featured-spotlight img { width:100%; height:7rem; object-fit:contain; background:#eef4ff; border-radius:9px; }
 .featured-kicker { display:block; margin-bottom:.18rem; font-size:.72rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
 .featured-copy h2 { margin:0; font-size:1.35rem; line-height:1.15; }
 .featured-copy p { margin:.35rem 0 0; color:#685315; font-size:.8rem; }
@@ -125,11 +125,11 @@ main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
 .item-card.asset { border-top-color: var(--pink); }
 .item-card.featured { border-color:#d99d08; border-top-color:var(--yellow); box-shadow:0 8px 22px rgba(174,120,0,.22); }
 .item-card:hover { transform: translateY(-3px); box-shadow: 0 13px 25px rgba(35, 53, 120, .16); }
-.preview-button { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; overflow: hidden; background: #d7e5f8; border: 0; cursor: pointer; }
+.preview-button { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; background: #eef4ff; border: 0; cursor: pointer; }
 .preview-button::after { content: "View details"; position: absolute; right: .65rem; bottom: .55rem; padding: .3rem .55rem; color: white; background: rgba(23,36,111,.86); border-radius: 7px; font-size: .67rem; opacity: 0; transition: opacity .18s; }
 .item-card:hover .preview-button::after, .preview-button:focus-visible::after { opacity: 1; }
-.preview-button img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
-.item-card:hover img { transform: scale(1.025); }
+.preview-button img { display: block; width: 100%; height: 100%; object-fit: contain; transition: filter .18s ease; }
+.item-card:hover .preview-button img { filter: saturate(1.08); }
 .preview-fallback { display: grid; width: 100%; height: 100%; place-items: center; color: rgba(38,55,159,.28); background: linear-gradient(135deg, #dcecff, #cbd2f6); font-size: 3rem; font-weight: 900; }
 .type-pill, .id-pill { position: absolute; z-index: 2; top: .65rem; padding: .3rem .55rem; border-radius: 7px; font-size: .67rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; box-shadow: 0 2px 8px rgba(23,36,111,.12); }
 .type-pill { left: .65rem; color: #082e48; background: #71d4fb; }
@@ -161,7 +161,7 @@ footer a { color: var(--blue); font-weight: 700; }
 .item-dialog { width: min(760px, calc(100% - 1.5rem)); max-height: min(88vh, 850px); padding: 0; color: var(--ink); overflow: auto; background: white; border: 1px solid #bccbea; border-top: 6px solid var(--lavender); border-radius: 17px; box-shadow: 0 35px 80px rgba(23,36,111,.35); }
 .item-dialog::backdrop { background: rgba(18, 28, 76, .62); backdrop-filter: blur(4px); }
 .dialog-close { position: absolute; z-index: 4; top: .75rem; right: .75rem; display: grid; width: 2.25rem; aspect-ratio: 1; place-items: center; color: white; background: rgba(23,36,111,.9); border: 0; border-radius: 50%; font-size: 1.4rem; line-height: 1; cursor: pointer; }
-.dialog-preview { width: 100%; aspect-ratio: 16 / 8; object-fit: cover; background: #d7e5f8; }
+.dialog-preview { display: block; width: 100%; height: auto; max-height: min(65vh, 680px); object-fit: contain; background: #eef4ff; }
 .dialog-body { padding: clamp(1.2rem, 5vw, 2rem); }
 .dialog-labels { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .8rem; }
 .dialog-labels span { padding: .26rem .5rem; color: var(--blue); background: #edf1ff; border: 1px solid #cbd5ef; border-radius: 7px; font-size: .68rem; font-weight: 750; }

@@ -39,3 +39,11 @@ test("workshop browser exposes IDs, creators, filtering, and item links", () => 
   assert.match(script, /download\.download = `\$\{item\.Name\}\.zip`/);
   assert.match(script, /navigator\.clipboard/);
 });
+
+test("workshop thumbnails preserve the entire image", () => {
+  const styles = fs.readFileSync(path.join(publicDir, "styles.css"), "utf8");
+  assert.match(styles, /\.preview-button[^}]*aspect-ratio: 4 \/ 3/);
+  assert.match(styles, /\.preview-button img[^}]*object-fit: contain/);
+  assert.match(styles, /\.dialog-preview[^}]*object-fit: contain/);
+  assert.match(styles, /\.featured-spotlight img[^}]*object-fit:contain/);
+});
