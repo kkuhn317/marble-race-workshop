@@ -6,6 +6,7 @@ import {
   onRequestGet as getItem,
   onRequestOptions as optionsGetItem,
 } from "./functions/api/GetItem.js";
+import { onRequestGet as downloadItem } from "./functions/api/Download.js";
 
 export default {
   async fetch(request, env) {
@@ -30,6 +31,14 @@ export default {
       return methodNotAllowed();
     }
 
+    if (path === "/api/Download") {
+      if (request.method === "GET" || request.method === "HEAD") {
+        const response = await downloadItem({ request });
+        return request.method === "HEAD" ? headResponse(response) : response;
+      }
+      return methodNotAllowed();
+    }
+
     return env.ASSETS.fetch(request);
   },
 };
@@ -37,6 +46,7 @@ export default {
 function normalizeApiPath(path) {
   if (["/Items", "/api/Items", "/api/api/Items"].includes(path)) return "/api/Items";
   if (["/GetItem", "/api/GetItem", "/api/api/GetItem"].includes(path)) return "/api/GetItem";
+  if (["/Download", "/api/Download", "/api/api/Download"].includes(path)) return "/api/Download";
   return path;
 }
 

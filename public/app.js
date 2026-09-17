@@ -181,7 +181,9 @@ function openDialog(item, updateUrl) {
   const actions = create("div", "dialog-actions");
   if (item.PayloadUri) {
     const download = create("a", "primary-action", "Download item");
-    download.href = item.PayloadUri; download.target = "_blank"; download.rel = "noopener"; actions.append(download);
+    download.href = `/api/Download?id=${encodeURIComponent(item.Id)}`;
+    download.download = `${item.Name}.zip`;
+    actions.append(download);
   }
   const copyId = create("button", "secondary-action", "Copy ID");
   copyId.type = "button"; copyId.addEventListener("click", () => copyText(String(item.Id), copyId, "ID copied!"));

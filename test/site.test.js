@@ -35,5 +35,7 @@ test("workshop browser exposes IDs, creators, filtering, and item links", () => 
   assert.match(script, /steamcommunity\.com\/sharedfiles\/filedetails/);
   assert.match(script, /View on Steam Workshop/);
   assert.match(script, /api\/GetItem\?id=/);
+  assert.match(script, /api\/Download\?id=/);
+  assert.match(script, /download\.download = `\$\{item\.Name\}\.zip`/);
   assert.match(script, /navigator\.clipboard/);
 });

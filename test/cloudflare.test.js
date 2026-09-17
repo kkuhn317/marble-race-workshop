@@ -177,6 +177,40 @@ test("Cloudflare GetItem returns one item and 404 for an unknown id", async () =
   assert.equal(missing.status, 404);
 });
 
+test("Cloudflare Download streams a payload with the workshop item name", async () => {
+  const { onRequestGet, buildDownloadFilename } = await import("../functions/api/Download.js");
+  const target = await visibleCatalogItem((item) => Boolean(item.PayloadUri));
+  let fetchedUrl = "";
+  const response = await onRequestGet({
+    request: new Request(`https://marble.example.dev/api/Download?id=${target.Id}`),
+    fetch: async (url) => {
+      fetchedUrl = String(url);
+      return new Response("zip bytes", {
+        headers: { "content-type": "application/octet-stream", "content-length": "9" },
+      });
+    },
+  });
+
+  const filename = buildDownloadFilename(target.Name, target.Id);
+  assert.equal(fetchedUrl, target.PayloadUri);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("content-type"), "application/zip");
+  assert.match(response.headers.get("content-disposition"), /^attachment; filename=/);
+  assert.ok(response.headers.get("content-disposition").includes(encodeURIComponent(filename)));
+  assert.equal(await response.text(), "zip bytes");
+});
+
+test("Cloudflare Download sanitizes unsafe filenames and rejects missing items", async () => {
+  const { onRequestGet, buildDownloadFilename } = await import("../functions/api/Download.js");
+  assert.equal(buildDownloadFilename('Bad <name>: "test".zip', 42), "Bad _name__ _test_.zip");
+  assert.equal(buildDownloadFilename("CON", 42), "workshop-item-42.zip");
+  const response = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Download?id=999999999"),
+    fetch: async () => { throw new Error("A missing item must not fetch a payload"); },
+  });
+  assert.equal(response.status, 404);
+});
+
 test("Cloudflare hides moderated items from listings and direct lookups", async () => {
   const { onRequestGet: listItems } = await import("../functions/api/Items.js");
   const { onRequestGet: getItem } = await import("../functions/api/GetItem.js");
