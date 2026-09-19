@@ -269,15 +269,24 @@ test("Cloudflare Download counts only successful initial GET requests", async ()
   assert.equal(shouldCountDownload(new Request("https://example.test/file.zip", { headers: { range: "bytes=10-" } })), false);
 });
 
-test("D1 migration seeds every item from its current download count", () => {
+test("D1 migration retains a valid historical seed snapshot as the catalog grows", () => {
   const catalog = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../items.json"), "utf8"));
   const migration = fs.readFileSync(path.resolve(__dirname, "../migrations/0001_seed_download_counts.sql"), "utf8");
+  const seedRows = [...migration.matchAll(/\((\d+), (\d+), unixepoch\(\)\)/g)];
   const seeded = new Map(
-    [...migration.matchAll(/\((\d+), (\d+), unixepoch\(\)\)/g)]
-      .map((match) => [Number(match[1]), Number(match[2])]),
+    seedRows.map((match) => [Number(match[1]), Number(match[2])]),
   );
-  assert.equal(seeded.size, catalog.length);
-  for (const item of catalog) assert.equal(seeded.get(item.Id), Number(item.Downloads || 0), `Item ${item.Id}`);
+  assert.ok(seedRows.length > 0);
+  assert.equal(seeded.size, seedRows.length, "Seed item IDs must be unique");
+  assert.match(migration, /ON CONFLICT\(item_id\) DO UPDATE SET downloads = MAX\(download_counts\.downloads, excluded\.downloads\)/);
+  for (const [id, downloads] of seeded) {
+    assert.ok(Number.isSafeInteger(id) && id >= 0);
+    assert.ok(Number.isSafeInteger(downloads) && downloads >= 0);
+  }
+  for (const item of catalog) {
+    assert.ok(Number.isSafeInteger(Number(item.Id)) && Number(item.Id) >= 0);
+    assert.ok(Number.isSafeInteger(Number(item.Downloads || 0)) && Number(item.Downloads || 0) >= 0);
+  }
 });
 
 test("Cloudflare Download sanitizes unsafe filenames and rejects missing items", async () => {
