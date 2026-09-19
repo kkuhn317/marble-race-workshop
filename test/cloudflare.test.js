@@ -236,6 +236,33 @@ test("Cloudflare Download streams a payload with the workshop item name", async 
   assert.equal(await response.text(), "zip bytes");
 });
 
+test("Website can download a normalized legacy level without changing the in-game payload", async () => {
+  const { onRequestGet } = await import("../functions/api/Download.js");
+  const { items } = await import("../cloudflare/catalog.mjs");
+  const source = items.find((item) => item.Id === 804);
+  assert.ok(source);
+  const fetchedUrls = [];
+  const fetchArchive = async (url) => {
+    fetchedUrls.push(String(url));
+    return new Response("zip bytes");
+  };
+
+  const gameDownload = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Download?id=804"),
+    fetch: fetchArchive,
+  });
+  const manualDownload = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Download?id=804&manual=1"),
+    fetch: fetchArchive,
+  });
+
+  assert.equal(gameDownload.status, 200);
+  assert.equal(manualDownload.status, 200);
+  assert.equal(fetchedUrls[0], source.PayloadUri);
+  assert.match(fetchedUrls[1], /\/manual\/payloads\/arctic-area-804-9f284485\.zip$/);
+  assert.equal(manualDownload.headers.get("content-disposition"), gameDownload.headers.get("content-disposition"));
+});
+
 test("Cloudflare Download counts only successful initial GET requests", async () => {
   const { onRequestGet } = await import("../functions/api/Download.js");
   const { shouldCountDownload } = await import("../cloudflare/download-counts.mjs");

@@ -181,7 +181,7 @@ function openDialog(item, updateUrl) {
   const actions = create("div", "dialog-actions");
   if (item.PayloadUri) {
     const download = create("a", "primary-action", "Download item");
-    download.href = `/api/Download?id=${encodeURIComponent(item.Id)}`;
+    download.href = `/api/Download?id=${encodeURIComponent(item.Id)}&manual=1`;
     download.download = `${item.Name}.zip`;
     actions.append(download);
   }
