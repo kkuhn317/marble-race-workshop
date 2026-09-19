@@ -14,10 +14,17 @@ const steam = JSON.parse(steamText);
 if (!level.BlockGroups || typeof level.BlockGroups !== "object") {
   throw new Error("The level does not contain embedded BlockGroups.");
 }
+// Transitional levels store their playable scene under BlockGroups.root.
+// Writing the surrounding name-to-group dictionary as block.json produces a
+// syntactically valid file that the game loads as an empty level.
+const blockRoot = level.BlockGroups.root || level.BlockGroups;
+if (!Array.isArray(blockRoot.Children)) {
+  throw new Error("The embedded block scene has no Children array.");
+}
 
 // A few early levels contain hundreds of nested empty containers. Traverse
 // iteratively so conversion is not limited by Windows PowerShell's recursion.
-const pending = [level.BlockGroups];
+const pending = [blockRoot];
 while (pending.length) {
   const node = pending.pop();
   if (!node || typeof node !== "object") continue;
@@ -34,7 +41,6 @@ while (pending.length) {
 }
 
 const materials = Array.isArray(level.Materials) ? level.Materials : [];
-const blockGroups = level.BlockGroups;
 delete level.BlockGroups;
 delete level.Materials;
 level.WorkshopId = Number(steam.publishedfileid);
@@ -46,7 +52,7 @@ level.Version = String(level.Version || "1.0.0");
 level.Type = "Level";
 
 await Promise.all([
-  writeFile(blockPath, `${JSON.stringify(blockGroups, null, 2)}\n`, "utf8"),
+  writeFile(blockPath, `${JSON.stringify(blockRoot, null, 2)}\n`, "utf8"),
   writeFile(levelPath, `${JSON.stringify(level, null, 2)}\n`, "utf8"),
   writeFile(summaryPath, `${JSON.stringify({ Materials: materials }, null, 2)}\n`, "utf8"),
 ]);

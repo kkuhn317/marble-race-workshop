@@ -179,13 +179,12 @@ function openDialog(item, updateUrl) {
   details.append(detail("Item ID", String(item.Id)), detail("Vote score", item.Rating.toLocaleString()), detail("Published", formatDate(item.TimeStamp)), detail("Game version", item.Version), detail("Downloads", item.Downloads.toLocaleString()), detail("Download size", formatBytes(item.PayloadLength)));
   body.append(details);
   const actions = create("div", "dialog-actions");
-  if (item.PayloadUri && item.Id !== 804) {
+  if (item.PayloadUri) {
     const download = create("a", "primary-action", "Download item");
-    download.href = `/api/Download?id=${encodeURIComponent(item.Id)}`;
+    download.href = `/api/Download?id=${encodeURIComponent(item.Id)}&manual=1`;
     download.download = `${item.Name}.zip`;
     actions.append(download);
   }
-  if (item.Id === 804) actions.append(create("p", "", "Manual download temporarily unavailable for this older level. Please download it in-game."));
   const copyId = create("button", "secondary-action", "Copy ID");
   copyId.type = "button"; copyId.addEventListener("click", () => copyText(String(item.Id), copyId, "ID copied!"));
   const api = create("a", "secondary-action", "View API record");

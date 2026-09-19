@@ -2,6 +2,7 @@ import { items } from "../../cloudflare/catalog.mjs";
 import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
 import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs";
 import { incrementDownloadCount, shouldCountDownload } from "../../cloudflare/download-counts.mjs";
+import { manualPayloadUri } from "../../cloudflare/manual-downloads.mjs";
 
 const FORWARDED_REQUEST_HEADERS = ["range", "if-range", "if-none-match", "if-modified-since"];
 
@@ -16,7 +17,12 @@ export async function onRequestGet(context) {
     : items.map(applyMetadataOverrides).find((candidate) => candidate.Id === id);
   if (!item || !item.PayloadUri) return errorResponse("Item not found", 404);
 
-  const response = await proxyItemDownload(item, context.request, context.fetch || fetch);
+  const manualUri = url.searchParams.get("manual") === "1" ? manualPayloadUri(item.Id) : undefined;
+  const response = await proxyItemDownload(
+    manualUri ? { ...item, PayloadUri: manualUri } : item,
+    context.request,
+    context.fetch || fetch,
+  );
   if (response.ok && shouldCountDownload(context.request) && context.env?.DOWNLOADS_DB) {
     const update = incrementDownloadCount(context.env.DOWNLOADS_DB, item)
       .catch((error) => console.warn(JSON.stringify({
