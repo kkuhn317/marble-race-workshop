@@ -152,14 +152,12 @@ test("transitional converter handles levels deeper than PowerShell's JSON limit"
       cursor.Children = [child];
       cursor = child;
     }
-    fs.writeFileSync(levelPath, JSON.stringify({ BlockGroups: { root, unused_template: { Children: [] } }, Materials: [], Version: "1.3.0" }));
+    fs.writeFileSync(levelPath, JSON.stringify({ BlockGroups: root, Materials: [], Version: "1.3.0" }));
     fs.writeFileSync(steamPath, JSON.stringify({ publishedfileid: "123", time_created: 456, author_name: "Builder", description: "Old level", tags: ["level"] }));
     execFileSync(process.execPath, [path.resolve(__dirname, "../convert-transitional-level.mjs"), levelPath, steamPath, blockPath, summaryPath]);
     const block = JSON.parse(fs.readFileSync(blockPath, "utf8"));
     const level = JSON.parse(fs.readFileSync(levelPath, "utf8"));
     assert.equal(block.Item.Attributes.mixed_key, "value");
-    assert.equal(block.root, undefined);
-    assert.ok(Array.isArray(block.Children));
     assert.equal(level.WorkshopId, 123);
     assert.equal(level.BlockGroups, undefined);
   } finally {

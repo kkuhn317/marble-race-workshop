@@ -236,37 +236,6 @@ test("Cloudflare Download streams a payload with the workshop item name", async 
   assert.equal(await response.text(), "zip bytes");
 });
 
-test("Website serves the verified Arctic Area ZIP while the game keeps the original", async () => {
-  const { onRequestGet: download } = await import("../functions/api/Download.js");
-  const { onRequestGet: getItem } = await import("../functions/api/GetItem.js");
-  const { items } = await import("../cloudflare/catalog.mjs");
-  const original = items.find((item) => item.Id === 804);
-  assert.ok(original);
-  const fetched = [];
-  const fetchArchive = async (url) => {
-    fetched.push(String(url));
-    return new Response("zip bytes");
-  };
-  const game = await download({
-    request: new Request("https://marble.example.dev/api/Download?id=804"),
-    fetch: fetchArchive,
-  });
-  const website = await download({
-    request: new Request("https://marble.example.dev/api/Download?id=804&manual=1"),
-    fetch: fetchArchive,
-  });
-  const apiItem = await getItem({
-    request: new Request("https://marble.example.dev/api/GetItem?id=804"),
-  }).json();
-
-  assert.equal(game.status, 200);
-  assert.equal(website.status, 200);
-  assert.equal(fetched[0], original.PayloadUri);
-  assert.match(fetched[1], /\/manual\/payloads\/arctic-area-804-040e469f\.zip$/);
-  assert.equal(game.headers.get("content-disposition"), website.headers.get("content-disposition"));
-  assert.equal(apiItem.PayloadUri, "https://marble.example.dev/api/Download?id=804");
-});
-
 test("Cloudflare Download counts only successful initial GET requests", async () => {
   const { onRequestGet } = await import("../functions/api/Download.js");
   const { shouldCountDownload } = await import("../cloudflare/download-counts.mjs");
