@@ -21785,5 +21785,23 @@
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10039,
+        "Name":  "McDonalds Cradle",
+        "ResourceType":  0,
+        "TimeStamp":  1789960859,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT, rcdalph",
+        "PreviewUri":  "/previews/mcdonalds-cradle.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/mcdonalds-cradle-1789960859.zip",
+        "Description":  "Arctic Area has finally been dethroned after 7 years... by a mcdonalds themed level. Music: Mcdonalds :D",
+        "PayloadLength":  6318897,
+        "Version":  "1.4.17",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ]
