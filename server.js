@@ -85,6 +85,7 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (requestUrl.pathname.startsWith("/previews/")
+      || requestUrl.pathname.startsWith("/featured/")
       || requestUrl.pathname.startsWith("/payloads/")
       || requestUrl.pathname === "/styles.css"
       || requestUrl.pathname === "/app.js") {

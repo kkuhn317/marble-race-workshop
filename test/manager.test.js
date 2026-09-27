@@ -68,7 +68,8 @@ test("manager API is local and requires its session token", async (context) => {
   const body = await authorized.json();
   assert.ok(body.items.length > 500);
   assert.ok(body.items.some((item) => item.Hidden));
-  assert.deepEqual(body.featuredHistory.map((entry) => entry.ItemId), [10002, 726, 749]);
+  assert.deepEqual(body.featuredHistory.slice(0, 3).map((entry) => entry.ItemId), [10002, 726, 749]);
+  assert.ok(body.featuredHistory.length >= 3);
   assert.ok(body.items.find((item) => item.Id === 726).PreviouslyFeatured);
   assert.equal(authorized.headers.get("access-control-allow-origin"), null);
 

@@ -1,9 +1,23 @@
-export const featuredItemId = 749;
-export const featuredPreviewUri = "/featured/item-749.png";
+export const featuredItemId = 705;
+export const featuredPreviewUri = "/featured/item-705.png";
+
 export const featuredHistory = [
-  { "ItemId": 10002, "FeaturedAt": "2026-09-07T23:04:06.000Z" },
-  { "ItemId": 726, "FeaturedAt": "2026-09-14T15:51:33.000Z" },
-  { "ItemId": 749, "FeaturedAt": "2026-09-20T02:47:43.000Z" }
+  {
+    "ItemId": 10002,
+    "FeaturedAt": "2026-09-07T23:04:06.000Z"
+  },
+  {
+    "ItemId": 726,
+    "FeaturedAt": "2026-09-14T15:51:33.000Z"
+  },
+  {
+    "ItemId": 749,
+    "FeaturedAt": "2026-09-20T02:47:43.000Z"
+  },
+  {
+    "ItemId": 705,
+    "FeaturedAt": "2026-09-27T20:42:52.165Z"
+  }
 ];
 
 export function isFeaturedItemId(id) {
