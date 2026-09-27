@@ -21838,6 +21838,9 @@ export function publicItem(item, requestUrl) {
       ? String(item.SteamWorkshopId)
       : "",
     Featured: Boolean(item.Featured),
+    FeatureDates: Array.isArray(item.FeatureDates) ? item.FeatureDates : [],
+    FeaturedCount: Number(item.FeaturedCount) || 0,
+    PreviouslyFeatured: Boolean(item.PreviouslyFeatured),
   };
 }
 

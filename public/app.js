@@ -7,6 +7,7 @@ const elements = {
   type: document.querySelector("#type-filter"), sort: document.querySelector("#sort-filter"),
   total: document.querySelector("#total-count"), resultCount: document.querySelector("#result-count"),
   status: document.querySelector("#status"), grid: document.querySelector("#item-grid"), featured: document.querySelector("#featured-spotlight"),
+  featuredHistory: document.querySelector("#featured-history"), featuredHistoryList: document.querySelector("#featured-history-list"),
   loadMore: document.querySelector("#load-more"), dialog: document.querySelector("#item-dialog"),
   dialogContent: document.querySelector("#dialog-content"), dialogClose: document.querySelector("#dialog-close"),
 };
@@ -66,6 +67,9 @@ function normalizeItem(item) {
     Downloads: Number(item.Downloads) || 0,
     SteamWorkshopId: /^\d+$/.test(String(item.SteamWorkshopId || "")) ? String(item.SteamWorkshopId) : "",
     Featured: Boolean(item.Featured),
+    FeatureDates: Array.isArray(item.FeatureDates) ? item.FeatureDates.filter((value) => !Number.isNaN(new Date(value).valueOf())) : [],
+    FeaturedCount: Number(item.FeaturedCount) || 0,
+    PreviouslyFeatured: Boolean(item.PreviouslyFeatured),
   };
 }
 
@@ -99,6 +103,7 @@ function sortItems(items, sort) {
 
 function renderItems() {
   renderFeaturedSpotlight();
+  renderFeaturedHistory();
   elements.grid.replaceChildren();
   const shownItems = filteredItems.slice(0, visibleCount);
   if (!shownItems.length) {
@@ -132,6 +137,28 @@ function renderFeaturedSpotlight() {
   const open = create("button", "featured-open", "View item");
   open.type = "button"; open.addEventListener("click", () => openDialog(item, true));
   elements.featured.append(image, copy, open);
+}
+
+function renderFeaturedHistory() {
+  const history = allItems
+    .filter((item) => item.PreviouslyFeatured && !item.Featured)
+    .sort((left, right) => new Date(right.FeatureDates.at(-1)) - new Date(left.FeatureDates.at(-1)));
+  elements.featuredHistoryList.replaceChildren();
+  elements.featuredHistory.hidden = history.length === 0;
+  if (!history.length) return;
+  const fragment = document.createDocumentFragment();
+  for (const item of history) {
+    const button = create("button", "featured-history-item");
+    button.type = "button";
+    button.addEventListener("click", () => openDialog(item, true));
+    const image = document.createElement("img");
+    image.src = item.PreviewUri; image.alt = ""; image.loading = "lazy";
+    image.addEventListener("error", () => image.remove(), { once: true });
+    const copy = create("span", "featured-history-copy");
+    copy.append(create("strong", "", item.Name), create("small", "", `${formatFeatureDate(item.FeatureDates.at(-1))}${item.FeaturedCount > 1 ? ` · Featured ${item.FeaturedCount} times` : ""}`));
+    button.append(image, copy); fragment.append(button);
+  }
+  elements.featuredHistoryList.append(fragment);
 }
 
 function createItemCard(item) {
@@ -173,6 +200,7 @@ function openDialog(item, updateUrl) {
   const labels = create("div", "dialog-labels");
   labels.append(create("span", "", typeNameFor(item)), create("span", "", `Workshop ID ${item.Id}`));
   if (item.Featured) labels.append(create("span", "featured-dialog-label", "Featured item of the week"));
+  else if (item.PreviouslyFeatured) labels.append(create("span", "featured-dialog-label", `Previously featured${item.FeaturedCount > 1 ? ` ${item.FeaturedCount} times` : ""}`));
   const title = create("h2", "", item.Name); title.id = "dialog-name";
   body.append(labels, title, create("p", "dialog-author", `Created by ${item.AuthorName}`), create("p", "dialog-description", item.Description || "No description was provided."));
   const details = create("div", "details-grid");
@@ -239,6 +267,11 @@ function typeNameFor(item) { return TYPE_NAMES[item.ResourceType] || "Item"; }
 function formatDate(timestamp) {
   if (!timestamp) return "Unknown date";
   return new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(new Date(timestamp * 1000));
+}
+function formatFeatureDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) return "Unknown date";
+  return new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric" }).format(date);
 }
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) return "Unknown";

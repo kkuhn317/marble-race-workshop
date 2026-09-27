@@ -48,6 +48,7 @@ input:focus,select:focus,textarea:focus { border-color:var(--blue); box-shadow:0
 .asset .pill.type { color:#591438; background:#fde1ee; }
 .hidden .pill.state { color:white; background:var(--danger); }
 .pill.featured-state { color:#3c2a00; background:var(--yellow); }
+.pill.featured-before { color:#54440e; background:#fff2b9; }
 .row-actions { display:flex; gap:.4rem; }
 .row-actions button,.tool-card button,.bulk-actions button,.dialog-actions button { padding:.55rem .72rem; color:var(--blue); background:#eef2ff; border:1px solid #c4d0ea; border-radius:8px; font-size:.75rem; font-weight:750; }
 .row-actions .visibility-button { min-width:5rem; color:white; background:var(--blue); border-color:var(--blue); }

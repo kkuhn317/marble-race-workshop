@@ -123,6 +123,22 @@ test("featured items precede vote score without modifying their payload", async 
   assert.equal(featured.PayloadUri, "/two.zip");
 });
 
+test("featured history preserves every known selection and is public", async () => {
+  const { onRequestGet } = await import("../functions/api/Items.js");
+  const { featuredHistory } = await import("../cloudflare/featured.mjs");
+  assert.deepEqual(featuredHistory.map((entry) => entry.ItemId), [10002, 726, 749]);
+  const result = await onRequestGet({
+    request: new Request("https://marble.example.dev/api/Items?limit=1000"),
+  }).json();
+  for (const id of [10002, 726, 749]) {
+    const item = result.find((candidate) => candidate.Id === id);
+    assert.ok(item, `Featured item #${id} must be public`);
+    assert.equal(item.PreviouslyFeatured, true);
+    assert.ok(item.FeaturedCount >= 1);
+    assert.ok(Array.isArray(item.FeatureDates));
+  }
+});
+
 test("Items applies the configured feature instead of the Array.map index", async () => {
   const { onRequestGet } = await import("../functions/api/Items.js");
   const { featuredItemId } = await import("../cloudflare/featured.mjs");

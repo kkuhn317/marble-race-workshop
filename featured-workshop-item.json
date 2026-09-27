@@ -1,4 +1,18 @@
 {
-  "SchemaVersion": 1,
-  "ItemId": 749
+  "SchemaVersion": 2,
+  "ItemId": 749,
+  "History": [
+    {
+      "ItemId": 10002,
+      "FeaturedAt": "2026-09-07T23:04:06.000Z"
+    },
+    {
+      "ItemId": 726,
+      "FeaturedAt": "2026-09-14T15:51:33.000Z"
+    },
+    {
+      "ItemId": 749,
+      "FeaturedAt": "2026-09-20T02:47:43.000Z"
+    }
+  ]
 }

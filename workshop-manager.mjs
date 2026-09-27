@@ -60,19 +60,34 @@ export function buildOverridesModule(overrides) {
     + "}\n";
 }
 
-export function buildFeaturedModule(itemId) {
+export function normalizeFeaturedHistory(value) {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry) => {
+    const itemId = Number(entry?.ItemId);
+    const featuredAt = new Date(entry?.FeaturedAt || "");
+    return Number.isSafeInteger(itemId) && itemId >= 0 && !Number.isNaN(featuredAt.valueOf())
+      ? [{ ItemId: itemId, FeaturedAt: featuredAt.toISOString() }]
+      : [];
+  });
+}
+
+export function buildFeaturedModule(itemId, history = []) {
   const normalized = Number.isSafeInteger(itemId) ? itemId : null;
+  const normalizedHistory = normalizeFeaturedHistory(history);
   const previewUri = normalized === null ? "" : `/featured/item-${normalized}.png`;
   return `export const featuredItemId = ${normalized === null ? "null" : normalized};\n`
     + `export const featuredPreviewUri = ${JSON.stringify(previewUri)};\n\n`
+    + `export const featuredHistory = ${JSON.stringify(normalizedHistory, null, 2)};\n\n`
     + "export function isFeaturedItemId(id) {\n"
     + "  return Number.isSafeInteger(featuredItemId) && Number(id) === featuredItemId;\n"
     + "}\n\n"
-    + "export function applyFeaturedItem(item, selectedId = featuredItemId) {\n"
+    + "export function applyFeaturedItem(item, selectedId = featuredItemId, history = featuredHistory) {\n"
     + "  const featured = Number.isSafeInteger(selectedId) && Number(item.Id) === selectedId;\n"
+    + "  const featureDates = history.filter((entry) => Number(entry.ItemId) === Number(item.Id)).map((entry) => entry.FeaturedAt);\n"
+    + "  const result = { ...item, Featured: featured, FeatureDates: featureDates, FeaturedCount: featureDates.length, PreviouslyFeatured: featureDates.length > 0 };\n"
     + "  return featured\n"
-    + "    ? { ...item, Featured: true, PreviewUri: selectedId === featuredItemId && featuredPreviewUri ? featuredPreviewUri : `/featured/item-${selectedId}.png` }\n"
-    + "    : { ...item, Featured: false };\n"
+    + "    ? { ...result, PreviewUri: selectedId === featuredItemId && featuredPreviewUri ? featuredPreviewUri : `/featured/item-${selectedId}.png` }\n"
+    + "    : result;\n"
     + "}\n\n"
     + "export function compareFeaturedItems(left, right) {\n"
     + "  return Number(Boolean(right.Featured)) - Number(Boolean(left.Featured));\n"
@@ -243,13 +258,19 @@ async function readCatalog() {
   const hiddenIds = new Set((hiddenDocument.HiddenItemIds || []).map(Number));
   const overrides = overrideDocument.Items || {};
   const featuredId = Number.isSafeInteger(featuredDocument.ItemId) ? featuredDocument.ItemId : null;
+  const featuredHistory = normalizeFeaturedHistory(featuredDocument.History);
   const catalog = items.map((base) => ({
     ...base,
     ...(overrides[String(base.Id)] || {}),
     Hidden: hiddenIds.has(Number(base.Id)),
     HasOverride: Boolean(overrides[String(base.Id)]),
     Featured: Number(base.Id) === featuredId,
+    FeatureDates: featuredHistory.filter((entry) => entry.ItemId === Number(base.Id)).map((entry) => entry.FeaturedAt),
   }));
+  for (const item of catalog) {
+    item.FeaturedCount = item.FeatureDates.length;
+    item.PreviouslyFeatured = item.FeaturedCount > 0;
+  }
   return {
     items: catalog,
     stats: {
@@ -261,6 +282,7 @@ async function readCatalog() {
     dirty: getDirtyState(),
     duplicateReportAvailable: existsSync(resolve(ROOT, "duplicate-review.html")),
     featuredItemId: featuredId,
+    featuredHistory,
   };
 }
 
@@ -273,6 +295,7 @@ async function setFeatured(idValue, featuredValue) {
   const base = items.find((candidate) => Number(candidate.Id) === id);
   if (!base) throw new Error(`Workshop item #${id} does not exist.`);
   const currentId = Number.isSafeInteger(featuredDocument.ItemId) ? featuredDocument.ItemId : null;
+  const history = normalizeFeaturedHistory(featuredDocument.History);
   let nextId = currentId;
   if (featuredValue) {
     const hiddenIds = new Set((hiddenDocument.HiddenItemIds || []).map(Number));
@@ -280,17 +303,19 @@ async function setFeatured(idValue, featuredValue) {
     const effectiveItem = { ...base, ...((overrideDocument.Items || {})[String(id)] || {}) };
     await generateFeaturedPreview(effectiveItem, id);
     nextId = id;
+    if (currentId !== id) history.push({ ItemId: id, FeaturedAt: new Date().toISOString() });
   } else if (currentId === id) {
     nextId = null;
   }
   await Promise.all([
-    writeAtomic(FEATURED_PATH, `${JSON.stringify({ SchemaVersion: 1, ItemId: nextId }, null, 2)}\n`),
-    writeAtomic(FEATURED_MODULE_PATH, buildFeaturedModule(nextId)),
+    writeAtomic(FEATURED_PATH, `${JSON.stringify({ SchemaVersion: 2, ItemId: nextId, History: history }, null, 2)}\n`),
+    writeAtomic(FEATURED_MODULE_PATH, buildFeaturedModule(nextId, history)),
   ]);
   return {
     id,
     featured: nextId === id,
     featuredItemId: nextId,
+    featuredHistory: history,
     message: nextId === id ? `Featured #${id} locally.` : `Removed #${id} from the featured spot locally.`,
   };
 }

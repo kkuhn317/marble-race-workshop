@@ -14,12 +14,14 @@ test("manager generates deterministic moderation modules", async () => {
   assert.match(moduleText, /hiddenItemIds\.has\(Number\(id\)\)/);
 });
 
-test("manager generates featured configuration and a separate badged preview", async () => {
+test("manager generates featured configuration, history, and a separate badged preview", async () => {
   const { buildFeaturedModule, renderFeaturedPreview } = await import("../workshop-manager.mjs");
-  const moduleText = buildFeaturedModule(42);
+  const moduleText = buildFeaturedModule(42, [{ ItemId: 41, FeaturedAt: "2026-09-01T00:00:00Z" }]);
   assert.match(moduleText, /featuredItemId = 42/);
   assert.match(moduleText, /featured\/item-42\.png/);
   assert.match(moduleText, /selectedId === featuredItemId && featuredPreviewUri/);
+  assert.match(moduleText, /featuredHistory/);
+  assert.match(moduleText, /FeaturedCount/);
   const source = Buffer.from('<svg width="320" height="180" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="180" fill="#336699"/></svg>');
   const result = await renderFeaturedPreview(source);
   assert.deepEqual([...result.subarray(1, 4)], [80, 78, 71]);
@@ -66,6 +68,8 @@ test("manager API is local and requires its session token", async (context) => {
   const body = await authorized.json();
   assert.ok(body.items.length > 500);
   assert.ok(body.items.some((item) => item.Hidden));
+  assert.deepEqual(body.featuredHistory.map((entry) => entry.ItemId), [10002, 726, 749]);
+  assert.ok(body.items.find((item) => item.Id === 726).PreviouslyFeatured);
   assert.equal(authorized.headers.get("access-control-allow-origin"), null);
 
   const customItem = body.items.find((item) => item.Id >= 10000 && /^\/previews\/.+\.(?:png|jpe?g)$/i.test(item.PreviewUri));
@@ -98,6 +102,7 @@ test("manager UI exposes visibility, metadata, deployment, and tools", () => {
   assert.match(script, /Number\(b\.Rating \|\| 0\) - Number\(a\.Rating \|\| 0\)/);
   assert.match(script, /\/api\/featured/);
   assert.match(script, /Unfeature/);
+  assert.match(script, /Feature again/);
   assert.match(script, /\/api\/metadata/);
   assert.match(html, /id="edit-timestamp"/);
   assert.match(script, /TimeStamp: localInputToTimestamp/);

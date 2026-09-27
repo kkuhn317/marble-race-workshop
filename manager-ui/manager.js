@@ -132,13 +132,14 @@ function createRow(item) {
   meta.append(create("span", "pill type", typeName), create("span", "pill", `ID ${item.Id}`));
   if (item.HasOverride) meta.append(create("span", "pill", "Edited"));
   if (item.Featured) meta.append(create("span", "pill featured-state", "Featured"));
+  else if (item.PreviouslyFeatured) meta.append(create("span", "pill featured-before", `Featured before${item.FeaturedCount > 1 ? ` ×${item.FeaturedCount}` : ""}`));
   if (item.Hidden) meta.append(create("span", "pill state", "Hidden"));
   const actions = create("div", "row-actions");
   const edit = create("button", "", "Edit"); edit.type = "button"; edit.addEventListener("click", () => openEditor(item.Id));
   const update = create("button", "secondary", "Update file"); update.type = "button"; update.addEventListener("click", () => updateItemFile(item, update));
   const visibility = create("button", "visibility-button", item.Hidden ? "Unhide" : "Hide");
   visibility.type = "button"; visibility.addEventListener("click", () => changeVisibility(item, visibility));
-  const featured = create("button", "feature-button", item.Featured ? "Unfeature" : "Feature");
+  const featured = create("button", "feature-button", item.Featured ? "Unfeature" : item.PreviouslyFeatured ? "Feature again" : "Feature");
   featured.type = "button"; featured.disabled = item.Hidden && !item.Featured;
   featured.title = item.Hidden && !item.Featured ? "Unhide this item before featuring it" : "";
   featured.addEventListener("click", () => changeFeatured(item, featured));
@@ -169,12 +170,26 @@ async function changeVisibility(item, button) {
 
 async function changeFeatured(item, button) {
   const existing = items.find((candidate) => candidate.Featured && candidate.Id !== item.Id);
-  if (!item.Featured && existing
-    && !window.confirm(`Replace “${existing.Name}” with “${item.Name}” as the featured item of the week?`)) return;
+  if (!item.Featured) {
+    const prior = item.FeatureDates?.length
+      ? `\n\nThis item was already featured ${item.FeatureDates.length === 1 ? "once" : `${item.FeatureDates.length} times`}, most recently on ${formatFeatureDate(item.FeatureDates.at(-1))}.`
+      : "";
+    const question = existing
+      ? `Replace “${existing.Name}” with “${item.Name}” as the featured item of the week?${prior}`
+      : `Feature “${item.Name}” as the item of the week?${prior}`;
+    if (!window.confirm(question)) return;
+  }
   button.disabled = true;
   try {
     const payload = await api("/api/featured", { method: "POST", body: JSON.stringify({ id: item.Id, featured: !item.Featured }) });
     items.forEach((candidate) => { candidate.Featured = payload.featuredItemId === candidate.Id; });
+    if (payload.featuredHistory) {
+      items.forEach((candidate) => {
+        candidate.FeatureDates = payload.featuredHistory.filter((entry) => entry.ItemId === candidate.Id).map((entry) => entry.FeaturedAt);
+        candidate.FeaturedCount = candidate.FeatureDates.length;
+        candidate.PreviouslyFeatured = candidate.FeaturedCount > 0;
+      });
+    }
     updateDirty(payload.dirty);
     renderItems();
     showToast(`${payload.message} Press Publish changes when ready.`);
@@ -285,4 +300,8 @@ function timestampToLocalInput(timestamp) {
 function localInputToTimestamp(value) {
   const milliseconds = new Date(value).getTime();
   return Number.isFinite(milliseconds) ? Math.floor(milliseconds / 1000) : 0;
+}
+function formatFeatureDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.valueOf()) ? "an unknown date" : date.toLocaleDateString();
 }
