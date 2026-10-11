@@ -117,7 +117,7 @@ function sortItems(values, sort) {
     name: (a, b) => text(a.Name).localeCompare(text(b.Name)) || a.Id - b.Id,
     author: (a, b) => text(a.AuthorName).localeCompare(text(b.AuthorName)) || text(a.Name).localeCompare(text(b.Name)) || a.Id - b.Id,
   };
-  values.sort(sorters[sort] || sorters["id-asc"]);
+  values.sort(sorters[sort] || sorters.new);
 }
 
 function createRow(item) {
