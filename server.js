@@ -4,6 +4,7 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const { randomUUID } = require("node:crypto");
+const creators = require("./creators.cjs");
 
 const HOST = process.env.MARBLE_HOST || "0.0.0.0";
 const PORT = parseInteger(process.env.MARBLE_PORT, 3000, 1, 65535);
@@ -199,11 +200,13 @@ function queryItems(items, params) {
   const sort = (params.get("sort") || "popular").toLocaleLowerCase();
 
   const filtered = items.filter((item) => {
+    const searchedCreator = creators.creatorSearch(search);
     const searchable = [item.Name, item.AuthorName, item.Description, ...(Array.isArray(item.Tags) ? item.Tags : [])]
       .filter(Boolean)
       .join(" ")
       .toLocaleLowerCase();
-    return (!search || searchable.includes(search) || Number(item.Id) === searchedId)
+    return (searchedCreator !== null ? Boolean(searchedCreator) && creators.matchesCreator(item, searchedCreator) : !search || searchable.includes(search) || Number(item.Id) === searchedId)
+      && creators.matchesCreator(item, (params.get("creator") || "").trim())
       && (types.size === 0 || types.has(Number(item.ResourceType)))
       && (!itemVersion || String(item.Version) === itemVersion)
       && (timeFrom === null || Number(item.TimeStamp) >= timeFrom)
@@ -244,6 +247,7 @@ function publicItem(item, request) {
     TimeStamp: Number(item.TimeStamp),
     AuthorId: rawInteger(item.AuthorId),
     AuthorName: String(item.AuthorName || ""),
+    CreatorNames: creators.creatorNames(item),
     PreviewUri: previewUri,
     PayloadUri: payloadUri,
     Description: String(item.Description || ""),

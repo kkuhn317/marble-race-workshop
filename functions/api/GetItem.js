@@ -3,6 +3,7 @@ import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
 import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs";
 import { applyFeaturedItem } from "../../cloudflare/featured.mjs";
 import { applyDownloadCount, downloadPayloadUri } from "../../cloudflare/download-counts.mjs";
+import creators from "../../creators.cjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -24,6 +25,7 @@ export function onRequestGet(context) {
 function publicDownloadItem(item, requestUrl) {
   return {
     ...publicItem(item, requestUrl),
+    CreatorNames: creators.creatorNames(item),
     PayloadUri: downloadPayloadUri(item.Id, requestUrl),
   };
 }

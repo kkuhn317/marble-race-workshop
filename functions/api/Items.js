@@ -3,11 +3,14 @@ import { isHiddenItemId } from "../../cloudflare/moderation.mjs";
 import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs";
 import { applyFeaturedItem, compareFeaturedItems } from "../../cloudflare/featured.mjs";
 import { applyDownloadCounts, downloadPayloadUri } from "../../cloudflare/download-counts.mjs";
+import creators from "../../creators.cjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
   const search = (url.searchParams.get("search") || "").trim().toLowerCase();
   const searchedId = parseSearchedId(search);
+  const searchedCreator = creators.creatorSearch(search);
+  const creator = (url.searchParams.get("creator") || "").trim();
   const types = new Set(
     (url.searchParams.get("type") || "")
       .split(",")
@@ -30,7 +33,8 @@ export function onRequestGet(context) {
         .join(" ")
         .toLowerCase();
       return !isHiddenItemId(item.Id)
-        && (!search || searchable.includes(search) || item.Id === searchedId)
+        && (searchedCreator !== null ? Boolean(searchedCreator) && creators.matchesCreator(item, searchedCreator) : !search || searchable.includes(search) || item.Id === searchedId)
+        && creators.matchesCreator(item, creator)
         && (types.size === 0 || types.has(item.ResourceType))
         && (timeFrom === null || item.TimeStamp >= timeFrom)
         && (timeTo === null || item.TimeStamp <= timeTo);
@@ -82,6 +86,7 @@ function parseSearchedId(search) {
 function publicItems(sourceItems, requestUrl) {
   return sourceItems.map((item) => ({
     ...publicItem(item, requestUrl),
+    CreatorNames: creators.creatorNames(item),
     PayloadUri: downloadPayloadUri(item.Id, requestUrl),
   }));
 }

@@ -5,6 +5,7 @@ const TYPE_NAMES = { 0: "Level", 1: "Asset", 2: "Campaign" };
 const elements = {
   form: document.querySelector("#filter-form"), search: document.querySelector("#search"),
   type: document.querySelector("#type-filter"), sort: document.querySelector("#sort-filter"),
+  creator: document.querySelector("#creator-filter"), creatorOptions: document.querySelector("#creator-options"),
   total: document.querySelector("#total-count"), resultCount: document.querySelector("#result-count"),
   status: document.querySelector("#status"), grid: document.querySelector("#item-grid"), featured: document.querySelector("#featured-spotlight"),
   featuredHistory: document.querySelector("#featured-history"), featuredHistoryList: document.querySelector("#featured-history-list"),
@@ -27,6 +28,7 @@ async function loadItems() {
     const payload = await response.json();
     if (!Array.isArray(payload)) throw new Error("The workshop returned an unexpected response.");
     allItems = payload.map(normalizeItem);
+    populateCreators();
     elements.total.textContent = allItems.length.toLocaleString();
     setStatus("ready");
     applyFilters();
@@ -41,6 +43,7 @@ function bindEvents() {
   elements.form.addEventListener("submit", (event) => event.preventDefault());
   elements.search.addEventListener("input", resetAndFilter);
   elements.type.addEventListener("change", resetAndFilter);
+  elements.creator.addEventListener("input", resetAndFilter);
   elements.sort.addEventListener("change", resetAndFilter);
   elements.loadMore.addEventListener("click", () => { visibleCount += PAGE_SIZE; renderItems(); });
   elements.dialogClose.addEventListener("click", closeDialog);
@@ -61,6 +64,7 @@ function normalizeItem(item) {
   return {
     Id: Number(item.Id), Name: String(item.Name || "Untitled item"), ResourceType: Number(item.ResourceType),
     TimeStamp: Number(item.TimeStamp) || 0, AuthorName: String(item.AuthorName || "Unknown creator"),
+    CreatorNames: Array.isArray(item.CreatorNames) ? item.CreatorNames : [String(item.AuthorName || "Unknown creator")],
     PreviewUri: String(item.PreviewUri || ""), PayloadUri: String(item.PayloadUri || ""),
     Description: String(item.Description || ""), PayloadLength: Number(item.PayloadLength) || 0,
     Version: String(item.Version || "Unknown"), Rating: Number(item.Rating) || 0,
@@ -77,10 +81,15 @@ function applyFilters(updateUrl = true) {
   if (!allItems.length) return;
   const query = elements.search.value.trim().toLocaleLowerCase();
   const selectedType = elements.type.value;
+  const selectedCreator = creatorKey(elements.creator.value);
+  const creatorQuery = /^(?:creator|author):\s*(.*)$/i.exec(query);
+  const exactCreator = creatorQuery ? creatorKey(creatorQuery[1].replace(/^"(.*)"$/, "$1")) : null;
   filteredItems = allItems.filter((item) => {
     const matchesType = selectedType === "all" || String(item.ResourceType) === selectedType;
     const searchable = [item.Id, `#${item.Id}`, item.Name, item.AuthorName, item.Description].join(" ").toLocaleLowerCase();
-    return matchesType && (!query || searchable.includes(query));
+    return matchesType
+      && (!selectedCreator || item.CreatorNames.some((name) => creatorKey(name) === selectedCreator))
+      && (exactCreator !== null ? Boolean(exactCreator) && item.CreatorNames.some((name) => creatorKey(name) === exactCreator) : !query || searchable.includes(query));
   });
   sortItems(filteredItems, elements.sort.value);
   if (updateUrl) updateFilterUrl();
@@ -178,7 +187,7 @@ function createItemCard(item) {
   const body = create("div", "card-body");
   body.append(create("h3", "", item.Name));
   const byline = create("p", "byline");
-  byline.append("by ", create("strong", "", item.AuthorName));
+  byline.append("by ", creatorLinks(item));
   body.append(byline);
   const bottom = create("div", "card-bottom");
   const cardFacts = create("div", "card-facts");
@@ -202,7 +211,9 @@ function openDialog(item, updateUrl) {
   if (item.Featured) labels.append(create("span", "featured-dialog-label", "Featured item of the week"));
   else if (item.PreviouslyFeatured) labels.append(create("span", "featured-dialog-label", `Previously featured${item.FeaturedCount > 1 ? ` ${item.FeaturedCount} times` : ""}`));
   const title = create("h2", "", item.Name); title.id = "dialog-name";
-  body.append(labels, title, create("p", "dialog-author", `Created by ${item.AuthorName}`), create("p", "dialog-description", item.Description || "No description was provided."));
+  const authors = create("p", "dialog-author");
+  authors.append("Created by ", creatorLinks(item));
+  body.append(labels, title, authors, create("p", "dialog-description", item.Description || "No description was provided."));
   const details = create("div", "details-grid");
   details.append(detail("Item ID", String(item.Id)), detail("Vote score", item.Rating.toLocaleString()), detail("Published", formatDate(item.TimeStamp)), detail("Game version", item.Version), detail("Downloads", item.Downloads.toLocaleString()), detail("Download size", formatBytes(item.PayloadLength)));
   body.append(details);
@@ -245,16 +256,42 @@ function updateFilterUrl() {
   const url = new URL(window.location.href);
   setOrDelete(url.searchParams, "q", elements.search.value.trim(), "");
   setOrDelete(url.searchParams, "type", elements.type.value, "all");
+  setOrDelete(url.searchParams, "creator", elements.creator.value.trim(), "");
   setOrDelete(url.searchParams, "sort", elements.sort.value, "new");
   history.replaceState(null, "", url);
 }
 function restoreControlsFromUrl() {
   const params = new URL(window.location.href).searchParams;
   elements.search.value = params.get("q") || "";
+  elements.creator.value = params.get("creator") || "";
   elements.type.value = ["all", "0", "1", "2"].includes(params.get("type")) ? params.get("type") : "all";
   elements.sort.value = ["new", "votes", "downloads", "old", "name", "author", "id-asc", "id-desc"].includes(params.get("sort")) ? params.get("sort") : "new";
 }
 function setOrDelete(params, key, value, defaultValue) { if (value && value !== defaultValue) params.set(key, value); else params.delete(key); }
+function creatorKey(value) { return String(value || "").normalize("NFC").trim().toLowerCase(); }
+function populateCreators() {
+  const names = new Map();
+  for (const item of allItems) for (const name of item.CreatorNames) names.set(creatorKey(name), name);
+  elements.creatorOptions.replaceChildren();
+  for (const name of [...names.values()].sort((a, b) => a.localeCompare(b))) {
+    const option = document.createElement("option"); option.value = name; elements.creatorOptions.append(option);
+  }
+}
+function creatorLinks(item) {
+  const fragment = document.createDocumentFragment();
+  item.CreatorNames.forEach((name, index) => {
+    if (index) fragment.append(", ");
+    const link = create("a", "creator-link", name);
+    link.href = `/?creator=${encodeURIComponent(name)}`;
+    link.addEventListener("click", (event) => {
+      event.preventDefault(); closeDialog();
+      elements.search.value = ""; elements.type.value = "all"; elements.creator.value = name;
+      resetAndFilter(); elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    fragment.append(link);
+  });
+  return fragment;
+}
 function setStatus(mode, message = "") {
   elements.status.hidden = mode === "ready";
   if (mode === "ready") return;
