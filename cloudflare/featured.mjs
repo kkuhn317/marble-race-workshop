@@ -1,5 +1,5 @@
-export const featuredItemId = 10037;
-export const featuredPreviewUri = "/featured/item-10037.png";
+export const featuredItemId = 10026;
+export const featuredPreviewUri = "/featured/item-10026.png";
 
 export const featuredHistory = [
   {
@@ -25,6 +25,10 @@ export const featuredHistory = [
   {
     "ItemId": 10037,
     "FeaturedAt": "2026-10-11T18:05:20.232Z"
+  },
+  {
+    "ItemId": 10026,
+    "FeaturedAt": "2026-10-20T00:33:10.152Z"
   }
 ];
 
