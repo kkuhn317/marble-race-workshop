@@ -21804,5 +21804,23 @@
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10040,
+        "Name":  "Charlie Brown Cradle",
+        "ResourceType":  0,
+        "TimeStamp":  1792456197,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT, hyprcube",
+        "PreviewUri":  "/previews/charlie-brown-cradle.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/charlie-brown-cradle-1792456197.zip",
+        "Description":  "Arctic Area has finally been dethroned after 7 years... by a Peanuts level. And don\u0027t kick a football, otherwise you\u0027ll end up like Charlie Brown. OG Sound: U.N. - Owen Was Her",
+        "PayloadLength":  6761826,
+        "Version":  "1.5.3",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ]
