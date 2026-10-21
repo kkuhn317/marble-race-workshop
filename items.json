@@ -21822,5 +21822,41 @@
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10041,
+        "Name":  "Cosmic Cradle (Playable Version)",
+        "ResourceType":  0,
+        "TimeStamp":  1792626306,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT, SAGYT",
+        "PreviewUri":  "/previews/cosmic-cradle-playable-version.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/cosmic-cradle-playable-version-1792626306.zip",
+        "Description":  "Arctic Area has finally been dethroned after 7 years... by yet another purple level and made to be an easier version by SAGYT. Music: U.N. Owen Was Her (Slowed 0.7 Speed \u0026 -2 Pitched)",
+        "PayloadLength":  4900385,
+        "Version":  "1.5.3",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
+    },
+    {
+        "Id":  10042,
+        "Name":  "Baby Cosmic Cradle",
+        "ResourceType":  0,
+        "TimeStamp":  1792626325,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT",
+        "PreviewUri":  "/previews/baby-cosmic-cradle.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/baby-cosmic-cradle-1792626325.zip",
+        "Description":  "Baby Arctic Area has finally been dethroned after... wait, that\u0027s not a thing. Music: Claudio the Worm",
+        "PayloadLength":  5035992,
+        "Version":  "1.5.3",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ]
