@@ -1,308 +1,340 @@
 export const metadataOverrides = new Map([
-  [863,{"Description":"Inspired by Rollernauts It’s a roblox game"}],
-  [2037,{"Description":"My first level!\n\nDIFFICULTY: BEGINNER\nTARGET TIME RANGE: 1 - 1 1/2 minutes\n\nInspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.). \n\"Greenhorn\" means someone who is new to a task and doesn't have a lot of experience, so this race should be easy enough; just be careful though! \n\nTips: \n\n1. Make you sure you activate (roll over) the \"Checkpoint Pads\" (grey & white checkerboards) in this level. I may add these checkpoint pads on EVERY (future) level I make.\n\n2. Be careful rolling around; not a lot of fences. \n\nFeatures:\n• Vacuum enemies\n• 8-ball\n• Moving platform, and two elevators with bumpers\n• Mini bumpers\n• \"Pusher blocks\""}],
-  [2038,{"Description":"Inspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.) AND Orbit Spherez from Candystand.com, which was a game I used to play, back during my middle school years. \n\nDIFFICULTY: ADVANCED\nTARGET TIME RANGE: 1 1/2 - 5 minutes\n\nNOTE: This is a very challenging course; only play if you have the confidence/skills within the game!\n\nFEATURES:\n• Checkpoint Pads (grey & white checkerboards - roll over to activate!!)\n• 4x4 pyramids\n• Moving platforms, moving mace, and a couple of moving rail fences\n• \"Pusher Blocks\"\n• \"8-ball\" (Hint: use the \"pusher blocks\" to knock the 8-ball off the track, to your advantage!)\n• A roller-coaster like bridge with speed-ups at the bottom areas\n• Lots of bumpers, narrow platforms, turns and ramps, and a few tightrope bridges"}],
-  [2053,{"Description":"Inspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.) AND the Odd Race from Hamsterball (Gold), but this level is just my OWN design with my OWN concepts ONLY.\n\nDIFFICULTY: INTERMEDIATE to ADVANCED\nTARGET TIME RANGE: 1 1/2 - 3 1/2 minutes\n\nTIPS:\n• Just roll to/roll on/roll over the vertical walls, the \"forcezones\" from the level editor will do it for you!\n• You may need accurate, ninja-like control of your ball at THE FINAL PART OF THE LEVEL. Control your landing while your ball is flying. Be very careful though.\n\nFEATURES:\n• 90 degree angle vertical walls\n• Checkpoint Pads (grey & white checkerboards - roll over to activate!!)\n• Cylindrical pins (safety barriers, obstructive)\n• Regular and mini-bumpers\n• Moving blocks and still/moving cones (obstructive)\n• A few alternate routes near some of the walls"}],
-    [
-        700,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        710,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        723,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        725,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        726,
-        {
-            "Name":  "Hamsterball V 2.4.2"
-        }
-    ],
-    [
-        735,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        740,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        746,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        749,
-        {
-            "Name":  "Marble64 V0.0.3.4"
-        }
-    ],
-    [
-        751,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        773,
-        {
-            "AuthorName":  "✪ a1um"
-        }
-    ],
-    [
-        785,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        787,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        789,
-        {
-            "Name":  "dark dunkel sombre karanlık"
-        }
-    ],
-    [
-        791,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        797,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        823,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        827,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        838,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        857,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        873,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        882,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        917,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        920,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        954,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        999,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        1002,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        1003,
-        {
-            "AuthorName":  "✪ a1um"
-        }
-    ],
-    [
-        1004,
-        {
-            "AuthorName":  "✪ a1um"
-        }
-    ],
-    [
-        1133,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        1142,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        1266,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        1272,
-        {
-            "Name":  "551121ｸﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐ"
-        }
-    ],
-    [
-        1296,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        1304,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        1316,
-        {
-            "AuthorName":  "✪ a1um"
-        }
-    ],
-    [
-        1317,
-        {
-            "AuthorName":  "✪ a1um"
-        }
-    ],
-    [
-        1318,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        2000,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        2001,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        2020,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        2034,
-        {
-            "Name":  "粉色 Pink"
-        }
-    ],
-    [
-        2091,
-        {
-            "AuthorName":  "BookwormKevin"
-        }
-    ],
-    [
-        2113,
-        {
-            "AuthorName":  "mamapenguin1983"
-        }
-    ],
-    [
-        2117,
-        {
-            "AuthorName":  "Alex farl"
-        }
-    ],
-    [
-        10029,
-        {
-            "TimeStamp":  1597204800
-        }
-    ],
-    [
-        10030,
-        {
-            "TimeStamp":  1597204800
-        }
-    ],
-    [
-        10031,
-        {
-            "TimeStamp":  1597204800
-        }
-    ],
-    [
-        10032,
-        {
-            "TimeStamp":  1597204800
-        }
-    ],
-    [
-        10033,
-        {
-            "TimeStamp":  1597204800
-        }
-    ]
+  [
+    700,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    710,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    723,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    725,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    726,
+    {
+      "Name": "Hamsterball V 2.4.2"
+    }
+  ],
+  [
+    735,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    740,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    746,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    749,
+    {
+      "Name": "Marble64 V0.0.3.4"
+    }
+  ],
+  [
+    751,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    773,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
+    778,
+    {
+      "AuthorName": "Chiayang Lin Gonzalez"
+    }
+  ],
+  [
+    785,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    787,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    789,
+    {
+      "Name": "dark dunkel sombre karanlık"
+    }
+  ],
+  [
+    791,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    797,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    823,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    827,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    838,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    840,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
+    857,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    863,
+    {
+      "Description": "Inspired by Rollernauts It’s a roblox game"
+    }
+  ],
+  [
+    873,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    882,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    917,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    920,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    954,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    999,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1002,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1003,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
+    1004,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
+    1133,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1142,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1266,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1272,
+    {
+      "Name": "551121ｸﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐﾐ"
+    }
+  ],
+  [
+    1296,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1304,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    1316,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
+    1317,
+    {
+      "AuthorName": "✪ a1um"
+    }
+  ],
+  [
+    1318,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    2000,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    2001,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    2020,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    2034,
+    {
+      "Name": "粉色 Pink"
+    }
+  ],
+  [
+    2037,
+    {
+      "Description": "My first level!\n\nDIFFICULTY: BEGINNER\nTARGET TIME RANGE: 1 - 1 1/2 minutes\n\nInspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.). \n\"Greenhorn\" means someone who is new to a task and doesn't have a lot of experience, so this race should be easy enough; just be careful though! \n\nTips: \n\n1. Make you sure you activate (roll over) the \"Checkpoint Pads\" (grey & white checkerboards) in this level. I may add these checkpoint pads on EVERY (future) level I make.\n\n2. Be careful rolling around; not a lot of fences. \n\nFeatures:\n• Vacuum enemies\n• 8-ball\n• Moving platform, and two elevators with bumpers\n• Mini bumpers\n• \"Pusher blocks\""
+    }
+  ],
+  [
+    2038,
+    {
+      "Description": "Inspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.) AND Orbit Spherez from Candystand.com, which was a game I used to play, back during my middle school years. \n\nDIFFICULTY: ADVANCED\nTARGET TIME RANGE: 1 1/2 - 5 minutes\n\nNOTE: This is a very challenging course; only play if you have the confidence/skills within the game!\n\nFEATURES:\n• Checkpoint Pads (grey & white checkerboards - roll over to activate!!)\n• 4x4 pyramids\n• Moving platforms, moving mace, and a couple of moving rail fences\n• \"Pusher Blocks\"\n• \"8-ball\" (Hint: use the \"pusher blocks\" to knock the 8-ball off the track, to your advantage!)\n• A roller-coaster like bridge with speed-ups at the bottom areas\n• Lots of bumpers, narrow platforms, turns and ramps, and a few tightrope bridges"
+    }
+  ],
+  [
+    2053,
+    {
+      "Description": "Inspired by the Marble Blast series (Marble Blast Gold, Marble Blast Platinum, Ultra, etc.) AND the Odd Race from Hamsterball (Gold), but this level is just my OWN design with my OWN concepts ONLY.\n\nDIFFICULTY: INTERMEDIATE to ADVANCED\nTARGET TIME RANGE: 1 1/2 - 3 1/2 minutes\n\nTIPS:\n• Just roll to/roll on/roll over the vertical walls, the \"forcezones\" from the level editor will do it for you!\n• You may need accurate, ninja-like control of your ball at THE FINAL PART OF THE LEVEL. Control your landing while your ball is flying. Be very careful though.\n\nFEATURES:\n• 90 degree angle vertical walls\n• Checkpoint Pads (grey & white checkerboards - roll over to activate!!)\n• Cylindrical pins (safety barriers, obstructive)\n• Regular and mini-bumpers\n• Moving blocks and still/moving cones (obstructive)\n• A few alternate routes near some of the walls"
+    }
+  ],
+  [
+    2091,
+    {
+      "AuthorName": "BookwormKevin"
+    }
+  ],
+  [
+    2113,
+    {
+      "AuthorName": "mamapenguin1983"
+    }
+  ],
+  [
+    2117,
+    {
+      "AuthorName": "Alex farl"
+    }
+  ],
+  [
+    10029,
+    {
+      "TimeStamp": 1597204800
+    }
+  ],
+  [
+    10030,
+    {
+      "TimeStamp": 1597204800
+    }
+  ],
+  [
+    10031,
+    {
+      "TimeStamp": 1597204800
+    }
+  ],
+  [
+    10032,
+    {
+      "TimeStamp": 1597204800
+    }
+  ],
+  [
+    10033,
+    {
+      "TimeStamp": 1597204800
+    }
+  ]
 ]);
 
 export function applyMetadataOverrides(item) {
