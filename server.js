@@ -6,6 +6,7 @@ const path = require("node:path");
 const { randomUUID } = require("node:crypto");
 const creators = require("./creators.cjs");
 const membership = require("./campaign-membership.cjs");
+const { normalizeApiPath } = require("./api-path.cjs");
 
 const HOST = process.env.MARBLE_HOST || "0.0.0.0";
 const PORT = parseInteger(process.env.MARBLE_PORT, 3000, 1, 65535);
@@ -32,7 +33,7 @@ const MIME_TYPES = {
 
 const server = http.createServer(async (request, response) => {
   try {
-    const requestUrl = new URL(request.url, "http://localhost");
+    const requestUrl = new URL(request.url.startsWith("/") ? `http://localhost${request.url}` : request.url, "http://localhost");
     const apiPath = normalizeApiPath(requestUrl.pathname);
     console.log(`${new Date().toISOString()} ${request.method} ${requestUrl.pathname}${requestUrl.search}`);
 
@@ -171,18 +172,6 @@ function loadMetadataOverrides() {
     throw new Error("metadata-overrides.json must contain an Items object.");
   }
   return parsed.Items;
-}
-
-// Different game builds/custom-server screens may expect either a host URL or
-// an API base URL. Accept the common combinations so both entries work.
-function normalizeApiPath(urlPath) {
-  if (["/Items", "/api/Items", "/api/api/Items"].includes(urlPath)) {
-    return "/api/Items";
-  }
-  if (["/GetItem", "/api/GetItem", "/api/api/GetItem"].includes(urlPath)) {
-    return "/api/GetItem";
-  }
-  return urlPath;
 }
 
 function queryItems(items, params) {

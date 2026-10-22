@@ -7,11 +7,12 @@ import {
   onRequestOptions as optionsGetItem,
 } from "./functions/api/GetItem.js";
 import { onRequestGet as downloadItem } from "./functions/api/Download.js";
+import apiPaths from "./api-path.cjs";
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    const path = normalizeApiPath(url.pathname);
+    const path = apiPaths.normalizeApiPath(url.pathname);
 
     if (path === "/api/Items") {
       if (request.method === "OPTIONS") return optionsItems();
@@ -46,13 +47,6 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
-
-function normalizeApiPath(path) {
-  if (["/Items", "/api/Items", "/api/api/Items"].includes(path)) return "/api/Items";
-  if (["/GetItem", "/api/GetItem", "/api/api/GetItem"].includes(path)) return "/api/GetItem";
-  if (["/Download", "/api/Download", "/api/api/Download"].includes(path)) return "/api/Download";
-  return path;
-}
 
 function methodNotAllowed() {
   return new Response(JSON.stringify({ error: "Method not allowed" }), {

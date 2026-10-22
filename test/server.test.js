@@ -54,7 +54,7 @@ test("Local server serves the workshop browser and its assets", async () => {
 
 test("Items accepts custom-server URL path variants", async () => {
   const expectedCount = await fetch(`http://127.0.0.1:${PORT}/api/Items`).then((response) => response.json()).then((items) => items.length);
-  for (const path of ["/Items", "/api/api/Items"]) {
+  for (const path of ["/Items", "/api/api/Items", "//Items", "//api/Items", "/api//Items", "/Items/", "/api/Items/"]) {
     const response = await fetch(`http://127.0.0.1:${PORT}${path}`);
     assert.equal(response.status, 200);
     assert.equal((await response.json()).length, expectedCount);
