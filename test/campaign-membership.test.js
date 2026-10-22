@@ -43,6 +43,15 @@ test("changed uploads and hidden or removed campaigns cannot produce public link
   assert.deepEqual(buildCampaignMemberships([level, updatedCampaign], records), []);
 });
 
+test("approved alternate versions survive rescans but expire when an upload changes", () => {
+  const approval = { ...buildCampaignMemberships([level, campaign], [record(level, [component("level.json")]), record(campaign, [component("Track/level.json")])])[0], Match: "variant" };
+  assert.deepEqual(buildCampaignMemberships([level, campaign], [], [approval]), [approval]);
+  assert.deepEqual(buildCampaignMemberships([level, { ...campaign, PayloadLength: 999 }], [], [approval]), []);
+  const exact = buildCampaignMemberships([level, campaign], [record(level, [component("level.json")]), record(campaign, [component("Track/level.json")])], [approval]);
+  assert.equal(exact.length, 1);
+  assert.equal(exact[0].Match, "content");
+});
+
 test("both public API endpoints expose campaign matches and respect moderation", async () => {
   const { items } = await import("../cloudflare/catalog.mjs");
   const { hiddenItemIds } = await import("../cloudflare/moderation.mjs");

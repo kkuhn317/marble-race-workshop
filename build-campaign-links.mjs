@@ -8,7 +8,8 @@ const ROOT = fileURLToPath(new URL(".", import.meta.url));
 export async function refreshCampaignLinks() {
   const items = JSON.parse(await readFile(resolve(ROOT, "items.json"), "utf8"));
   const cache = JSON.parse(await readFile(resolve(ROOT, ".duplicate-scan-cache/fingerprints.json"), "utf8"));
-  const links = membership.buildCampaignMemberships(items, cache.Records || []);
+  const approvals = JSON.parse(await readFile(resolve(ROOT, "campaign-link-approvals.json"), "utf8"));
+  const links = membership.buildCampaignMemberships(items, cache.Records || [], approvals.Links || []);
   const destination = resolve(ROOT, "campaign-level-links.json");
   await writeFile(`${destination}.tmp`, `${JSON.stringify({ SchemaVersion: 1, Links: links }, null, 2)}\n`);
   await rename(`${destination}.tmp`, destination);

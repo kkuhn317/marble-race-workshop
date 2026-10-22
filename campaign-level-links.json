@@ -3,6 +3,19 @@
   "Links": [
     {
       "LevelId": 703,
+      "CampaignId": 726,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/703-1575799370.zip",
+        "Length": 934376
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/payloads/hamsterball-v-2-4-2-v2-1788491853.zip",
+        "Length": 38856794
+      }
+    },
+    {
+      "LevelId": 703,
       "CampaignId": 2106,
       "Match": "content",
       "LevelPayload": {
@@ -146,6 +159,19 @@
     },
     {
       "LevelId": 721,
+      "CampaignId": 882,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/721-1608439844.zip",
+        "Length": 2082707
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/882-1673649115.zip",
+        "Length": 42288314
+      }
+    },
+    {
+      "LevelId": 721,
       "CampaignId": 2106,
       "Match": "content",
       "LevelPayload": {
@@ -246,6 +272,19 @@
       "CampaignPayload": {
         "Uri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2111-1764778108.zip",
         "Length": 26888057
+      }
+    },
+    {
+      "LevelId": 729,
+      "CampaignId": 1040,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/729-1574311377.zip",
+        "Length": 57511
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1040-1717384554.zip",
+        "Length": 32647171
       }
     },
     {
@@ -457,6 +496,19 @@
       }
     },
     {
+      "LevelId": 790,
+      "CampaignId": 1040,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/790-1586455053.zip",
+        "Length": 2144128
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1040-1717384554.zip",
+        "Length": 32647171
+      }
+    },
+    {
       "LevelId": 791,
       "CampaignId": 1133,
       "Match": "layout",
@@ -467,6 +519,19 @@
       "CampaignPayload": {
         "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1133-1683843747.zip",
         "Length": 9064186
+      }
+    },
+    {
+      "LevelId": 808,
+      "CampaignId": 882,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/808-1580298913.zip",
+        "Length": 1232989
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/882-1673649115.zip",
+        "Length": 42288314
       }
     },
     {
@@ -652,6 +717,19 @@
       }
     },
     {
+      "LevelId": 835,
+      "CampaignId": 1298,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/835-1595270551.zip",
+        "Length": 61216
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1298-1577383813.zip",
+        "Length": 788590
+      }
+    },
+    {
       "LevelId": 837,
       "CampaignId": 1292,
       "Match": "content",
@@ -831,6 +909,19 @@
       "CampaignPayload": {
         "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1303-1574540756.zip",
         "Length": 694613
+      }
+    },
+    {
+      "LevelId": 866,
+      "CampaignId": 1286,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/866-1574533732.zip",
+        "Length": 80629
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1286-1592774412.zip",
+        "Length": 21195276
       }
     },
     {
@@ -961,6 +1052,19 @@
       "CampaignPayload": {
         "Uri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2082-1594168354.zip",
         "Length": 10401
+      }
+    },
+    {
+      "LevelId": 919,
+      "CampaignId": 882,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/919-1575799602.zip",
+        "Length": 43149
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/882-1673649115.zip",
+        "Length": 42288314
       }
     },
     {
@@ -1627,6 +1731,19 @@
       }
     },
     {
+      "LevelId": 2009,
+      "CampaignId": 1314,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2009-1542410307-legacy2.zip",
+        "Length": 73595
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1314-1560663011.zip",
+        "Length": 1157173
+      }
+    },
+    {
       "LevelId": 2010,
       "CampaignId": 1040,
       "Match": "layout",
@@ -1637,6 +1754,19 @@
       "CampaignPayload": {
         "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1040-1717384554.zip",
         "Length": 32647171
+      }
+    },
+    {
+      "LevelId": 2011,
+      "CampaignId": 1314,
+      "Match": "variant",
+      "LevelPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/steam-recovery/payloads/2011-1542523709-legacy2.zip",
+        "Length": 71132
+      },
+      "CampaignPayload": {
+        "Uri": "https://content.marble.kevin-kuhn.dev/official/payloads/1314-1560663011.zip",
+        "Length": 1157173
       }
     },
     {

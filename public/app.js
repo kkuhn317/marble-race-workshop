@@ -259,6 +259,7 @@ function createCampaignSection(item) {
     anchor.addEventListener("click", (event) => { event.preventDefault(); openDialog(campaign, true); });
     row.append(anchor, create("span", "", ` · ID ${campaign.Id}`));
     if (link.Match === "layout") row.append(create("small", "", "Same level layout; the campaign version may have different visuals or audio."));
+    if (link.Match === "variant") row.append(create("small", "", "Alternate version of this level; the campaign version has differences."));
     list.append(row);
   }
   section.append(list);

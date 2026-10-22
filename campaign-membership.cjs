@@ -10,7 +10,7 @@ function snapshot(item) {
   return { Uri: item.PayloadUri, Length: Number(item.PayloadLength) };
 }
 
-function buildCampaignMemberships(items, records) {
+function buildCampaignMemberships(items, records, approvedLinks = []) {
   const byId = new Map(items.map((item) => [Number(item.Id), item]));
   const valid = records.filter((record) => (record.FingerprintVersion === 2
     || (record.Components?.length > 0 && record.Components.every((part) => part.TokenCount > 0)))
@@ -38,6 +38,13 @@ function buildCampaignMemberships(items, records) {
       });
     }
     links.push(...campaigns.values());
+  }
+  for (const approved of approvedLinks) {
+    const level = byId.get(Number(approved.LevelId));
+    const campaign = byId.get(Number(approved.CampaignId));
+    if (level?.ResourceType !== 0 || campaign?.ResourceType !== 2 || approved.Match !== "variant"
+      || !payloadMatches(level, approved.LevelPayload) || !payloadMatches(campaign, approved.CampaignPayload)) continue;
+    if (!links.some((link) => link.LevelId === level.Id && link.CampaignId === campaign.Id)) links.push(approved);
   }
   return links.sort((a, b) => a.LevelId - b.LevelId || a.CampaignId - b.CampaignId);
 }
