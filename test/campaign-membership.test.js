@@ -21,6 +21,8 @@ test("campaign matching recognizes contents or layouts, deduplicates and ignores
   const links = buildCampaignMemberships([level, campaign], records);
   assert.equal(links.length, 1);
   assert.equal(links[0].Match, "content");
+  delete records[1].FingerprintVersion;
+  assert.equal(buildCampaignMemberships([level, campaign], records).length, 1, "Older records with complete geometry remain usable");
   records[1].Components.pop();
   assert.equal(buildCampaignMemberships([level, campaign], records)[0].Match, "layout");
   records[1].Components = [component("Track/backup/level.json"), component("Blocks/Template/level.json"), { ...component("Empty/level.json"), TokenCount: 0 }];

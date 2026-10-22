@@ -12,7 +12,8 @@ function snapshot(item) {
 
 function buildCampaignMemberships(items, records) {
   const byId = new Map(items.map((item) => [Number(item.Id), item]));
-  const valid = records.filter((record) => record.FingerprintVersion === 2
+  const valid = records.filter((record) => (record.FingerprintVersion === 2
+    || (record.Components?.length > 0 && record.Components.every((part) => part.TokenCount > 0)))
     && payloadMatches(byId.get(Number(record.ItemId)), { Uri: record.PayloadUri, Length: record.PayloadLength }));
   const playable = (record) => (record.Components || []).filter((part) => part.Kind === "level"
     && part.TokenCount >= 4 && !/(^|\/)(?:blocks|backups?|__macosx)(\/|$)/i.test(String(part.Path).replaceAll("\\", "/")));
