@@ -19,6 +19,7 @@ const OVERRIDES_MODULE_PATH = resolve(ROOT, "cloudflare", "metadata-overrides.mj
 const FEATURED_PATH = resolve(ROOT, "featured-workshop-item.json");
 const FEATURED_MODULE_PATH = resolve(ROOT, "cloudflare", "featured.mjs");
 const MANAGED_FILES = [
+  "campaign-level-links.json",
   "hidden-workshop-items.json",
   "cloudflare/moderation.mjs",
   "metadata-overrides.json",
@@ -477,6 +478,7 @@ function launchTool(toolValue, { managerOrigin = "", token = "" } = {}) {
     edit: { path: resolve(ROOT, "edit-workshop-item.bat"), label: "item editor" },
     bulk: { path: resolve(ROOT, "bulk-edit-workshop-metadata.bat"), label: "bulk metadata editor" },
     duplicates: { path: resolve(ROOT, "scan-workshop-duplicates.bat"), label: "duplicate scanner", passReviewSession: true },
+    campaignLinks: { path: resolve(ROOT, "refresh-campaign-links.bat"), label: "campaign link scanner" },
     mirror: { path: resolve(ROOT, "mirror-main-workshop.bat"), label: "official workshop mirror" },
     steamImport: { path: resolve(ROOT, "import-recovered-steam-workshop.bat"), label: "recovered Steam importer" },
     review: { path: DUPLICATE_REPORT_PATH, managerPage: true, label: "duplicate review" },

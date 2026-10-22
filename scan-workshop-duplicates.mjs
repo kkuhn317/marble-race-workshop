@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { applyMetadataOverrides } from "./cloudflare/metadata-overrides.mjs";
+import { refreshCampaignLinks } from "./build-campaign-links.mjs";
 
 const REPO_ROOT = dirname(fileURLToPath(import.meta.url));
 const ITEMS_PATH = join(REPO_ROOT, "items.json");
@@ -383,6 +384,7 @@ async function main() {
     Matches: matches,
   };
   await generateReport(report);
+  await refreshCampaignLinks();
   console.log(`\nReview page created: ${REPORT_PATH}`);
   console.log(`${matches.length} potential duplicate group(s) found; ${report.Stats.HighConfidenceGroups} are high confidence.`);
 }

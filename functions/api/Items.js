@@ -4,6 +4,7 @@ import { applyMetadataOverrides } from "../../cloudflare/metadata-overrides.mjs"
 import { applyFeaturedItem, compareFeaturedItems } from "../../cloudflare/featured.mjs";
 import { applyDownloadCounts, downloadPayloadUri } from "../../cloudflare/download-counts.mjs";
 import creators from "../../creators.cjs";
+import membership from "../../campaign-membership.cjs";
 
 export function onRequestGet(context) {
   const url = new URL(context.request.url);
@@ -87,6 +88,7 @@ function publicItems(sourceItems, requestUrl) {
   return sourceItems.map((item) => ({
     ...publicItem(item, requestUrl),
     CreatorNames: creators.creatorNames(item),
+    CampaignMemberships: membership.campaignsForLevel(item, items, isHiddenItemId),
     PayloadUri: downloadPayloadUri(item.Id, requestUrl),
   }));
 }

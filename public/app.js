@@ -65,6 +65,7 @@ function normalizeItem(item) {
     Id: Number(item.Id), Name: String(item.Name || "Untitled item"), ResourceType: Number(item.ResourceType),
     TimeStamp: Number(item.TimeStamp) || 0, AuthorName: String(item.AuthorName || "Unknown creator"),
     CreatorNames: Array.isArray(item.CreatorNames) ? item.CreatorNames : [String(item.AuthorName || "Unknown creator")],
+    CampaignMemberships: Array.isArray(item.CampaignMemberships) ? item.CampaignMemberships : [],
     PreviewUri: String(item.PreviewUri || ""), PayloadUri: String(item.PayloadUri || ""),
     Description: String(item.Description || ""), PayloadLength: Number(item.PayloadLength) || 0,
     Version: String(item.Version || "Unknown"), Rating: Number(item.Rating) || 0,
@@ -214,6 +215,8 @@ function openDialog(item, updateUrl) {
   const authors = create("p", "dialog-author");
   authors.append("Created by ", creatorLinks(item));
   body.append(labels, title, authors, create("p", "dialog-description", item.Description || "No description was provided."));
+  const campaignSection = createCampaignSection(item);
+  if (campaignSection) body.append(campaignSection);
   const details = create("div", "details-grid");
   details.append(detail("Item ID", String(item.Id)), detail("Vote score", item.Rating.toLocaleString()), detail("Published", formatDate(item.TimeStamp)), detail("Game version", item.Version), detail("Downloads", item.Downloads.toLocaleString()), detail("Download size", formatBytes(item.PayloadLength)));
   body.append(details);
@@ -240,6 +243,27 @@ function openDialog(item, updateUrl) {
 }
 
 function closeDialog() { if (elements.dialog.open) elements.dialog.close(); }
+function createCampaignSection(item) {
+  if (item.ResourceType !== 0) return null;
+  const campaigns = item.CampaignMemberships.map((link) => ({
+    link, campaign: allItems.find((candidate) => candidate.Id === Number(link.Id) && candidate.ResourceType === 2),
+  })).filter((entry) => entry.campaign);
+  if (!campaigns.length) return null;
+  const section = create("section", "campaign-memberships");
+  section.append(create("h3", "", campaigns.length === 1 ? "Also part of this campaign" : "Also part of these campaigns"));
+  const list = create("ul");
+  for (const { link, campaign } of campaigns) {
+    const row = create("li");
+    const anchor = create("a", "", campaign.Name);
+    anchor.href = `/?item=${encodeURIComponent(campaign.Id)}`;
+    anchor.addEventListener("click", (event) => { event.preventDefault(); openDialog(campaign, true); });
+    row.append(anchor, create("span", "", ` · ID ${campaign.Id}`));
+    if (link.Match === "layout") row.append(create("small", "", "Same level layout; the campaign version may have different visuals or audio."));
+    list.append(row);
+  }
+  section.append(list);
+  return section;
+}
 function openLinkedItem() {
   if (!allItems.length) return;
   const id = Number(new URL(window.location.href).searchParams.get("item"));

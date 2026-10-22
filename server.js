@@ -5,6 +5,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { randomUUID } = require("node:crypto");
 const creators = require("./creators.cjs");
+const membership = require("./campaign-membership.cjs");
 
 const HOST = process.env.MARBLE_HOST || "0.0.0.0";
 const PORT = parseInteger(process.env.MARBLE_PORT, 3000, 1, 65535);
@@ -125,9 +126,11 @@ function loadVisibleItems() {
   const hiddenItemIds = loadHiddenItemIds();
   const overrides = loadMetadataOverrides();
   const featuredItemId = loadFeaturedItemId();
-  return loadItems()
+  const items = loadItems();
+  return items
     .filter((item) => !hiddenItemIds.has(Number(item.Id)))
     .map((item) => ({ ...item, ...(overrides[String(item.Id)] || {}) }))
+    .map((item) => ({ ...item, CampaignMemberships: membership.campaignsForLevel(item, items, (id) => hiddenItemIds.has(Number(id))) }))
     .map((item) => Number(item.Id) === featuredItemId
       ? { ...item, Featured: true, PreviewUri: `/featured/item-${featuredItemId}.png` }
       : { ...item, Featured: false });
@@ -248,6 +251,7 @@ function publicItem(item, request) {
     AuthorId: rawInteger(item.AuthorId),
     AuthorName: String(item.AuthorName || ""),
     CreatorNames: creators.creatorNames(item),
+    CampaignMemberships: item.CampaignMemberships || [],
     PreviewUri: previewUri,
     PayloadUri: payloadUri,
     Description: String(item.Description || ""),

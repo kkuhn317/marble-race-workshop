@@ -183,6 +183,13 @@ footer a { color: var(--blue); font-weight: 700; }
 .dialog-body h2 { margin: 0 0 .25rem; color: var(--blue-dark); font-size: clamp(1.6rem, 5vw, 2.35rem); line-height: 1.08; letter-spacing: -.04em; }
 .dialog-author { color: var(--muted); }
 .dialog-description { margin: 1.25rem 0; color: #46517c; white-space: pre-wrap; }
+.campaign-memberships { margin:1.25rem 0; padding:.9rem; background:#eef8ff; border:1px solid #bcd9ed; border-radius:9px; }
+.campaign-memberships h3 { margin:0 0 .6rem; color:var(--blue-dark); font-size:.95rem; }
+.campaign-memberships ul { margin:0; padding-left:1.2rem; }
+.campaign-memberships li + li { margin-top:.7rem; }
+.campaign-memberships a { color:var(--blue); font-weight:750; }
+.campaign-memberships span { color:var(--muted); font-size:.75rem; }
+.campaign-memberships small { display:block; margin-top:.2rem; color:var(--muted); }
 .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-bottom: 1.4rem; }
 .details-grid div { padding: .75rem; background: #f1f5fd; border: 1px solid #d9e2f4; border-radius: 9px; }
 .details-grid small, .details-grid strong { display: block; }
