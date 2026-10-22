@@ -49,6 +49,23 @@ function buildCampaignMemberships(items, records, approvedLinks = []) {
   return links.sort((a, b) => a.LevelId - b.LevelId || a.CampaignId - b.CampaignId);
 }
 
+function mergeCampaignMemberships(items, existingLinks, newLinks, excludedPairs = []) {
+  const byId = new Map(items.map((item) => [Number(item.Id), item]));
+  const key = (link) => `${Number(link.LevelId)}:${Number(link.CampaignId)}`;
+  const excluded = new Set(excludedPairs.map(key));
+  const merged = new Map();
+  // Preserve existing decisions first. A missing or interrupted scan must not
+  // erase established links; changed payloads still need fresh evidence.
+  for (const link of [...existingLinks, ...newLinks]) {
+    const level = byId.get(Number(link.LevelId));
+    const campaign = byId.get(Number(link.CampaignId));
+    if (excluded.has(key(link)) || merged.has(key(link)) || level?.ResourceType !== 0 || campaign?.ResourceType !== 2
+      || !payloadMatches(level, link.LevelPayload) || !payloadMatches(campaign, link.CampaignPayload)) continue;
+    merged.set(key(link), link);
+  }
+  return [...merged.values()].sort((a, b) => a.LevelId - b.LevelId || a.CampaignId - b.CampaignId);
+}
+
 function campaignsForLevel(item, items, isHidden = () => false, document = campaignLinks) {
   if (item.ResourceType !== 0 || isHidden(item.Id)) return [];
   const byId = new Map(items.map((candidate) => [Number(candidate.Id), candidate]));
@@ -60,4 +77,4 @@ function campaignsForLevel(item, items, isHidden = () => false, document = campa
   }).map((link) => ({ Id: Number(link.CampaignId), Match: link.Match }));
 }
 
-module.exports = { buildCampaignMemberships, campaignsForLevel };
+module.exports = { buildCampaignMemberships, mergeCampaignMemberships, campaignsForLevel };

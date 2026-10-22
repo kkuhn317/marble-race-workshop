@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { buildCampaignMemberships, campaignsForLevel } = require("../campaign-membership.cjs");
+const { buildCampaignMemberships, mergeCampaignMemberships, campaignsForLevel } = require("../campaign-membership.cjs");
 
 const level = { Id: 1, ResourceType: 0, PayloadUri: "https://example.test/level.zip", PayloadLength: 100 };
 const campaign = { Id: 2, ResourceType: 2, PayloadUri: "https://example.test/campaign.zip", PayloadLength: 200 };
@@ -50,6 +50,27 @@ test("approved alternate versions survive rescans but expire when an upload chan
   const exact = buildCampaignMemberships([level, campaign], [record(level, [component("level.json")]), record(campaign, [component("Track/level.json")])], [approval]);
   assert.equal(exact.length, 1);
   assert.equal(exact[0].Match, "content");
+});
+
+test("incremental refresh preserves established links without cached evidence and respects exclusions", () => {
+  const links = buildCampaignMemberships([level, campaign], [record(level, [component("level.json")]), record(campaign, [component("Track/level.json")])]);
+  assert.deepEqual(mergeCampaignMemberships([level, campaign], links, []), links);
+  const approved = { ...links[0], Match: "variant" };
+  assert.deepEqual(mergeCampaignMemberships([level, campaign], [approved], links), [approved]);
+  assert.deepEqual(mergeCampaignMemberships([level, campaign], links, links, [{ LevelId: 1, CampaignId: 2 }]), []);
+  const another = { ...campaign, Id: 3 };
+  const newLink = { ...links[0], CampaignId: 3 };
+  assert.equal(mergeCampaignMemberships([level, campaign, another], links, [newLink]).length, 2);
+});
+
+test("campaign refresh scans only missing or changed level and campaign archives", async () => {
+  const { pendingCampaignItems } = await import("../scan-new-campaign-links.mjs");
+  const cached = record(level, [component("level.json")]);
+  assert.deepEqual(pendingCampaignItems([level], [cached]), []);
+  assert.deepEqual(pendingCampaignItems([level, campaign], [cached]), [campaign]);
+  const changed = { ...level, PayloadUri: "https://example.test/level-v2.zip" };
+  assert.deepEqual(pendingCampaignItems([changed], [cached]), [changed]);
+  assert.deepEqual(pendingCampaignItems([{ ...level, ResourceType: 1 }], []), []);
 });
 
 test("both public API endpoints expose campaign matches and respect moderation", async () => {

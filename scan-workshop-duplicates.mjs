@@ -389,7 +389,7 @@ async function main() {
   console.log(`${matches.length} potential duplicate group(s) found; ${report.Stats.HighConfidenceGroups} are high confidence.`);
 }
 
-async function fingerprintItem(item) {
+export async function fingerprintItem(item) {
   const workingRoot = join(tmpdir(), `marble-duplicate-${item.Id}-${randomUUID()}`);
   const zipPath = join(workingRoot, "payload.zip");
   const extractedRoot = join(workingRoot, "json");

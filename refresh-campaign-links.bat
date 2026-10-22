@@ -1,8 +1,8 @@
 @echo off
 cd /d "%~dp0"
-echo Scanning all workshop items, including custom uploads, for campaign matches.
-echo Completed fingerprints are reused. New or changed archives will be downloaded.
-node scan-workshop-duplicates.mjs --include-custom
+echo Checking for new or changed workshop items, including custom uploads.
+echo Existing campaign links and review choices will be preserved.
+node scan-new-campaign-links.mjs
 if errorlevel 1 goto failed
 echo.
 echo Refresh Workshop Manager and click Publish changes to publish the campaign links.

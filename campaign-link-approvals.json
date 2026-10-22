@@ -1,5 +1,16 @@
 {
   "SchemaVersion": 1,
+  "ExcludedPairs": [
+    { "LevelId": 835, "CampaignId": 1298 },
+    { "LevelId": 764, "CampaignId": 726 },
+    { "LevelId": 732, "CampaignId": 882 },
+    { "LevelId": 764, "CampaignId": 882 },
+    { "LevelId": 810, "CampaignId": 882 },
+    { "LevelId": 743, "CampaignId": 882 },
+    { "LevelId": 809, "CampaignId": 1298 },
+    { "LevelId": 761, "CampaignId": 1298 },
+    { "LevelId": 1036, "CampaignId": 1298 }
+  ],
   "Links": [
     {
       "LevelId": 701,
