@@ -21858,6 +21858,42 @@ export const items = [
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10043,
+        "Name":  "Windows Cradle",
+        "ResourceType":  0,
+        "TimeStamp":  1792950709,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT, hyprcube",
+        "PreviewUri":  "/previews/windows-cradle.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/windows-cradle-1792950709.zip",
+        "Description":  "Arctic Area has finally been dethroned after 7 years... by a Microsoft level. OG Sound: U.N. - Owen Was Her",
+        "PayloadLength":  4755406,
+        "Version":  "1.5.3",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
+    },
+    {
+        "Id":  10044,
+        "Name":  "Braycoes Oblivion",
+        "ResourceType":  0,
+        "TimeStamp":  1792950725,
+        "AuthorId":  0,
+        "AuthorName":  "BraycoeYT",
+        "PreviewUri":  "/previews/braycoes-oblivion.jpg",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/braycoes-oblivion-1792950725.zip",
+        "Description":  "Just survive... welcome to my super challenge! Music: Guardian of the Former Seas by DM Dokoro. The level is possible. I spent a long time checking it.",
+        "PayloadLength":  3952165,
+        "Version":  "1.5.3",
+        "Tags":  [
+                     "level"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ];
 
