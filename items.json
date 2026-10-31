@@ -21894,5 +21894,23 @@
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10045,
+        "Name":  "Arch\u0027s Campaign v1",
+        "ResourceType":  2,
+        "TimeStamp":  1793468450,
+        "AuthorId":  0,
+        "AuthorName":  "Archie9005",
+        "PreviewUri":  "/previews/arch-s-campaign-v1.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/arch-s-campaign-v1-1793468450.zip",
+        "Description":  "Campaign of my early creations, possible that they are experimental.",
+        "PayloadLength":  40668482,
+        "Version":  "1.4.17",
+        "Tags":  [
+                     "campaign"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ]
