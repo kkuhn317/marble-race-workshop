@@ -2,13 +2,13 @@ $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.Windows.Forms
 
 function Invoke-RepoGit {
-    param([string[]]$Arguments)
+    param([string[]]$Arguments, [string]$RepoRoot = $PSScriptRoot)
 
-    $safeRepoRoot = $PSScriptRoot.Replace("\", "/")
+    $safeRepoRoot = $RepoRoot.Replace("\", "/")
     $previousErrorActionPreference = $ErrorActionPreference
     try {
         $ErrorActionPreference = "Continue"
-        $result = & git -c "safe.directory=$safeRepoRoot" -C $PSScriptRoot @Arguments 2>&1
+        $result = & git -c "safe.directory=$safeRepoRoot" -C $RepoRoot @Arguments 2>&1
         $exitCode = $LASTEXITCODE
     }
     finally {
@@ -18,6 +18,18 @@ function Invoke-RepoGit {
         throw "git $($Arguments -join ' ') failed:`n$($result -join [Environment]::NewLine)"
     }
     return $result
+}
+
+function Get-PendingWorkshopChanges {
+    param([string[]]$Paths, [string]$RepoRoot = $PSScriptRoot)
+
+    # Compare actual content rather than relying on status/stat metadata.
+    # CRLF normalization or stale index metadata can otherwise report a clean
+    # generated catalog as modified and prevent a new batch from starting.
+    $tracked = @(Invoke-RepoGit -Arguments (@("-c", "core.safecrlf=false", "diff", "--name-only", "--") + $Paths) -RepoRoot $RepoRoot)
+    $staged = @(Invoke-RepoGit -Arguments (@("-c", "core.safecrlf=false", "diff", "--cached", "--name-only", "--") + $Paths) -RepoRoot $RepoRoot)
+    $untracked = @(Invoke-RepoGit -Arguments (@("ls-files", "--others", "--exclude-standard", "--") + $Paths) -RepoRoot $RepoRoot)
+    return @(($tracked + $staged + $untracked) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Sort-Object -Unique)
 }
 
 function Wait-ForBatchDeployment {
@@ -148,9 +160,9 @@ try {
             "cloudflare/metadata-overrides.mjs",
             "public/previews"
         )
-        $existingChanges = @(Invoke-RepoGit (@("status", "--porcelain", "--") + $managedPaths))
+        $existingChanges = @(Get-PendingWorkshopChanges -Paths $managedPaths)
         if ($existingChanges.Count -gt 0) {
-            throw "The workshop has uncommitted catalog or preview changes. Finish or discard those changes before starting a multi-item batch."
+            throw "The workshop has uncommitted catalog or preview changes: $($existingChanges -join ', '). Finish or discard those changes before starting a multi-item batch."
         }
 
         $batchManifest = Join-Path ([IO.Path]::GetTempPath()) ("marble-workshop-batch-" + [guid]::NewGuid().ToString("N") + ".jsonl")
