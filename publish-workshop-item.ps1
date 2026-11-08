@@ -55,6 +55,40 @@ function ConvertTo-Slug {
     return $slug
 }
 
+function Resolve-PublishItemId {
+    param(
+        [object[]]$Items,
+        [Int64]$UpdateItemId = 0,
+        [Int64]$CustomIdFloor = 10001
+    )
+
+    if ($UpdateItemId -gt 0) {
+        $selected = @($Items | Where-Object { [int64]$_.Id -eq $UpdateItemId })
+        if ($selected.Count -ne 1) { throw "Workshop item ID $UpdateItemId does not exist or is not unique." }
+        return $UpdateItemId
+    }
+
+    # Names are display metadata, not item identities. Publishing a new item
+    # must never select an existing item just because its name matches.
+    $usedCustomIds = @($Items | Where-Object {
+        [string](Get-ObjectProperty $_ "MirrorSource" "") -ne "official-main" -and
+        [int64]$_.Id -ge $CustomIdFloor
+    } | ForEach-Object { [int64]$_.Id })
+    $itemId = if ($usedCustomIds.Count -eq 0) { $CustomIdFloor } else { [int64](($usedCustomIds | Measure-Object -Maximum).Maximum + 1) }
+    $allUsedIds = @($Items | ForEach-Object { [int64]$_.Id })
+    while ($allUsedIds -contains $itemId) { $itemId++ }
+    return $itemId
+}
+
+function Get-PublishFileNames {
+    param([string]$Name, [Int64]$ItemId, [Int64]$Timestamp, [string]$PreviewExtension)
+    $slug = ConvertTo-Slug $Name
+    return [pscustomobject]@{
+        Preview = "${slug}-${ItemId}${PreviewExtension}"
+        Payload = "${slug}-${ItemId}-${Timestamp}.zip"
+    }
+}
+
 function Resolve-ContentRoot {
     param([string]$ExtractedPath)
 
@@ -577,32 +611,19 @@ try {
         return
     }
 
-    $matching = @($items | Where-Object { $_.Name -ieq $displayName })
+    $itemId = Resolve-PublishItemId -Items $items -UpdateItemId $UpdateItemId -CustomIdFloor $customIdFloor
     if ($null -ne $existingItem) {
-        $itemId = [int64]$existingItem.Id
         Write-Host "Updating selected workshop item ID $itemId."
     }
-    elseif ($matching.Count -gt 1) { throw "More than one existing item is named '$displayName'." }
-    elseif ($matching.Count -eq 1) {
-        $itemId = [int64]$matching[0].Id
-        Write-Host "Updating existing workshop item ID $itemId."
-    }
     else {
-        $usedCustomIds = @($items | Where-Object {
-            [string](Get-ObjectProperty $_ "MirrorSource" "") -ne "official-main" -and
-            [int64]$_.Id -ge $customIdFloor
-        } | ForEach-Object { [int64]$_.Id })
-        $itemId = if ($usedCustomIds.Count -eq 0) { $customIdFloor } else { [int64](($usedCustomIds | Measure-Object -Maximum).Maximum + 1) }
-        $allUsedIds = @($items | ForEach-Object { [int64]$_.Id })
-        while ($allUsedIds -contains $itemId) { $itemId++ }
         Write-Host "Assigned new workshop item ID $itemId."
     }
 
     $timestamp = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-    $slug = ConvertTo-Slug $displayName
     $previewExtension = [IO.Path]::GetExtension($previewSource).ToLowerInvariant()
     if ($previewExtension -eq ".jpeg") { $previewExtension = ".jpg" }
-    $previewFileName = "$slug$previewExtension"
+    $fileNames = Get-PublishFileNames -Name $displayName -ItemId $itemId -Timestamp $timestamp -PreviewExtension $previewExtension
+    $previewFileName = $fileNames.Preview
     $previewRelative = if ($null -ne $existingItem -and
         [string]::IsNullOrWhiteSpace($PreviewPath) -and
         ([string](Get-ObjectProperty $existingItem "PreviewUri" "")).StartsWith("/previews/", [StringComparison]::OrdinalIgnoreCase)) {
@@ -613,7 +634,7 @@ try {
     $previewTarget = Join-Path $script:RepoRoot $previewRelative
     $previewInfo = Get-Item -LiteralPath $previewSource
     if ($previewInfo.Length -gt $staticAssetLimit) { throw "Preview exceeds Cloudflare's 25 MiB static asset limit." }
-    $payloadFileName = "$slug-$timestamp.zip"
+    $payloadFileName = $fileNames.Payload
     $payloadKey = "payloads/$payloadFileName"
     $payloadUri = $R2PublicBaseUrl.TrimEnd("/") + "/" + $payloadKey
 
