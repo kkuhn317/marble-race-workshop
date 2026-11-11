@@ -38,6 +38,8 @@ test("publisher allocates new IDs for duplicate titles and updates only an expli
     if ($first.Preview -eq $second.Preview -or $first.Payload -eq $second.Payload) { throw "Same-title items overwrite each other's files" }
     $collision = Get-PublishFileNames -Name "Test!" -ItemId $nextId -Timestamp 1234567890 -PreviewExtension ".jpg"
     if ($first.Preview -eq $collision.Preview -or $first.Payload -eq $collision.Payload) { throw "Slug collisions overwrite another item's files" }
+    $later = Get-PublishFileNames -Name "test" -ItemId $newId -Timestamp 1234567891 -PreviewExtension ".jpg"
+    if ($first.Preview -eq $later.Preview) { throw "An updated preview reused its old URL" }
     "publisher identity checks passed"
   `;
   const output = execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", script], { encoding: "utf8" });

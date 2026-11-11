@@ -9,6 +9,7 @@ param(
     [string]$Version,
     [string]$Tags,
     [string]$PreviewPath,
+    [switch]$KeepPreview,
     [string]$ServerBaseUrl = "https://marble.kevin-kuhn.dev/api",
     [string]$R2Bucket = "marble-race-workshop-content",
     [string]$R2PublicBaseUrl = "https://content.marble.kevin-kuhn.dev",
@@ -27,6 +28,8 @@ $ErrorActionPreference = "Stop"
 if ($DeferCommit -and [string]::IsNullOrWhiteSpace($BatchManifestPath)) {
     throw "BatchManifestPath is required when DeferCommit is used."
 }
+if ($KeepPreview -and $UpdateItemId -le 0) { throw "KeepPreview requires an existing UpdateItemId." }
+if ($KeepPreview -and -not [string]::IsNullOrWhiteSpace($PreviewPath)) { throw "Choose either KeepPreview or PreviewPath, not both." }
 
 $script:RepoRoot = $PSScriptRoot
 $staticAssetLimit = 25MB
@@ -84,7 +87,7 @@ function Get-PublishFileNames {
     param([string]$Name, [Int64]$ItemId, [Int64]$Timestamp, [string]$PreviewExtension)
     $slug = ConvertTo-Slug $Name
     return [pscustomobject]@{
-        Preview = "${slug}-${ItemId}${PreviewExtension}"
+        Preview = "${slug}-${ItemId}-${Timestamp}${PreviewExtension}"
         Payload = "${slug}-${ItemId}-${Timestamp}.zip"
     }
 }
@@ -370,6 +373,27 @@ function Find-PreviewFile {
     throw "No preview image was found. Pass -PreviewPath with a PNG or JPEG file."
 }
 
+function Resolve-PublishPreview {
+    param(
+        [string]$ContentRoot,
+        [object]$Metadata,
+        [string]$ExplicitPreview,
+        [int]$ResourceType,
+        [string]$GeneratedPreviewPath,
+        [string]$ExistingPreviewPath,
+        [switch]$KeepCurrent
+    )
+
+    if ($KeepCurrent) {
+        if (-not [string]::IsNullOrWhiteSpace($ExplicitPreview)) { throw "Choose either the current preview or a replacement preview, not both." }
+        if ([string]::IsNullOrWhiteSpace($ExistingPreviewPath) -or -not (Test-Path -LiteralPath $ExistingPreviewPath -PathType Leaf)) {
+            throw "The current preview is not available locally. Use the archive preview or provide a PNG/JPEG path."
+        }
+        return (Resolve-Path -LiteralPath $ExistingPreviewPath).Path
+    }
+    return Find-PreviewFile $ContentRoot $Metadata $ExplicitPreview $ResourceType $GeneratedPreviewPath
+}
+
 function Sync-CloudflareCatalog {
     param([string]$ItemsJson)
 
@@ -567,20 +591,22 @@ try {
     if ([string]::IsNullOrWhiteSpace($itemVersion)) { $itemVersion = "0.0" }
 
     $effectivePreviewPath = $PreviewPath
-    if ($null -ne $existingItem -and -not $NonInteractive -and [string]::IsNullOrWhiteSpace($effectivePreviewPath)) {
-        $previewAnswer = Read-Host "New preview PNG/JPEG path (Enter keeps current preview)"
-        if (-not [string]::IsNullOrWhiteSpace($previewAnswer)) { $effectivePreviewPath = $previewAnswer.Trim().Trim('"') }
+    $keepCurrentPreview = [bool]$KeepPreview
+    if ($null -ne $existingItem -and -not $NonInteractive -and -not $keepCurrentPreview -and [string]::IsNullOrWhiteSpace($effectivePreviewPath)) {
+        $previewAnswer = (Read-Host "Preview PNG/JPEG override (Enter uses new archive; type <keep> to keep current preview)").Trim().Trim('"')
+        if ($previewAnswer -ieq "<keep>") { $keepCurrentPreview = $true }
+        elseif (-not [string]::IsNullOrWhiteSpace($previewAnswer)) { $effectivePreviewPath = $previewAnswer }
     }
-    if ($null -ne $existingItem -and [string]::IsNullOrWhiteSpace($effectivePreviewPath)) {
+    $existingPreviewPath = ""
+    if ($null -ne $existingItem) {
         $existingPreviewUri = [string](Get-ObjectProperty $existingItem "PreviewUri" "")
         if ($existingPreviewUri.StartsWith("/previews/", [StringComparison]::OrdinalIgnoreCase)) {
             $existingPreviewRelative = $existingPreviewUri.TrimStart("/").Replace("/", [IO.Path]::DirectorySeparatorChar)
             $existingPreviewPath = Join-Path (Join-Path $script:RepoRoot "public") $existingPreviewRelative
-            if (Test-Path -LiteralPath $existingPreviewPath -PathType Leaf) { $effectivePreviewPath = $existingPreviewPath }
         }
     }
     $generatedPreview = Join-Path $tempRoot "campaign-preview.jpg"
-    $previewSource = Find-PreviewFile $detected.Root $metadata $effectivePreviewPath $detected.ResourceType $generatedPreview
+    $previewSource = Resolve-PublishPreview -ContentRoot $detected.Root -Metadata $metadata -ExplicitPreview $effectivePreviewPath -ResourceType $detected.ResourceType -GeneratedPreviewPath $generatedPreview -ExistingPreviewPath $existingPreviewPath -KeepCurrent:$keepCurrentPreview
     if ([IO.Path]::GetExtension($previewSource).ToLowerInvariant() -notin @(".png", ".jpg", ".jpeg")) {
         throw "Preview must be a PNG or JPEG image."
     }
@@ -624,8 +650,7 @@ try {
     if ($previewExtension -eq ".jpeg") { $previewExtension = ".jpg" }
     $fileNames = Get-PublishFileNames -Name $displayName -ItemId $itemId -Timestamp $timestamp -PreviewExtension $previewExtension
     $previewFileName = $fileNames.Preview
-    $previewRelative = if ($null -ne $existingItem -and
-        [string]::IsNullOrWhiteSpace($PreviewPath) -and
+    $previewRelative = if ($null -ne $existingItem -and $keepCurrentPreview -and
         ([string](Get-ObjectProperty $existingItem "PreviewUri" "")).StartsWith("/previews/", [StringComparison]::OrdinalIgnoreCase)) {
         "public/" + ([string]$existingItem.PreviewUri).TrimStart("/")
     } else {
