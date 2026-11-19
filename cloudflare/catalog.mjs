@@ -21948,6 +21948,24 @@ export const items = [
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10048,
+        "Name":  "Lol Pack",
+        "ResourceType":  2,
+        "TimeStamp":  1795124393,
+        "AuthorId":  0,
+        "AuthorName":  "kotiynet VLOG",
+        "PreviewUri":  "/previews/lol-pack-10048-1795124393.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/lol-pack-10048-1795124393.zip",
+        "Description":  "",
+        "PayloadLength":  54807354,
+        "Version":  "1.4.17",
+        "Tags":  [
+                     "campaign"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ];
 
