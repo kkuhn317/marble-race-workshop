@@ -127,6 +127,7 @@ main { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
 .item-card {
   position: relative;
   min-width: 0;
+  cursor: pointer;
   overflow: hidden;
   background: var(--panel);
   border: 1px solid var(--line);

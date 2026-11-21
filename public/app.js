@@ -178,6 +178,10 @@ function createItemCard(item) {
   previewButton.type = "button";
   previewButton.setAttribute("aria-label", `View ${item.Name}, workshop ID ${item.Id}`);
   previewButton.addEventListener("click", () => openDialog(item, true));
+  article.addEventListener("click", (event) => {
+    if (event.defaultPrevented || event.target.closest("a, button")) return;
+    openDialog(item, true);
+  });
   const image = document.createElement("img");
   image.src = item.PreviewUri; image.alt = ""; image.loading = "lazy"; image.decoding = "async";
   image.addEventListener("error", () => image.replaceWith(create("span", "preview-fallback", item.Name.slice(0, 1).toLocaleUpperCase())), { once: true });
