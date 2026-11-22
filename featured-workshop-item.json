@@ -1,6 +1,6 @@
 {
   "SchemaVersion": 2,
-  "ItemId": 1268,
+  "ItemId": 702,
   "History": [
     {
       "ItemId": 10002,
@@ -41,6 +41,10 @@
     {
       "ItemId": 1268,
       "FeaturedAt": "2026-11-15T16:29:28.388Z"
+    },
+    {
+      "ItemId": 702,
+      "FeaturedAt": "2026-11-22T17:49:14.078Z"
     }
   ]
 }
