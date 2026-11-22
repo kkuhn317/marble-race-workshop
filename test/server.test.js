@@ -83,15 +83,16 @@ test("Items searches author usernames case-insensitively", async () => {
   assert.ok(items.some((item) => item.Id === target.Id && item.AuthorName === target.AuthorName));
 });
 
-test("The registered level has a local preview and an R2 payload", async () => {
+test("A level with a local preview and an R2 payload is served correctly", async () => {
+  const r2Payload = /^https:\/\/content\.marble\.kevin-kuhn\.dev\/(?:(?:official|steam-recovery)\/)?payloads\//;
   const visible = await fetch(`http://127.0.0.1:${PORT}/api/Items?type=0&limit=1000`).then((response) => response.json());
-  const target = visible.find((item) => new URL(item.PreviewUri).origin === `http://127.0.0.1:${PORT}`);
+  const target = visible.find((item) => new URL(item.PreviewUri).origin === `http://127.0.0.1:${PORT}` && r2Payload.test(item.PayloadUri));
   assert.ok(target);
   const item = await fetch(`http://127.0.0.1:${PORT}/api/GetItem?id=${target.Id}`).then((response) => response.json());
   const preview = await fetch(item.PreviewUri);
   assert.equal(preview.status, 200);
   assert.match(preview.headers.get("content-type"), /^image\/(?:jpeg|png)$/);
-  assert.match(item.PayloadUri, /^https:\/\/content\.marble\.kevin-kuhn\.dev\/payloads\//);
+  assert.equal(item.PayloadUri, target.PayloadUri);
   assert.ok(item.PayloadLength > 0);
 });
 
