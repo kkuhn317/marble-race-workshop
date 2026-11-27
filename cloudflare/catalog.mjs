@@ -22074,6 +22074,24 @@ export const items = [
                  ],
         "Downloads":  0,
         "Rating":  0
+    },
+    {
+        "Id":  10055,
+        "Name":  "SAGYT\u0027s Collection",
+        "ResourceType":  2,
+        "TimeStamp":  1795808012,
+        "AuthorId":  0,
+        "AuthorName":  "SAGYT",
+        "PreviewUri":  "/previews/sagyt-s-collection-10055-1795808012.png",
+        "PayloadUri":  "https://content.marble.kevin-kuhn.dev/payloads/sagyt-s-collection-10055-1795808012.zip",
+        "Description":  "The Collection of my all old levels that i had first time made and when i was new to steam version of Marble Race. Enjoy My Levels! :)",
+        "PayloadLength":  17148072,
+        "Version":  "1.5.3",
+        "Tags":  [
+                     "campaign"
+                 ],
+        "Downloads":  0,
+        "Rating":  0
     }
 ];
 
