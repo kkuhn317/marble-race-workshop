@@ -341,6 +341,30 @@ export const metadataOverrides = new Map([
     {
       "TimeStamp": 1597204800
     }
+  ],
+  [
+    10050,
+    {
+      "AuthorName": "SAGYT"
+    }
+  ],
+  [
+    10052,
+    {
+      "AuthorName": "SAGYT"
+    }
+  ],
+  [
+    10053,
+    {
+      "AuthorName": "SAGYT"
+    }
+  ],
+  [
+    10054,
+    {
+      "AuthorName": "SAGYT"
+    }
   ]
 ]);
 
